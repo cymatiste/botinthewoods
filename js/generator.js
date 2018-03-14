@@ -7,9 +7,14 @@ var scene,
     renderer,
     controls;
 
+
+var 
+
+
 scene = new THREE.Scene();
 
-camera = new THREE.PerspectiveCamera( 10, window.innerWidth / window.innerHeight, 1, 1000 );
+
+camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
 camera.position.set(-5, 12, 10);
 camera.lookAt( scene.position );
 
@@ -41,17 +46,9 @@ controls.dynamicDampingFactor = 0.2;
 // Lighting
 /////////////////////////////////////////
 
-var iphone_color  = '#FAFAFA',
-    ambientLight  = new THREE.AmbientLight( '#EEEEEE' ),
-    hemiLight     = new THREE.HemisphereLight( iphone_color, iphone_color, 0 ),
-    light         = new THREE.PointLight( iphone_color, 1, 100 );
-
-hemiLight.position.set( 0, 50, 0 );
-light.position.set( 0, 20, 10 );
+var ambientLight  = new THREE.AmbientLight( '#EEEEEE' );
 
 scene.add( ambientLight );
-scene.add( hemiLight );
-scene.add( light );
 
 
 /////////////////////////////////////////
@@ -64,15 +61,32 @@ scene.add( axisHelper );
 var branches = [];
 var tipPositions = [];
 
-for (var i=0; i<2; i++){
-  var b = buildBranch(5);
-  scene.add(b);
-  branches.push(b);
-  b.matrixAutoUpdate && b.updateMatrix();
-  //console.log(b.tip.position.y);
-}
+//var b = buildBranch(5);
+//scene.add(b);
 
-branches[1].rotation.x = de2ra(180);
+var _data = 
+  [
+    [],
+    [
+      [],
+      [
+        [],
+        [
+          [],
+          [],
+          []
+        ]
+      ],
+      [
+        [],
+        [],
+        [],
+        [],
+        []
+      ]
+    ]
+  ];
+
 
 
 
@@ -81,17 +95,17 @@ function checkDistance(){
   var tipPositions = [];
   for (var i=0; i<branches.length; i++){
 
-    branches[i].matrixAutoUpdate && branches[i].updateMatrix();
-    branches[i].tip.matrixAutoUpdate && branches[i].tip.updateMatrix();
-    
-    var unitVector = new THREE.Vector3();
+  branches[i].matrixAutoUpdate && branches[i].updateMatrix();
+  branches[i].tip.matrixAutoUpdate && branches[i].tip.updateMatrix();
+  
+  var unitVector = new THREE.Vector3();
 
-    console.log(branches[i].tip);
-    console.log(branches[i].tip.matrixWorld);
-    var tipPos = unitVector.setFromMatrixPosition( branches[i].tip.matrixWorld );
-    console.log(tipPos);
+  console.log(branches[i].tip);
+  console.log(branches[i].tip.matrixWorld);
+  var tipPos = unitVector.setFromMatrixPosition( branches[i].tip.matrixWorld );
+  console.log(tipPos);
 
-    tipPositions.push(tipPos);
+  tipPositions.push(tipPos);
 }
 
 console.log("distance between 0 and 1 is "+tipPositions[0].distanceTo(tipPositions[1]));
@@ -108,7 +122,7 @@ function de2ra(degree){
 }
 
 function buildBranch(length){
-    var cylGeom = new THREE.CylinderGeometry( length/50, length/25, length, 8 );
+    var cylGeom = new THREE.CylinderGeometry( length/40, length/20, length, 8 );
     var sphGeom = new THREE.SphereGeometry(length/25, 8, 8);
 
 
@@ -148,6 +162,7 @@ function buildBranch(length){
     branch.add( cylinder );
     branch.add(tip);
     branch.tip = tip;
+    branch.length = length;
 
     return( branch );
 }
@@ -161,9 +176,29 @@ function spreadBranches(){
 */
 }
 
-function buildTree(depth){
+function buildTree(treeData,branchLength){
 
+  var depth = depth || 0;
+
+  console.log("building tree with "+treeData.length+" branches.");
+
+  var fanAmt = 120;
+
+  var root = buildBranch(branchLength);
+
+  for(var i=0; i<treeData.length; i++){
+    var newBranch = buildTree(treeData[i],branchLength*0.9);
+    newBranch.rotation.x = root.rotation.x + (Math.random()*de2ra(fanAmt)) - de2ra(fanAmt/2);
+    newBranch.rotation.z = root.rotation.z + (Math.random()*de2ra(fanAmt)) - de2ra(fanAmt/2);
+
+    root.tip.add(newBranch);
+  }
+
+  return root;
+  
 }
+
+scene.add(buildTree(_data,5));
 
 
 
@@ -171,20 +206,21 @@ function buildTree(depth){
 // Render Loop
 /////////////////////////////////////////
 
-function renderPhone() {
+function renderScene() {
   renderer.render( scene, camera );
 }
 
 // Render the scene when the controls have changed.
 // If you don’t have other animations or changes in your scene,
 // you won’t be draining system resources every frame to render a scene.
-controls.addEventListener( 'change', renderPhone );
+controls.addEventListener( 'change', renderScene );
 
 // Avoid constantly rendering the scene by only 
 // updating the controls every requestAnimationFrame
 function animationLoop() {
   requestAnimationFrame(animationLoop);
   controls.update();
+  renderScene();
   //checkDistance();
   //spreadBranches();
 }
@@ -201,7 +237,7 @@ window.addEventListener( 'resize', function () {
   camera.updateProjectionMatrix();
   renderer.setSize( window.innerWidth, window.innerHeight );
     controls.handleResize();
-    renderPhone();
+    renderScene();
 }, false );
 
 
