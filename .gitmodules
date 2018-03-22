@@ -1,0 +1,3 @@
+[submodule "chromeless"]
+	path = chromeless
+	url = https://github.com/graphcool/chromeless.git

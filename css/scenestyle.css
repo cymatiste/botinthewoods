@@ -1,6 +1,18 @@
 
 
 html {
-    background: #4c4b4b;
+    background: linear-gradient(to bottom, white, whitesmoke);
+}
+
+#instructions{
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    margin-left: -25%;
+    text-align: center;
+    width: 50%;
+    font-family: arial, helvetica, sans serif;
+    font-size: 1.3em;
+    color: darkgray;
 }
 

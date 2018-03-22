@@ -51,7 +51,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 	_movePrev = new THREE.Vector2(),
 	_moveCurr = new THREE.Vector2(),
 
-	_lastAxis = new THREE.Vector3(),
+	_lastAxis = new THREE.Vector3(0,1,0),
 	_lastAngle = 0,
 
 	_zoomStart = new THREE.Vector2(),
@@ -147,17 +147,23 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	this.rotateCamera = ( function() {
 
-		var axis = new THREE.Vector3(),
+		var axis = new THREE.Vector3(0,1,0),
 			quaternion = new THREE.Quaternion(),
 			eyeDirection = new THREE.Vector3(),
 			objectUpDirection = new THREE.Vector3(),
 			objectSidewaysDirection = new THREE.Vector3(),
-			moveDirection = new THREE.Vector3(),
+			moveDirection = new THREE.Vector3(0,1,0),
 			angle;
+
+		axis.x = axis.z = 0;
+		axis.normalize();
 
 		return function rotateCamera() {
 
-			moveDirection.set( _moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0 );
+
+			//moveDirection.set( _moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0 );
+			// I, Sarah, modified this to restrict rotation to around y axis only!
+			moveDirection.set( _moveCurr.x - _movePrev.x, 0, 0 );
 			angle = moveDirection.length();
 
 			if ( angle ) {
@@ -168,7 +174,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 				objectUpDirection.copy( _this.object.up ).normalize();
 				objectSidewaysDirection.crossVectors( objectUpDirection, eyeDirection ).normalize();
 
-				objectUpDirection.setLength( _moveCurr.y - _movePrev.y );
+				//objectUpDirection.setLength( _moveCurr.y - _movePrev.y );
+				// I, Sarah, modified this to restrict rotation to around y axis only!
+				objectUpDirection.setLength(0);
 				objectSidewaysDirection.setLength( _moveCurr.x - _movePrev.x );
 
 				moveDirection.copy( objectUpDirection.add( objectSidewaysDirection ) );

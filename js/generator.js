@@ -8,15 +8,25 @@ var scene,
     controls;
 
 
-var 
-
+var _data = randomTreeData();
+while(_data.length == 0){
+  _data = randomTreeData();
+}
+console.log("DEPTH "+depthOfArray(_data));
 
 scene = new THREE.Scene();
 
 
 camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
-camera.position.set(-5, 12, 10);
-camera.lookAt( scene.position );
+camera.position.x = 0;
+camera.position.y = 0;
+camera.position.z = -60;
+
+var aLittleHigherPos = scene.position;
+aLittleHigherPos.y -= 12;
+camera.lookAt( aLittleHigherPos );
+
+
 
 renderer = new THREE.WebGLRenderer({
   alpha: true,
@@ -33,13 +43,13 @@ document.body.appendChild( renderer.domElement );
 /////////////////////////////////////////
 
 controls = new THREE.TrackballControls( camera );
-controls.rotateSpeed = 5.0;
+controls.rotateSpeed = 2.0;
 controls.zoomSpeed = 3.2;
 controls.panSpeed = 0.8;
 controls.noZoom = false;
 controls.noPan = true;
 controls.staticMoving = false;
-controls.dynamicDampingFactor = 0.2;
+controls.dynamicDampingFactor = 0.05;
 
 
 /////////////////////////////////////////
@@ -64,30 +74,43 @@ var tipPositions = [];
 //var b = buildBranch(5);
 //scene.add(b);
 
-var _data = 
-  [
-    [],
-    [
-      [],
-      [
-        [],
-        [
-          [],
-          [],
-          []
-        ]
-      ],
-      [
-        [],
-        [],
-        [],
-        [],
-        []
-      ]
-    ]
-  ];
+
+function randomTreeData(startingStructure, startingDepth){
+
+  var structure = startingStructure || [];
+  var depth = startingDepth || 0;
+
+  var MAX_BRANCHES_PER_NODE = 9;
+
+  var branchChance = (0.75 - Math.min(0.5,0.04*depth));
+  
+  while(structure.length < MAX_BRANCHES_PER_NODE && Math.random() < branchChance){
+    //console.log("at depth "+depth+", chance "+branchChance+", branches so far: "+structure.length);
+    structure.push(randomTreeData([],depth+1));
+  } 
+
+  return structure;
+}
 
 
+function depthOfArray(arr) {
+  var i;
+  var level = 1;
+  var subdepths = [];
+  for (var i=0; i<arr.length; i++){
+    subdepths.push(depthOfArray(arr[i]));
+  }
+
+  var deepest = 0;
+  for (var i=0; i<subdepths.length; i++){
+    if (subdepths[i] > deepest){
+      deepest = subdepths[i];
+    }
+  }
+  level += deepest;
+
+  return level;
+}
 
 
 function checkDistance(){
@@ -95,21 +118,18 @@ function checkDistance(){
   var tipPositions = [];
   for (var i=0; i<branches.length; i++){
 
-  branches[i].matrixAutoUpdate && branches[i].updateMatrix();
-  branches[i].tip.matrixAutoUpdate && branches[i].tip.updateMatrix();
-  
-  var unitVector = new THREE.Vector3();
+    //branches[i].matrixAutoUpdate && branches[i].updateMatrix();
+    //branches[i].tip.matrixAutoUpdate && branches[i].tip.updateMatrix();
+    
+    var unitVector = new THREE.Vector3();
 
-  console.log(branches[i].tip);
-  console.log(branches[i].tip.matrixWorld);
-  var tipPos = unitVector.setFromMatrixPosition( branches[i].tip.matrixWorld );
-  console.log(tipPos);
+    console.log(branches[i].tip);
+    console.log(branches[i].tip.matrixWorld);
+    var tipPos = unitVector.setFromMatrixPosition( branches[i].tip.matrixWorld );
+    console.log(tipPos);
 
-  tipPositions.push(tipPos);
-}
-
-console.log("distance between 0 and 1 is "+tipPositions[0].distanceTo(tipPositions[1]));
-
+    tipPositions.push(tipPos);
+  }
 
 }
 
@@ -121,15 +141,17 @@ function de2ra(degree){
   return degree*(Math.PI/180);
 }
 
-function buildBranch(length){
-    var cylGeom = new THREE.CylinderGeometry( length/40, length/20, length, 8 );
+function buildBranch(baseLength){
+    var length = baseLength*(1 + Math.random()*0.4);
+    var cylGeom = new THREE.CylinderGeometry( length/20, length/15, length, 8 );
     var sphGeom = new THREE.SphereGeometry(length/25, 8, 8);
-
+    var hex;
 
     var i;
     for ( i = 0; i < cylGeom.faces.length; i += 2 ) {
 
-      var hex = Math.random() * 0xffffff;
+      //hex = Math.random() * 0xffffff;
+      hex = xstnt.Colors.parseHex(xstnt.Colors.randomGrey());
       cylGeom.faces[ i ].color.setHex( hex );
       cylGeom.faces[ i + 1 ].color.setHex( hex );
 
@@ -137,7 +159,8 @@ function buildBranch(length){
 
     for ( i = 0; i < sphGeom.faces.length; i += 2 ) {
 
-      var hex = Math.random() * 0xffffff;
+      //hex = Math.random() * 0xffffff;
+      hex = xstnt.Colors.parseHex(xstnt.Colors.randomGreen());
       sphGeom.faces[ i ].color.setHex( hex );
       sphGeom.faces[ i + 1 ].color.setHex( hex );
 
@@ -180,14 +203,14 @@ function buildTree(treeData,branchLength){
 
   var depth = depth || 0;
 
-  console.log("building tree with "+treeData.length+" branches.");
+  //console.log("building tree with "+treeData.length+" branches.");
 
-  var fanAmt = 120;
+  var fanAmt = 30 + Math.random()*90;
 
   var root = buildBranch(branchLength);
 
   for(var i=0; i<treeData.length; i++){
-    var newBranch = buildTree(treeData[i],branchLength*0.9);
+    var newBranch = buildTree(treeData[i],branchLength*0.85);
     newBranch.rotation.x = root.rotation.x + (Math.random()*de2ra(fanAmt)) - de2ra(fanAmt/2);
     newBranch.rotation.z = root.rotation.z + (Math.random()*de2ra(fanAmt)) - de2ra(fanAmt/2);
 
@@ -198,7 +221,9 @@ function buildTree(treeData,branchLength){
   
 }
 
-scene.add(buildTree(_data,5));
+var tree = buildTree(_data,5); 
+//tree.position.y = -depthOfArray(_data)*5;
+scene.add(tree);
 
 
 
