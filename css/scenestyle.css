@@ -7,8 +7,7 @@ html {
 #instructions{
     position: absolute;
     bottom: 5%;
-    left: 50%;
-    margin-left: -25%;
+    left: 0%;
     text-align: center;
     width: 50%;
     font-family: arial, helvetica, sans serif;
@@ -16,3 +15,7 @@ html {
     color: darkgray;
 }
 
+#form{
+    display : block;
+    color: black;
+}

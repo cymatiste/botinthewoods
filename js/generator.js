@@ -1,3 +1,55 @@
+  /*
+   I8                                                 
+   I8                                                 
+88888888                                 gg           
+   I8                                    ""           
+   I8    ,gggggg,   ,ggg,    ,ggg,       gg    ,g,    
+   I8    dP""""8I  i8" "8i  i8" "8i      8I   ,8'8,   
+  ,I8,  ,8'    8I  I8, ,8I  I8, ,8I     ,8I  ,8'  Yb  
+ ,d88b,,dP     Y8, `YbadP'  `YbadP'   _,d8I ,8'_   8) 
+ 8P""Y88P      `Y8888P"Y888888P"Y888888P"888P' "YY8P8P
+                                       ,d8I'          
+                                     ,dP'8I           
+                                    ,8"  8I           
+                                    I8   8I           
+                                    `8, ,8I           
+                                     `Y8P"        
+
+I got the starter code for setting up the camera and trackball controls from some tutorial. 
+I've just started learning threejs!
+The stuff that actually creates the tree is all mine, and I've messed with the rest to make it do what I want.
+pretty ascii header in 'nvscript' c/o http://www.kammerl.de/ascii/AsciiSignature.php
+*/
+
+//////////////////////////////////////////////////////////////////
+// Some parameters that can be tweaked from the browser (we hope)
+//////////////////////////////////////////////////////////////////
+
+var MAX_BRANCHES_PER_NODE = 9;
+var BASE_BRANCH_CHANCE = 0.75;
+var CHANCE_DECAY = 0.05;
+var BASE_TREE_COLOR = "default";
+var MAX_DEPTH = 10;
+var ANGLE_MIN = 30;
+var ANGLE_MAX = 120;
+
+
+MAX_BRANCHES_PER_NODE = parseInt(getParameterByName("maxbranches")) || MAX_BRANCHES_PER_NODE;
+BASE_BRANCH_CHANCE = parseFloat(getParameterByName("branchp")) || BASE_BRANCH_CHANCE;
+CHANCE_DECAY = parseFloat(getParameterByName("pdecay")) || CHANCE_DECAY;
+MAX_DEPTH = parseInt(getParameterByName("maxdepth")) || MAX_DEPTH;
+ANGLE_MIN = parseInt(getParameterByName("anglemin")) || ANGLE_MIN;
+ANGLE_MAX = parseInt(getParameterByName("anglemax")) || ANGLE_MAX;
+
+document.getElementById("maxbranchinput").value = MAX_BRANCHES_PER_NODE;
+document.getElementById("branchpinput").value = BASE_BRANCH_CHANCE;
+document.getElementById("pdecayinput").value = CHANCE_DECAY;
+document.getElementById("maxdepthinput").value = MAX_DEPTH;
+document.getElementById("anglemininput").value = ANGLE_MIN;
+document.getElementById("anglemaxinput").value = ANGLE_MAX;
+
+
+
 /////////////////////////////////////////
 // Scene Setup
 /////////////////////////////////////////
@@ -7,15 +59,12 @@ var scene,
     renderer,
     controls;
 
+scene = new THREE.Scene();
 
 var _data = randomTreeData();
 while(_data.length == 0){
   _data = randomTreeData();
 }
-console.log("DEPTH "+depthOfArray(_data));
-
-scene = new THREE.Scene();
-
 
 camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
 camera.position.x = 0;
@@ -44,12 +93,12 @@ document.body.appendChild( renderer.domElement );
 
 controls = new THREE.TrackballControls( camera );
 controls.rotateSpeed = 2.0;
-controls.zoomSpeed = 3.2;
+controls.zoomSpeed = 0.2;
 controls.panSpeed = 0.8;
 controls.noZoom = false;
 controls.noPan = true;
 controls.staticMoving = false;
-controls.dynamicDampingFactor = 0.05;
+controls.dynamicDampingFactor = 0.5;
 
 
 /////////////////////////////////////////
@@ -73,6 +122,20 @@ var tipPositions = [];
 
 //var b = buildBranch(5);
 //scene.add(b);
+//
+
+/**
+ * Thank you to https://stackoverflow.com/users/1045296/jolly-exe for this function
+ */
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 
 function randomTreeData(startingStructure, startingDepth){
@@ -80,14 +143,15 @@ function randomTreeData(startingStructure, startingDepth){
   var structure = startingStructure || [];
   var depth = startingDepth || 0;
 
-  var MAX_BRANCHES_PER_NODE = 9;
-
-  var branchChance = (0.75 - Math.min(0.5,0.04*depth));
+  if(depth < MAX_DEPTH){
+    var branchChance = (BASE_BRANCH_CHANCE - Math.min(BASE_BRANCH_CHANCE,CHANCE_DECAY*depth));
+    //var branchChance = BASE_BRANCH_CHANCE;
   
-  while(structure.length < MAX_BRANCHES_PER_NODE && Math.random() < branchChance){
-    //console.log("at depth "+depth+", chance "+branchChance+", branches so far: "+structure.length);
-    structure.push(randomTreeData([],depth+1));
-  } 
+    while(structure.length < MAX_BRANCHES_PER_NODE && Math.random() < branchChance){
+      //console.log("at depth "+depth+", chance "+branchChance+", branches so far: "+structure.length);
+      structure.push(randomTreeData([],depth+1));
+    } 
+  }
 
   return structure;
 }
@@ -201,11 +265,9 @@ function spreadBranches(){
 
 function buildTree(treeData,branchLength){
 
-  var depth = depth || 0;
-
   //console.log("building tree with "+treeData.length+" branches.");
 
-  var fanAmt = 30 + Math.random()*90;
+  var fanAmt = ANGLE_MIN + Math.random()*(ANGLE_MAX - ANGLE_MIN);
 
   var root = buildBranch(branchLength);
 
@@ -221,10 +283,22 @@ function buildTree(treeData,branchLength){
   
 }
 
-var tree = buildTree(_data,5); 
-//tree.position.y = -depthOfArray(_data)*5;
-scene.add(tree);
 
+function buildScene(){
+  scene.remove(tree);
+  _data = [];
+  _data = randomTreeData();
+while(_data.length == 0){
+  _data = randomTreeData();
+}
+console.log("DEPTH "+depthOfArray(_data));
+
+  var tree = buildTree(_data,5); 
+  //tree.position.y = -depthOfArray(_data)*5;
+  scene.add(tree);
+}
+
+buildScene();
 
 
 /////////////////////////////////////////

@@ -1,6 +1,6 @@
 <html>
-    <head>
-        <title>Experimenting with tree generation in threejs</title>
+  <head>
+    <title>Experimenting in threejs</title>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="css/scenestyle.css">
         <script>var xstnt = xstnt || {};</script>
@@ -10,8 +10,26 @@
         <script type="text/javascript" src="three.js-dev/examples/js/loaders/ColladaLoader.js"></script>
     </head>
     <body>
+    
+    
+      <form name="params">
+        
+        max branches per node: <input name="maxbranches" id="maxbranchinput" type="number" autofocus/><BR>
+        P of spawning a new branch (0-1): <input name="branchp" id="branchpinput" type="text" /><BR>
+        P decay (new branches how much less probable at each node?): <input name="pdecay" id="pdecayinput" type="text"/><BR>
+        max tree depth: <input name="maxdepth" id="maxdepthinput" type="number" /><BR>
+        branch angle range in degrees:<BR>
+        min: <input name="anglemin" id="anglemininput" type="number" /> &nbsp; max: <input name="anglemax" id="anglemaxinput" type="number" /><BR><BR>
+        <button>new tree</button><BR><BR>
+        <i>You'll have to tab / shift-tab through these fields 'cause the tree rotator is stealing clicks off the form, sorry!<BR>
+        Also if your changes make the tree too thick this page will get reeeeeal slow</i> ¯\_(ツ)_/¯
 
-    <div id="instructions">refresh page to generate a new tree, drag to spin it around.</div>
+      </form> 
+      
+      
+      <div id="instructions">drag to spin</div>
+  
+      <script typ="text/javascript" src="js/generator.js"> </script>
     </body>
-    <script typ="text/javascript" src="js/generator.js"> </script>
+    
 </html>
