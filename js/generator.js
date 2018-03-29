@@ -25,10 +25,12 @@ pretty ascii header in 'nvscript' c/o http://www.kammerl.de/ascii/AsciiSignature
 // Some parameters that can be tweaked from the browser (we hope)
 //////////////////////////////////////////////////////////////////
 
+var BRANCH_LENGTH = 5;
+var LENGTH_MULT = 0.85;
 var MAX_BRANCHES_PER_NODE = 9;
 var BASE_BRANCH_CHANCE = 0.75;
 var CHANCE_DECAY = 0.05;
-var BASE_TREE_COLOR = "default";
+var BASE_TREE_COLOR = "silvergreen";
 var MAX_DEPTH = 10;
 var ANGLE_MIN = 30;
 var ANGLE_MAX = 120;
@@ -40,6 +42,10 @@ CHANCE_DECAY = parseFloat(getParameterByName("pdecay")) || CHANCE_DECAY;
 MAX_DEPTH = parseInt(getParameterByName("maxdepth")) || MAX_DEPTH;
 ANGLE_MIN = parseInt(getParameterByName("anglemin")) || ANGLE_MIN;
 ANGLE_MAX = parseInt(getParameterByName("anglemax")) || ANGLE_MAX;
+BASE_TREE_COLOR = getParameterByName("treecolor") || BASE_TREE_COLOR;
+BRANCH_LENGTH = parseInt(getParameterByName("branchl")) || BRANCH_LENGTH;
+LENGTH_MULT = parseFloat(getParameterByName("lengthmult")) || LENGTH_MULT;
+
 
 document.getElementById("maxbranchinput").value = MAX_BRANCHES_PER_NODE;
 document.getElementById("branchpinput").value = BASE_BRANCH_CHANCE;
@@ -47,6 +53,24 @@ document.getElementById("pdecayinput").value = CHANCE_DECAY;
 document.getElementById("maxdepthinput").value = MAX_DEPTH;
 document.getElementById("anglemininput").value = ANGLE_MIN;
 document.getElementById("anglemaxinput").value = ANGLE_MAX;
+document.getElementById("branchlinput").value = BRANCH_LENGTH;
+document.getElementById("lengthmultinput").value = LENGTH_MULT;
+
+var colorIndex;
+if (BASE_TREE_COLOR == "silvergreen"){
+  colorIndex = 0;
+} else if (BASE_TREE_COLOR == "silverblack"){
+  colorIndex = 1;
+} else if (BASE_TREE_COLOR == "blacksilver"){
+  colorIndex = 2;
+} else if (BASE_TREE_COLOR == "blackgreen"){
+  colorIndex = 3;
+}
+document.getElementById("treecolorinput").selectedIndex = colorIndex;
+
+console.log("selected color is "+BASE_TREE_COLOR);
+
+var treeDepth = 0;
 
 
 
@@ -69,35 +93,31 @@ while(_data.length == 0){
 camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = -60;
+camera.position.z = -50;
 
 var aLittleHigherPos = scene.position;
 aLittleHigherPos.y -= 12;
 camera.lookAt( aLittleHigherPos );
 
-
-
 renderer = new THREE.WebGLRenderer({
-  alpha: true,
+    alpha: true,
     antialias: true
 });
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
 
-document.body.appendChild( renderer.domElement );
+document.getElementById("theTree").appendChild( renderer.domElement );
 
 
 /////////////////////////////////////////
 // Trackball Controller
 /////////////////////////////////////////
 
-controls = new THREE.TrackballControls( camera );
+controls = new THREE.TrackballControls( camera, renderer.domElement  );
 controls.rotateSpeed = 2.0;
 controls.zoomSpeed = 0.2;
-controls.panSpeed = 0.8;
 controls.noZoom = false;
 controls.noPan = true;
-controls.staticMoving = false;
 controls.dynamicDampingFactor = 0.5;
 
 
@@ -115,7 +135,7 @@ scene.add( ambientLight );
 /////////////////////////////////////////
 
 var axisHelper = new THREE.AxesHelper( 1.25 );
-scene.add( axisHelper );
+//scene.add( axisHelper );
 
 var branches = [];
 var tipPositions = [];
@@ -137,6 +157,11 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+function hideMetaStuff(){
+  document.getElementById("metaStuff").style.visibility = "hidden";
+  document.getElementById("instructions").style.visibility = "hidden";
+}
+
 
 function randomTreeData(startingStructure, startingDepth){
 
@@ -149,7 +174,8 @@ function randomTreeData(startingStructure, startingDepth){
   
     while(structure.length < MAX_BRANCHES_PER_NODE && Math.random() < branchChance){
       //console.log("at depth "+depth+", chance "+branchChance+", branches so far: "+structure.length);
-      structure.push(randomTreeData([],depth+1));
+      var newBranch = randomTreeData([],depth+1); 
+      structure.push(newBranch);
     } 
   }
 
@@ -205,29 +231,45 @@ function de2ra(degree){
   return degree*(Math.PI/180);
 }
 
-function buildBranch(baseLength){
+function buildBranch(baseLength, distanceFromTip){
     var length = baseLength*(1 + Math.random()*0.4);
-    var cylGeom = new THREE.CylinderGeometry( length/20, length/15, length, 8 );
-    var sphGeom = new THREE.SphereGeometry(length/25, 8, 8);
+
+    var referenceLength = Math.min(length, BRANCH_LENGTH);
+
+    var radiusTop =  (distanceFromTip == treeDepth)? 0.45 :(distanceFromTip <= 1) ? 0.07 : (referenceLength/20);
+    var radiusBottom = (distanceFromTip == treeDepth)? 0.75 : (distanceFromTip == treeDepth-1 && !(distanceFromTip <= 1)) ? 0.45 : (referenceLength/17);
+    
+    var cylGeom = new THREE.CylinderGeometry( radiusTop, radiusBottom, length, 8 );
+    var sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
     var hex;
 
-    var i;
-    for ( i = 0; i < cylGeom.faces.length; i += 2 ) {
+    var i, cylinderColorFunc, nodeColorFunc;
 
-      //hex = Math.random() * 0xffffff;
-      hex = xstnt.Colors.parseHex(xstnt.Colors.randomGrey());
-      cylGeom.faces[ i ].color.setHex( hex );
-      cylGeom.faces[ i + 1 ].color.setHex( hex );
+    console.log("building branch of color "+BASE_TREE_COLOR);
 
+    if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "silverblack"){
+      cylinderColorFunc = xstnt.Colors.randomGrey;
+    } else if (BASE_TREE_COLOR == "blackgreen" || BASE_TREE_COLOR == "blacksilver"){
+      cylinderColorFunc = xstnt.Colors.randomDark;
+    }
+    if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "blackgreen"){
+      nodeColorFunc = xstnt.Colors.randomGreen;
+    } else if (BASE_TREE_COLOR == "blacksilver"){
+      nodeColorFunc = xstnt.Colors.randomGrey;
+    } else if (BASE_TREE_COLOR == "silverblack"){
+      nodeColorFunc = xstnt.Colors.randomBlack;
     }
 
-    for ( i = 0; i < sphGeom.faces.length; i += 2 ) {
+    for ( i = 0; i < cylGeom.faces.length; i += 2 ) {    
+      hex = xstnt.Colors.parseHex(cylinderColorFunc.apply());
+      cylGeom.faces[ i ].color.setHex( hex );
+      cylGeom.faces[ i + 1 ].color.setHex( hex );
+    }
 
-      //hex = Math.random() * 0xffffff;
-      hex = xstnt.Colors.parseHex(xstnt.Colors.randomGreen());
+    for ( i = 0; i < sphGeom.faces.length; i += 2 ) {   
+      hex = xstnt.Colors.parseHex(nodeColorFunc.apply());
       sphGeom.faces[ i ].color.setHex( hex );
       sphGeom.faces[ i + 1 ].color.setHex( hex );
-
     }
 
     var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
@@ -263,18 +305,18 @@ function spreadBranches(){
 */
 }
 
-function buildTree(treeData,branchLength){
+function buildTree(treeData,branchLength,depth){
 
   //console.log("building tree with "+treeData.length+" branches.");
+  var fanRads = de2ra(ANGLE_MIN + Math.random()*(ANGLE_MAX - ANGLE_MIN));
 
-  var fanAmt = ANGLE_MIN + Math.random()*(ANGLE_MAX - ANGLE_MIN);
-
-  var root = buildBranch(branchLength);
+  var root = buildBranch(branchLength, depth);
 
   for(var i=0; i<treeData.length; i++){
-    var newBranch = buildTree(treeData[i],branchLength*0.85);
-    newBranch.rotation.x = root.rotation.x + (Math.random()*de2ra(fanAmt)) - de2ra(fanAmt/2);
-    newBranch.rotation.z = root.rotation.z + (Math.random()*de2ra(fanAmt)) - de2ra(fanAmt/2);
+    var newBranch = buildTree(treeData[i], branchLength*LENGTH_MULT, depthOfArray(treeData[i]));
+    newBranch.rotation.x = root.rotation.x + (Math.random()*fanRads) - fanRads/2;
+    newBranch.rotation.z = root.rotation.z + (Math.random()*fanRads) - fanRads/2;
+    newBranch.position.y = -0.05;
 
     root.tip.add(newBranch);
   }
@@ -287,18 +329,21 @@ function buildTree(treeData,branchLength){
 function buildScene(){
   scene.remove(tree);
   _data = [];
-  _data = randomTreeData();
-while(_data.length == 0){
-  _data = randomTreeData();
-}
-console.log("DEPTH "+depthOfArray(_data));
 
-  var tree = buildTree(_data,5); 
-  //tree.position.y = -depthOfArray(_data)*5;
+  while(_data.length == 0) {
+    _data = randomTreeData();
+  }
+
+  treeDepth = depthOfArray(_data);
+
+
+  var tree = buildTree(_data,BRANCH_LENGTH,treeDepth); 
+  tree.position.y = -2;
   scene.add(tree);
 }
 
 buildScene();
+renderScene();
 
 
 /////////////////////////////////////////
@@ -319,9 +364,7 @@ controls.addEventListener( 'change', renderScene );
 function animationLoop() {
   requestAnimationFrame(animationLoop);
   controls.update();
-  renderScene();
-  //checkDistance();
-  //spreadBranches();
+  //renderScene();
 }
 
 animationLoop();

@@ -4,18 +4,14 @@ html {
     background: linear-gradient(to bottom, white, whitesmoke);
 }
 
-#instructions{
-    position: absolute;
-    bottom: 5%;
-    left: 0%;
-    text-align: center;
-    width: 50%;
-    font-family: arial, helvetica, sans serif;
-    font-size: 1.3em;
-    color: darkgray;
+#metaStuff{
+    display: block;
+    background: mistyrose;
+    padding: 1em;
+    z-index:999;
 }
-
-#form{
-    display : block;
-    color: black;
+.new{
+    font-weight: bold;
+    font-style: italic;
+    color: orangered;
 }
