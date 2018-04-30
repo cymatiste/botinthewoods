@@ -1,0 +1,26 @@
+{
+  "name": "rttreebot",
+  "version": "1.0.0",
+  "description": "Generates visualizations of your retweet trees",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simrisek/rttree.git"
+  },
+  "author": "Sarah Imrisek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/simrisek/rttree/issues"
+  },
+  "homepage": "https://github.com/simrisek/rttree#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "gifencoder": "^1.1.0",
+    "path": "^0.12.7",
+    "twit": "^2.2.9"
+  }
+}

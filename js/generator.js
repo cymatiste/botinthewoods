@@ -21,6 +21,10 @@ The stuff that actually creates the tree is all mine, and I've messed with the r
 pretty ascii header in 'nvscript' c/o http://www.kammerl.de/ascii/AsciiSignature.php
 */
 
+var fs = IMPORTS.require('fs');
+var path = IMPORTS.require('path');
+
+
 //////////////////////////////////////////////////////////////////
 // Some parameters that can be tweaked from the browser (we hope)
 //////////////////////////////////////////////////////////////////
@@ -101,7 +105,8 @@ camera.lookAt( aLittleHigherPos );
 
 renderer = new THREE.WebGLRenderer({
     alpha: true,
-    antialias: true
+    antialias: true,
+    preserveDrawingBuffer: true
 });
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -162,6 +167,44 @@ function hideMetaStuff(){
   document.getElementById("instructions").style.visibility = "hidden";
 }
 
+function makeGIF(){
+  var img_frames = [];
+  var NUM_FRAMES = 10;
+  for(var i=0; i<NUM_FRAMES; i++){
+      controls.exposedRotate(300+i,0);
+      
+      renderer.render( scene, camera );
+
+      img_frames.push(renderer.domElement.toDataURL('image/png'));
+/*
+      path.exists('images/', function(exists){
+        if (exists) {
+
+            fs.writeFile('images/frame_'+i+'.png', img, function(err){
+                if (err) 
+                    callback({
+                        error: false,
+                        reply: err
+                    });
+                console.log('Resized and saved in');
+                callback({
+                    error: false,
+                    reply: 'success.'
+                });
+            });
+        }
+        else {
+            callback({
+                error: true,
+                reply: 'File did not exist.'
+            });
+        }
+     });  
+     */
+
+      //window.open(renderer.domElement.toDataURL('image/png'), 'screenshot'+i);    
+  }
+}
 
 function randomTreeData(startingStructure, startingDepth){
 

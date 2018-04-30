@@ -166,6 +166,8 @@ THREE.TrackballControls = function ( object, domElement ) {
 			moveDirection.set( _moveCurr.x - _movePrev.x, 0, 0 );
 			angle = moveDirection.length();
 
+			console.log("ROTATE "+angle);
+
 			if ( angle ) {
 
 				_eye.copy( _this.object.position ).sub( _this.target );
@@ -435,13 +437,71 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	}
 
+	_this.exposedMouseDown = function(pageX, pageY){
+
+		_state = STATE.ROTATE;
+		
+		if ( _state === STATE.ROTATE && ! _this.noRotate ) {
+
+			_moveCurr.copy( getMouseOnCircle( pageX, pageY ) );
+			_movePrev.copy( _moveCurr );
+
+		} else if ( _state === STATE.ZOOM && ! _this.noZoom ) {
+
+			_zoomStart.copy( getMouseOnScreen( pageX, pageY ) );
+			_zoomEnd.copy( _zoomStart );
+
+		} else if ( _state === STATE.PAN && ! _this.noPan ) {
+
+			_panStart.copy( getMouseOnScreen( pageX, pageY ) );
+			_panEnd.copy( _panStart );
+
+		}
+
+		_this.dispatchEvent( startEvent );
+
+	}
+
+	_this.exposedMouseUp = function(){
+		_state = STATE.NONE;
+		_this.dispatchEvent( endEvent );
+	}
+
+
+	_this.exposedRotate = function(pageX, pageY){
+
+		_this.exposedMouseDown(0,pageY);
+
+		console.log(pageX);
+		
+		if ( _state === STATE.ROTATE && ! _this.noRotate ) {
+
+			_movePrev.copy( _moveCurr );
+			_moveCurr.copy( getMouseOnCircle( pageX, pageY ) );
+
+		} else if ( _state === STATE.ZOOM && ! _this.noZoom ) {
+
+			_zoomEnd.copy( getMouseOnScreen( pageX, pageY ) );
+
+		} else if ( _state === STATE.PAN && ! _this.noPan ) {
+
+			_panEnd.copy( getMouseOnScreen( pageX, pageY ) );
+
+		}
+
+		_this.exposedMouseUp();
+		_this.update();
+	}
+
+
+
 	function mousemove( event ) {
 
 		if ( _this.enabled === false ) return;
 
 		event.preventDefault();
 		event.stopPropagation();
-
+		
 		if ( _state === STATE.ROTATE && ! _this.noRotate ) {
 
 			_movePrev.copy( _moveCurr );
