@@ -1,19 +1,8 @@
   /*
-   I8                                                 
-   I8                                                 
-88888888                                 gg           
-   I8                                    ""           
-   I8    ,gggggg,   ,ggg,    ,ggg,       gg    ,g,    
-   I8    dP""""8I  i8" "8i  i8" "8i      8I   ,8'8,   
-  ,I8,  ,8'    8I  I8, ,8I  I8, ,8I     ,8I  ,8'  Yb  
- ,d88b,,dP     Y8, `YbadP'  `YbadP'   _,d8I ,8'_   8) 
- 8P""Y88P      `Y8888P"Y888888P"Y888888P"888P' "YY8P8P
-                                       ,d8I'          
-                                     ,dP'8I           
-                                    ,8"  8I           
-                                    I8   8I           
-                                    `8, ,8I           
-                                     `Y8P"        
+  
+  
+n o d e    v e r s i o n
+       of threejs tree generator
 
 I got the starter code for setting up the camera and trackball controls from some tutorial. 
 I've just started learning threejs!
@@ -21,8 +10,24 @@ The stuff that actually creates the tree is all mine, and I've messed with the r
 pretty ascii header in 'nvscript' c/o http://www.kammerl.de/ascii/AsciiSignature.php
 */
 
+/*
+module.exports['@require'] = [
+  'util/Colors.js'
+]
+*/
+var fs = require('fs');
+var path = require('path');
+var THREE = require('three');
+//import { Colors } from 'Colors';
+var Colors = require(path.join(__dirname, 'Colors.js'));
+var SoftwareRenderer = require('three-software-renderer');
+
+config = require(path.join(__dirname, '../config.js'));
+
+console.log("\n   >>   COLORS: "+Colors+", "+Colors.testVar+", "+Colors.randomGrey+"\n");
+
 //////////////////////////////////////////////////////////////////
-// Some parameters that can be tweaked from the browser (we hope)
+// Some parameters that can be tweakedcls from the browser (we hope)
 //////////////////////////////////////////////////////////////////
 
 var BRANCH_LENGTH = 5;
@@ -46,16 +51,6 @@ BASE_TREE_COLOR = getParameterByName("treecolor") || BASE_TREE_COLOR;
 BRANCH_LENGTH = parseInt(getParameterByName("branchl")) || BRANCH_LENGTH;
 LENGTH_MULT = parseFloat(getParameterByName("lengthmult")) || LENGTH_MULT;
 
-
-document.getElementById("maxbranchinput").value = MAX_BRANCHES_PER_NODE;
-document.getElementById("branchpinput").value = BASE_BRANCH_CHANCE;
-document.getElementById("pdecayinput").value = CHANCE_DECAY;
-document.getElementById("maxdepthinput").value = MAX_DEPTH;
-document.getElementById("anglemininput").value = ANGLE_MIN;
-document.getElementById("anglemaxinput").value = ANGLE_MAX;
-document.getElementById("branchlinput").value = BRANCH_LENGTH;
-document.getElementById("lengthmultinput").value = LENGTH_MULT;
-
 var colorIndex;
 if (BASE_TREE_COLOR == "silvergreen"){
   colorIndex = 0;
@@ -66,7 +61,20 @@ if (BASE_TREE_COLOR == "silvergreen"){
 } else if (BASE_TREE_COLOR == "blackgreen"){
   colorIndex = 3;
 }
-document.getElementById("treecolorinput").selectedIndex = colorIndex;
+
+if (typeof document != 'undefined') {
+  document.getElementById("maxbranchinput").value = MAX_BRANCHES_PER_NODE;
+  document.getElementById("branchpinput").value = BASE_BRANCH_CHANCE;
+  document.getElementById("pdecayinput").value = CHANCE_DECAY;
+  document.getElementById("maxdepthinput").value = MAX_DEPTH;
+  document.getElementById("anglemininput").value = ANGLE_MIN;
+  document.getElementById("anglemaxinput").value = ANGLE_MAX;
+  document.getElementById("branchlinput").value = BRANCH_LENGTH;
+  document.getElementById("lengthmultinput").value = LENGTH_MULT;
+  document.getElementById("treecolorinput").selectedIndex = colorIndex;
+
+}
+
 
 console.log("selected color is "+BASE_TREE_COLOR);
 
@@ -90,7 +98,20 @@ while(_data.length == 0){
   _data = randomTreeData();
 }
 
-camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+var canvasWidth, canvasHeight, pixelRatio;
+
+if(typeof window == 'undefined'){
+  canvasWidth = 1600;
+  canvasHeight = 1200;
+  pixelRatio = 1;
+} else {
+  canvasWidth = window.innerWidth;
+  canvasHeight = window.innerHeight;
+  pixelRatio = window.devicePixelRatio;
+}
+
+
+camera = new THREE.PerspectiveCamera( 40, canvasWidth / canvasHeight, 1, 1000 );
 camera.position.x = 0;
 camera.position.y = 0;
 camera.position.z = -50;
@@ -99,28 +120,42 @@ var aLittleHigherPos = scene.position;
 aLittleHigherPos.y -= 12;
 camera.lookAt( aLittleHigherPos );
 
-renderer = new THREE.WebGLRenderer({
+if(typeof windwow == 'undefined'){
+   renderer = new SoftwareRenderer({
     alpha: true,
     antialias: true,
     preserveDrawingBuffer: true
-});
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight );
+  });
+} else {
+  renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+    preserveDrawingBuffer: true
+  });
+}
 
-document.getElementById("theTree").appendChild( renderer.domElement );
+
+
+renderer.setPixelRatio( pixelRatio );
+renderer.setSize( canvasWidth, canvasHeight );
+
+if(typeof document != 'undefined'){
+  document.getElementById("theTree").appendChild( renderer.domElement );  
+}
+
 
 
 /////////////////////////////////////////
 // Trackball Controller
 /////////////////////////////////////////
-
-controls = new THREE.TrackballControls( camera, renderer.domElement  );
+/*
+controls = new TrackballControls( camera, renderer.domElement  );
 controls.rotateSpeed = 2.0;
 controls.zoomSpeed = 0.2;
 controls.noZoom = false;
 controls.noPan = true;
 controls.dynamicDampingFactor = 0.5;
-
+*/
 
 /////////////////////////////////////////
 // Lighting
@@ -135,9 +170,6 @@ scene.add( ambientLight );
 // Utilities
 /////////////////////////////////////////
 
-var axisHelper = new THREE.AxesHelper( 1.25 );
-//scene.add( axisHelper );
-
 var branches = [];
 var tipPositions = [];
 
@@ -149,6 +181,12 @@ var tipPositions = [];
  * Thank you to https://stackoverflow.com/users/1045296/jolly-exe for this function
  */
 function getParameterByName(name, url) {
+
+    if(typeof window == 'undefined') {
+      return undefined;
+    }
+
+
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
@@ -158,20 +196,41 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-function hideMetaStuff(){
-  document.getElementById("metaStuff").style.visibility = "hidden";
-  document.getElementById("instructions").style.visibility = "hidden";
-}
 
 function makeGIF(){
   var img_frames = [];
   var NUM_FRAMES = 10;
   for(var i=0; i<NUM_FRAMES; i++){
-      controls.exposedRotate(300+i,0);
+      //controls.exposedRotate(300+i,0);
       
       renderer.render( scene, camera );
 
       img_frames.push(renderer.domElement.toDataURL('image/png'));
+/*
+      path.exists('images/', function(exists){
+        if (exists) {
+
+            fs.writeFile('images/frame_'+i+'.png', img, function(err){
+                if (err) 
+                    callback({
+                        error: false,
+                        reply: err
+                    });
+                console.log('Resized and saved in');
+                callback({
+                    error: false,
+                    reply: 'success.'
+                });
+            });
+        }
+        else {
+            callback({
+                error: true,
+                reply: 'File did not exist.'
+            });
+        }
+     });  
+     */
 
       //window.open(renderer.domElement.toDataURL('image/png'), 'screenshot'+i);    
   }
@@ -201,12 +260,12 @@ function depthOfArray(arr) {
   var i;
   var level = 1;
   var subdepths = [];
-  for (var i=0; i<arr.length; i++){
+  for (i=0; i<arr.length; i++){
     subdepths.push(depthOfArray(arr[i]));
   }
 
   var deepest = 0;
-  for (var i=0; i<subdepths.length; i++){
+  for (i=0; i<subdepths.length; i++){
     if (subdepths[i] > deepest){
       deepest = subdepths[i];
     }
@@ -251,7 +310,7 @@ function buildBranch(baseLength, distanceFromTip){
     var referenceLength = Math.min(length, BRANCH_LENGTH);
 
     var radiusTop =  (distanceFromTip == treeDepth)? 0.45 :(distanceFromTip <= 1) ? 0.07 : (referenceLength/20);
-    var radiusBottom = (distanceFromTip == treeDepth)? 0.75 : (distanceFromTip == treeDepth-1 && !(distanceFromTip <= 1)) ? 0.45 : (referenceLength/17);
+    var radiusBottom = (distanceFromTip == treeDepth)? 0.75 : (distanceFromTip == treeDepth-1 && (distanceFromTip > 1)) ? 0.45 : (referenceLength/17);
     
     var cylGeom = new THREE.CylinderGeometry( radiusTop, radiusBottom, length, 8 );
     var sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
@@ -262,26 +321,26 @@ function buildBranch(baseLength, distanceFromTip){
     console.log("building branch of color "+BASE_TREE_COLOR);
 
     if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "silverblack"){
-      cylinderColorFunc = xstnt.Colors.randomGrey;
+      cylinderColorFunc = Colors.randomGrey;
     } else if (BASE_TREE_COLOR == "blackgreen" || BASE_TREE_COLOR == "blacksilver"){
-      cylinderColorFunc = xstnt.Colors.randomDark;
+      cylinderColorFunc = Colors.randomDark;
     }
     if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "blackgreen"){
-      nodeColorFunc = xstnt.Colors.randomGreen;
+      nodeColorFunc = Colors.randomGreen;
     } else if (BASE_TREE_COLOR == "blacksilver"){
-      nodeColorFunc = xstnt.Colors.randomGrey;
+      nodeColorFunc = Colors.randomGrey;
     } else if (BASE_TREE_COLOR == "silverblack"){
-      nodeColorFunc = xstnt.Colors.randomBlack;
+      nodeColorFunc = Colors.randomBlack;
     }
 
     for ( i = 0; i < cylGeom.faces.length; i += 2 ) {    
-      hex = xstnt.Colors.parseHex(cylinderColorFunc.apply());
+      hex = Colors.parseHex(cylinderColorFunc.apply());
       cylGeom.faces[ i ].color.setHex( hex );
       cylGeom.faces[ i + 1 ].color.setHex( hex );
     }
 
     for ( i = 0; i < sphGeom.faces.length; i += 2 ) {   
-      hex = xstnt.Colors.parseHex(nodeColorFunc.apply());
+      hex = Colors.parseHex(nodeColorFunc.apply());
       sphGeom.faces[ i ].color.setHex( hex );
       sphGeom.faces[ i + 1 ].color.setHex( hex );
     }
@@ -368,33 +427,22 @@ function renderScene() {
   renderer.render( scene, camera );
 }
 
-// Render the scene when the controls have changed.
-// If you don’t have other animations or changes in your scene,
-// you won’t be draining system resources every frame to render a scene.
-controls.addEventListener( 'change', renderScene );
-
-// Avoid constantly rendering the scene by only 
-// updating the controls every requestAnimationFrame
-function animationLoop() {
-  requestAnimationFrame(animationLoop);
-  controls.update();
-  //renderScene();
-}
-
-animationLoop();
-
 
 /////////////////////////////////////////
 // Window Resizing
 /////////////////////////////////////////
+if(typeof window != 'undefined'){
 
-window.addEventListener( 'resize', function () {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize( window.innerWidth, window.innerHeight );
-    controls.handleResize();
-    renderScene();
-}, false );
+  window.addEventListener( 'resize', function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+      //controls.handleResize();
+      renderScene();
+  }, false );
+
+}
+
 
 
 /*
