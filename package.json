@@ -20,7 +20,9 @@
   "dependencies": {
     "fs": "0.0.1-security",
     "gifencoder": "^1.1.0",
+    "omggif": "^1.0.9",
     "path": "^0.12.7",
+    "pngjs": "^3.3.3",
     "three-software-renderer": "^1.2.0",
     "twit": "^2.2.9"
   }

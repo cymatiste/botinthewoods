@@ -12,19 +12,20 @@ pretty ascii header in 'nvscript' c/o http://www.kammerl.de/ascii/AsciiSignature
 
 /*
 module.exports['@require'] = [
-  'util/Colors.js'
+  'util/colorHelper.js'
 ]
 */
 var fs = require('fs');
 var path = require('path');
 var THREE = require('three');
+var omggif = require('omggif');
 //import { Colors } from 'Colors';
-var Colors = require(path.join(__dirname, 'Colors.js'));
+var Colors = require('./Colors.js');
 var SoftwareRenderer = require('three-software-renderer');
 
 config = require(path.join(__dirname, '../config.js'));
 
-console.log("\n   >>   COLORS: "+Colors+", "+Colors.testVar+", "+Colors.randomGrey+"\n");
+var colorHelper = new Colors();
 
 //////////////////////////////////////////////////////////////////
 // Some parameters that can be tweakedcls from the browser (we hope)
@@ -140,7 +141,7 @@ renderer.setPixelRatio( pixelRatio );
 renderer.setSize( canvasWidth, canvasHeight );
 
 if(typeof document != 'undefined'){
-  document.getElementById("theTree").appendChild( renderer.domElement );  
+    document.getElementById("theTree").appendChild( renderer.domElement );  
 }
 
 
@@ -196,45 +197,75 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+var _palette = colorHelper.palette8bit;
 
 function makeGIF(){
-  var img_frames = [];
-  var NUM_FRAMES = 10;
+
+  var NUM_FRAMES = 1;
+
+  var gifBuffer = new Buffer(canvasWidth * canvasHeight * NUM_FRAMES); // holds the entire GIF output
+  var gif = new omggif.GifWriter(gifBuffer, canvasWidth, canvasHeight, {palette: _palette, loop: 0});
+ 
+
   for(var i=0; i<NUM_FRAMES; i++){
-      //controls.exposedRotate(300+i,0);
+    //controls.exposedRotate(300+i,0);
       
-      renderer.render( scene, camera );
+    var pixels = renderer.render(scene, camera);
 
-      img_frames.push(renderer.domElement.toDataURL('image/png'));
-/*
-      path.exists('images/', function(exists){
-        if (exists) {
+    //console.log("pixels: "+pixels.data);
+    
+    gif.addFrame(0, 0, pixels.width, pixels.height, convertRGBAto8bit(pixels.data, _palette));
 
-            fs.writeFile('images/frame_'+i+'.png', img, function(err){
-                if (err) 
-                    callback({
-                        error: false,
-                        reply: err
-                    });
-                console.log('Resized and saved in');
-                callback({
-                    error: false,
-                    reply: 'success.'
-                });
-            });
-        }
-        else {
-            callback({
-                error: true,
-                reply: 'File did not exist.'
-            });
-        }
-     });  
-     */
-
-      //window.open(renderer.domElement.toDataURL('image/png'), 'screenshot'+i);    
   }
+  fs.writeFileSync('./test'+randomId()+'.gif', gifBuffer.slice(0, gif.end()));
 }
+
+function randomId(){
+  return Math.floor(Math.random()*99999);
+}
+
+
+
+function convertRGBAto8bit(rgbaBuffer, palette) {
+
+    console.log("??? "+0x000000+", "+0x585858+", "+0xFFFFFF);
+
+    var outputBuffer = new Uint8Array(rgbaBuffer.length / 4);   
+    var DARKEST_COLOR = 50;   
+    //for(var i=0; i<rgbaBuffer.length; i+=4) {
+    for(var i=0; i<rgbaBuffer.length; i+=4) {
+        var colour = (rgbaBuffer[i] << 16) + (rgbaBuffer[i+1] << 8) + rgbaBuffer[i+2];
+        
+        var knownColour = false;    
+        var lowestDiff = 999999999999999999;
+        var closestCol = 0xFFFFFF;
+        var closestIndex = -1;    
+        for(var p=0; p<palette.length; p++) {
+          
+            if(colour == palette[p]) {
+                outputBuffer[i/4] = p;
+                knownColour = true;
+                //console.log("KNOWN COLOUR: "+palette[p]);
+                break;
+            } else {
+                var paletteInt = palette[p];
+                var colourInt = colour;
+                //console.log(colourInt+" - "+paletteInt+" = "+Math.abs( colourInt - paletteInt ));
+                lowestDiff = Math.min(lowestDiff, Math.abs( colourInt - paletteInt ));
+                closestCol = palette[p];
+                closestIndex = p;
+            }
+        }   
+        if(!knownColour){
+            //palette.push(colour);
+            //console.log("UNKNOWN COLOUR: "+colour+", closest to: "+closestCol+" with diff "+lowestDiff);
+            outputBuffer[i/4] = closestIndex;
+        }
+    }
+
+    return outputBuffer;
+}
+
 
 function randomTreeData(startingStructure, startingDepth){
 
@@ -321,26 +352,26 @@ function buildBranch(baseLength, distanceFromTip){
     console.log("building branch of color "+BASE_TREE_COLOR);
 
     if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "silverblack"){
-      cylinderColorFunc = Colors.randomGrey;
+      cylinderColorFunc = colorHelper.randomGrey;
     } else if (BASE_TREE_COLOR == "blackgreen" || BASE_TREE_COLOR == "blacksilver"){
-      cylinderColorFunc = Colors.randomDark;
+      cylinderColorFunc = colorHelper.randomDark;
     }
     if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "blackgreen"){
-      nodeColorFunc = Colors.randomGreen;
+      nodeColorFunc = colorHelper.randomGreen;
     } else if (BASE_TREE_COLOR == "blacksilver"){
-      nodeColorFunc = Colors.randomGrey;
+      nodeColorFunc = colorHelper.randomGrey;
     } else if (BASE_TREE_COLOR == "silverblack"){
-      nodeColorFunc = Colors.randomBlack;
+      nodeColorFunc = colorHelper.randomBlack;
     }
 
     for ( i = 0; i < cylGeom.faces.length; i += 2 ) {    
-      hex = Colors.parseHex(cylinderColorFunc.apply());
+      hex = colorHelper.parseHex(cylinderColorFunc.apply());
       cylGeom.faces[ i ].color.setHex( hex );
       cylGeom.faces[ i + 1 ].color.setHex( hex );
     }
 
     for ( i = 0; i < sphGeom.faces.length; i += 2 ) {   
-      hex = Colors.parseHex(nodeColorFunc.apply());
+      hex = colorHelper.parseHex(nodeColorFunc.apply());
       sphGeom.faces[ i ].color.setHex( hex );
       sphGeom.faces[ i + 1 ].color.setHex( hex );
     }
@@ -413,6 +444,8 @@ function buildScene(){
   var tree = buildTree(_data,BRANCH_LENGTH,treeDepth); 
   tree.position.y = -2;
   scene.add(tree);
+
+  makeGIF();
 }
 
 buildScene();
