@@ -15,8 +15,12 @@ module.exports['@require'] = [
   'util/colorHelper.js'
 ]
 */
+
+
+
 var fs = require('fs');
 var path = require('path');
+PNG = require('pngjs').PNG;
 var THREE = require('three');
 var omggif = require('omggif');
 //import { Colors } from 'Colors';
@@ -26,6 +30,8 @@ var SoftwareRenderer = require('three-software-renderer');
 config = require(path.join(__dirname, '../config.js'));
 
 var colorHelper = new Colors();
+
+var _tree;
 
 //////////////////////////////////////////////////////////////////
 // Some parameters that can be tweakedcls from the browser (we hope)
@@ -99,26 +105,26 @@ while(_data.length == 0){
   _data = randomTreeData();
 }
 
-var canvasWidth, canvasHeight, pixelRatio;
+var sceneWidth, sceneHeight, pixelRatio;
 
 if(typeof window == 'undefined'){
-  canvasWidth = 1600;
-  canvasHeight = 1200;
+  sceneWidth = 800;
+  sceneHeight = 600;
   pixelRatio = 1;
 } else {
-  canvasWidth = window.innerWidth;
-  canvasHeight = window.innerHeight;
+  sceneWidth = window.innerWidth;
+  sceneHeight = window.innerHeight;
   pixelRatio = window.devicePixelRatio;
 }
 
 
-camera = new THREE.PerspectiveCamera( 40, canvasWidth / canvasHeight, 1, 1000 );
+camera = new THREE.PerspectiveCamera( 40, sceneWidth / sceneHeight, 1, 1000 );
 camera.position.x = 0;
 camera.position.y = 0;
 camera.position.z = -50;
 
 var aLittleHigherPos = scene.position;
-aLittleHigherPos.y -= 12;
+aLittleHigherPos.y -= 0;
 camera.lookAt( aLittleHigherPos );
 
 if(typeof windwow == 'undefined'){
@@ -138,7 +144,7 @@ if(typeof windwow == 'undefined'){
 
 
 renderer.setPixelRatio( pixelRatio );
-renderer.setSize( canvasWidth, canvasHeight );
+renderer.setSize( sceneWidth, sceneHeight );
 
 if(typeof document != 'undefined'){
     document.getElementById("theTree").appendChild( renderer.domElement );  
@@ -162,7 +168,7 @@ controls.dynamicDampingFactor = 0.5;
 // Lighting
 /////////////////////////////////////////
 
-var ambientLight  = new THREE.AmbientLight( '#EEEEEE' );
+var ambientLight  = new THREE.AmbientLight( '#8888FF' );
 
 scene.add( ambientLight );
 
@@ -197,27 +203,79 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-var _palette = colorHelper.palette8bit;
+ function makePaletteFromScene(pal){
+
+  var firstsnap = renderer.render(scene, camera);
+  var eightbitbuffer = convertRGBAto8bit(firstsnap.data,pal);
+
+ console.log("generated palette, length "+pal.length);
+  for(var p=0; p<pal.length; p++) {
+    //console.log(pal[p]);
+  }
+
+  while(!isPowerOfTwo(pal.length)){
+    pal.push(0x000000);
+  }
+}
+
+/**
+ * h/t https://stackoverflow.com/users/3674420/joseph-palermo
+ * @param  {int} n  -   The number that MAY or MAY NOT be a power of two
+ * @return {bool}   -   Is it though.
+ */
+function isPowerOfTwo(n){
+    // Compute log base 2 of n using a quotient of natural logs
+    var log_n = Math.log(n)/Math.log(2);
+    // Round off any decimal component
+    var log_n_floor = Math.floor(log_n);
+    // The function returns true if and only if log_n is a whole number
+    return log_n - log_n_floor == 0; 
+}
+
+var _palette = [];
+
+//var _palette = colorHelper.palette8bit;
+
 
 function makeGIF(){
 
-  var NUM_FRAMES = 1;
-
-  var gifBuffer = new Buffer(canvasWidth * canvasHeight * NUM_FRAMES); // holds the entire GIF output
-  var gif = new omggif.GifWriter(gifBuffer, canvasWidth, canvasHeight, {palette: _palette, loop: 0});
  
+  makePaletteFromScene(_palette);
+
+  var NUM_FRAMES = 100;
+
+  var gifBuffer = new Buffer(sceneWidth * sceneHeight * NUM_FRAMES); // holds the entire GIF output
+  var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {palette: _palette, loop: 0});
+  var y_axis = new THREE.Vector3(0,1,0);
 
   for(var i=0; i<NUM_FRAMES; i++){
     //controls.exposedRotate(300+i,0);
-      
+    
+    _tree.rotateOnAxis(y_axis,Math.PI/(NUM_FRAMES/2));
+
+
     var pixels = renderer.render(scene, camera);
 
     //console.log("pixels: "+pixels.data);
-    
     gif.addFrame(0, 0, pixels.width, pixels.height, convertRGBAto8bit(pixels.data, _palette));
 
   }
-  fs.writeFileSync('./test'+randomId()+'.gif', gifBuffer.slice(0, gif.end()));
+  var id = randomId();
+
+  // making a png just to check the colours
+  var png = new PNG({
+    width: sceneWidth,
+    height: sceneHeight,
+    filterType: -1
+  });
+
+    for(var i=0;i<pixels.data.length;i++) {
+    png.data[i] = pixels.data[i];
+  }
+  png.pack().pipe(fs.createWriteStream('./test'+id+'.png'));
+
+  fs.writeFileSync('./test'+id+'.gif', gifBuffer.slice(0, gif.end()));
+
 }
 
 function randomId(){
@@ -225,42 +283,55 @@ function randomId(){
 }
 
 
-
 function convertRGBAto8bit(rgbaBuffer, palette) {
 
-    console.log("??? "+0x000000+", "+0x585858+", "+0xFFFFFF);
+  var BG_COL = 0xFFFFFF;
 
-    var outputBuffer = new Uint8Array(rgbaBuffer.length / 4);   
-    var DARKEST_COLOR = 50;   
-    //for(var i=0; i<rgbaBuffer.length; i+=4) {
-    for(var i=0; i<rgbaBuffer.length; i+=4) {
-        var colour = (rgbaBuffer[i] << 16) + (rgbaBuffer[i+1] << 8) + rgbaBuffer[i+2];
-        
-        var knownColour = false;    
+  var outputBuffer = new Uint8Array(rgbaBuffer.length / 4);   
+  //for(var i=0; i<rgbaBuffer.length; i+=4) {
+  for(var i=0; i<rgbaBuffer.length; i+=4) {
+      var colour = (rgbaBuffer[i] << 16) + (rgbaBuffer[i+1] << 8) + rgbaBuffer[i+2];
+      if(rgbaBuffer[i+3] == 0){
+        colour = BG_COL;
+      }
+      
+      var foundCol = false;
+      for(var p=0; p<palette.length; p++) {     
+          if(colour == palette[p]) {
+            //console.log("EXISTING colour "+palette[p]);
+            foundCol = true;
+            outputBuffer[i/4] = p;  
+            break;
+          } 
+      }   
+
+      if(!foundCol && (palette.length < 256)){
+            palette.push(colour);
+            //console.log("NEW colour "+palette[p]);
+            outputBuffer[i/4] = palette.length-1;  
+
+      } else if (!foundCol){
+
+        //console.log("not existing, palette.length "+palette.length);
         var lowestDiff = 999999999999999999;
         var closestCol = 0xFFFFFF;
-        var closestIndex = -1;    
-        for(var p=0; p<palette.length; p++) {
-          
-            if(colour == palette[p]) {
-                outputBuffer[i/4] = p;
-                knownColour = true;
-                //console.log("KNOWN COLOUR: "+palette[p]);
-                break;
-            } else {
-                var paletteInt = palette[p];
-                var colourInt = colour;
-                //console.log(colourInt+" - "+paletteInt+" = "+Math.abs( colourInt - paletteInt ));
-                lowestDiff = Math.min(lowestDiff, Math.abs( colourInt - paletteInt ));
-                closestCol = palette[p];
-                closestIndex = p;
-            }
-        }   
-        if(!knownColour){
-            //palette.push(colour);
-            //console.log("UNKNOWN COLOUR: "+colour+", closest to: "+closestCol+" with diff "+lowestDiff);
-            outputBuffer[i/4] = closestIndex;
+        var closestIndex = -1;  
+
+        for(var pp=0; pp<palette.length; pp++) {    
+          var paletteInt = palette[pp];
+          var colourInt = colour;
+          var colourDiff = Math.abs( colourInt - paletteInt );
+          if(colourDiff < lowestDiff){
+            lowestDiff = colourDiff;
+            closestCol = palette[pp];
+            closestIndex = pp;  
+            //console.log("CLOSEST colour "+palette[p]);
+          }
         }
+         outputBuffer[i/4] = closestIndex;  
+      }
+      
+     
     }
 
     return outputBuffer;
@@ -349,7 +420,7 @@ function buildBranch(baseLength, distanceFromTip){
 
     var i, cylinderColorFunc, nodeColorFunc;
 
-    console.log("building branch of color "+BASE_TREE_COLOR);
+    //console.log("building branch of color "+BASE_TREE_COLOR);
 
     if(BASE_TREE_COLOR == "silvergreen" || BASE_TREE_COLOR == "silverblack"){
       cylinderColorFunc = colorHelper.randomGrey;
@@ -431,7 +502,7 @@ function buildTree(treeData,branchLength,depth){
 
 
 function buildScene(){
-  scene.remove(tree);
+  scene.remove(_tree);
   _data = [];
 
   while(_data.length == 0) {
@@ -441,9 +512,9 @@ function buildScene(){
   treeDepth = depthOfArray(_data);
 
 
-  var tree = buildTree(_data,BRANCH_LENGTH,treeDepth); 
-  tree.position.y = -2;
-  scene.add(tree);
+  _tree = buildTree(_data,BRANCH_LENGTH,treeDepth); 
+  _tree.position.y -= 15;
+  scene.add(_tree);
 
   makeGIF();
 }
