@@ -204,19 +204,21 @@ function TreeGenerator(){
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-     function makePaletteFromScene(pal){
+    function makePaletteFromScene(pal){
 
-      var firstsnap = renderer.render(scene, camera);
-      var eightbitbuffer = convertRGBAto8bit(firstsnap.data,pal);
+        var firstsnap = renderer.render(scene, camera);
+        var eightbitbuffer = convertRGBAto8bit(firstsnap.data,pal);
 
-     console.log("generated palette, length "+pal.length);
-      for(var p=0; p<pal.length; p++) {
-        //console.log(pal[p]);
-      }
+        console.log("generated palette, length "+pal.length);
 
-      while(!isPowerOfTwo(pal.length)){
-        pal.push(0x000000);
-      }
+        //while(!isPowerOfTwo(pal.length)){
+        while(pal.length < 256){
+            pal.push(Math.floor(Math.random()*0xFFFFFF));
+        }
+
+        console.log("now it's "+pal.length);
+
+        return pal;
     }
 
     /**
@@ -241,7 +243,9 @@ function TreeGenerator(){
     function makeGIF(){
 
      
-      makePaletteFromScene(_palette);
+      _palette = makePaletteFromScene(_palette);
+
+      console.log("back in makeGIF, _palette.length is "+_palette.length);
 
       var NUM_FRAMES = 100;
 
@@ -263,20 +267,24 @@ function TreeGenerator(){
       }
       var id = randomId();
 
-      // making a png just to check the colours
-      var png = new PNG({
-        width: sceneWidth,
-        height: sceneHeight,
-        filterType: -1
-      });
-
-        for(var i=0;i<pixels.data.length;i++) {
-        png.data[i] = pixels.data[i];
-      }
-      png.pack().pipe(fs.createWriteStream('./test'+id+'.png'));
+      //savePNG(pixels.data, sceneWidth, sceneHeight);
 
       fs.writeFileSync('./test'+id+'.gif', gifBuffer.slice(0, gif.end()));
 
+    }
+
+    function savePNG(pixelData, width, height){
+        // making a png just to check the colours
+      var png = new PNG({
+        width: width,
+        height: height,
+        filterType: -1
+      });
+
+        for(var i=0;i<pixelData.length;i++) {
+        png.data[i] = pixelData[i];
+      }
+      png.pack().pipe(fs.createWriteStream('./test'+id+'.png'));
     }
 
     function randomId(){
