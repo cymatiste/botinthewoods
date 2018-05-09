@@ -554,8 +554,8 @@ function TreeGenerator(){
         }
         //_initColors();
         var newTree = buildTree(_data,BRANCH_LENGTH,treeDepth,0); 
-        newTree.position.x += Math.random()*400-200;
-        newTree.position.z += Math.random()*400-200;
+        newTree.position.x += Math.random()*300-150;
+        newTree.position.z += Math.random()*300-150;
         _tree.add(newTree);
       }
     }
