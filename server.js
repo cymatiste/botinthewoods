@@ -1,4 +1,3 @@
-var Twit = require('twit');
 var fs = require('fs'),
     path = require('path'),
     Twit = require('twit'),
@@ -23,7 +22,13 @@ function tweetEvent(tweet) {
     var nameID  = tweet.id_str;
 
     var treegen = new TreeGenerator();
-    treegen.makeNewTree();
+
+    var filename = 'tree'+Math.floor(Math.random()*999999);
+    treegen.makeNewTree(filename);
+    var filePath = './images/'+filename+'.gif';
+    T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
+      console.log(data);
+    })
 
     // What was the tweet replying to?
     var parentId =  tweet.in_reply_to_status_id_str;
