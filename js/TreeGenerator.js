@@ -34,40 +34,26 @@ function TreeGenerator(){
     // Some parameters that can be tweakedcls from the browser (we hope)
     //////////////////////////////////////////////////////////////////
 
-    var BRANCH_LENGTH = 3 + Math.random()*3;
-    var BRANCH_RAD_MAX = 0.4 + Math.random()*1;
-    var BRANCH_RAD_MIN = BRANCH_RAD_MAX*(Math.random()*0.02);
+    var BRANCH_LENGTH = 2 + Math.random()*4;
+    var BRANCH_RAD_MAX = 0.3 + Math.random()*1.2;
+    var BRANCH_RAD_MIN = BRANCH_RAD_MAX*(Math.random()*0.03);
     var LENGTH_MULT = 0.85 + Math.random()*0.1;
     var MAX_BRANCHES_PER_NODE = 3 + Math.random()*5;
     var MAX_BRANCHES_TOTAL = 2000;
     var BASE_BRANCH_CHANCE = 0.7 + Math.random()*0.15;
     var CHANCE_DECAY = 0.07 - Math.random()*0.075;
-    var BASE_TREE_COLOR = "silvergreen";
     var MAX_DEPTH = 10;
     var ANGLE_MIN = 30;
     var ANGLE_MAX = 60 + Math.random()*60;
-    var NUM_FRAMES = 48;
-    var COLOR_BTM = colorHelper.randomHex();
-    var COLOR_TOP = colorHelper.variationsOn(COLOR_BTM,200);
 
-    console.log(COLOR_BTM+" --> "+COLOR_TOP);
-    
-    var prop1 = 0.4+Math.random()*0.2;
-    var prop2 = 1 - prop1;
-    var BG_COL_INT = colorHelper.parseHex(colorHelper.mixHexCols("#FFFFFF",colorHelper.complimentaryHex(COLOR_BTM),0.8,0.2));
+    var LEAF_SIZE = 0.1 + Math.random()*1.5;
+    var LEAF_DENSITY = Math.floor(Math.random()*12);
 
+    var NUM_FRAMES = 128;
 
-    if (typeof document != 'undefined') {
-      document.getElementById("maxbranchinput").value = MAX_BRANCHES_PER_NODE;
-      document.getElementById("branchpinput").value = BASE_BRANCH_CHANCE;
-      document.getElementById("pdecayinput").value = CHANCE_DECAY;
-      document.getElementById("maxdepthinput").value = MAX_DEPTH;
-      document.getElementById("anglemininput").value = ANGLE_MIN;
-      document.getElementById("anglemaxinput").value = ANGLE_MAX;
-      document.getElementById("branchlinput").value = BRANCH_LENGTH;
-      document.getElementById("lengthmultinput").value = LENGTH_MULT;
+    var COLOR_BTM, COLOR_TOP, BG_COL_INT, LEAF_BASE_COL, LEAF_COLS;
 
-    }
+    _initColors();
 
     var treeDepth = 0;
 
@@ -135,19 +121,6 @@ function TreeGenerator(){
     }
 
 
-
-    /////////////////////////////////////////
-    // Trackball Controller
-    /////////////////////////////////////////
-    /*
-    controls = new TrackballControls( camera, renderer.domElement  );
-    controls.rotateSpeed = 2.0;
-    controls.zoomSpeed = 0.2;
-    controls.noZoom = false;
-    controls.noPan = true;
-    controls.dynamicDampingFactor = 0.5;
-    */
-
     /////////////////////////////////////////
     // Lighting
     /////////////////////////////////////////
@@ -168,23 +141,26 @@ function TreeGenerator(){
     //scene.add(b);
     //
 
-    /**
-     * Thank you to https://stackoverflow.com/users/1045296/jolly-exe for this function
-     */
-    function getParameterByName(name, url) {
 
-        if(typeof window == 'undefined') {
-          return undefined;
+    function _initColors(){
+
+        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(),50);
+        COLOR_TOP = colorHelper.variationsOn(COLOR_BTM,180);
+
+        console.log(COLOR_BTM+" --> "+COLOR_TOP);
+        
+        var prop1 = 0.4+Math.random()*0.2;
+        var prop2 = 1 - prop1;
+        //var BG_COL_INT = colorHelper.parseHex(colorHelper.mixHexCols("#FFFFFF",colorHelper.complimentaryHex(COLOR_BTM),0.8,0.2));
+        BG_COL_INT = colorHelper.parseHex(colorHelper.variationsOn("#d4e9ff",100));
+
+        //var LEAF_BASE_COL= colorHelper.variationsOn("#66bc46",80);
+        LEAF_BASE_COL= colorHelper.variationsOn(colorHelper.randomHex(),80);
+        LEAF_COLS = [];
+        for(var i=0; i<6; i++){
+            LEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL,20));
         }
 
-
-        if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
     function makePaletteFromScene(pal){
@@ -231,7 +207,7 @@ function TreeGenerator(){
       _palette = makePaletteFromScene(_palette);
 
       var gifBuffer = new Buffer(sceneWidth * sceneHeight * NUM_FRAMES); // holds the entire GIF output
-      var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {palette: _palette, loop: 1});
+      var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {palette: _palette, loop: 0});
       var y_axis = new THREE.Vector3(0,1,0);
 
       for(var i=0; i<NUM_FRAMES; i++){
@@ -288,7 +264,7 @@ function TreeGenerator(){
             var colour = (rgbaBuffer[i] << 16) + (rgbaBuffer[i+1] << 8) + rgbaBuffer[i+2];
         
             // if this pixel is transparent, let's fill in a background.
-            if(rgbaBuffer[i+3] == 0){
+            if(rgbaBuffer[i+3] == 0 && colour == 0){
                 colour = BG_COL_INT;
             }
             
@@ -403,16 +379,12 @@ function TreeGenerator(){
 
     }
 
-    /**
-     * stole this from https://threejs.org/docs/#api/extras/core/Shape
-     * @return {THREE.mesh} the leaf mesh
-     */
-    function buildLeaf(){
+    function buildLeaf(leafCol){
 
 
-        var geometry = new THREE.CircleGeometry( 0.5, 8 );
+        var geometry = new THREE.CircleGeometry( LEAF_SIZE, 8 );
 
-        var material = new THREE.MeshBasicMaterial( { color: colorHelper.parseHex(colorHelper.variationsOn("#99cc33",5)) } );
+        var material = new THREE.MeshBasicMaterial( { color: colorHelper.parseHex(leafCol) } );
         //var material = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
 
         var leaf = new THREE.Mesh( geometry, material );
@@ -470,19 +442,22 @@ function TreeGenerator(){
        
         var branchCol = colorHelper.mixHexCols(COLOR_BTM, COLOR_TOP, propBtm, propTop);
 
+        var branchCols = [];
+        for (i = 0; i < 4; i++){
+            branchCols.push(colorHelper.variationsOn(branchCol),50);
+        }
+
         nodeColorFunc = function(){
-            //console.log(" n c f "+branchCol);
-            var nodecol = colorHelper.variationsOn(branchCol, 10);
-            return nodecol;
+            //var nodecol = colorHelper.variationsOn(branchCol, 10);
+            //return nodecol;
+            return branchCol;
         };
 
         cylinderColorFunc = function(){
-            //console.log(" c c f  "+branchCol);
-            var cylcol = colorHelper.variationsOn(branchCol, 40);
-            return cylcol;
+            //var cylcol = colorHelper.variationsOn(branchCol, 20);
+            //return cylcol;
+            return branchCols[Math.floor(Math.random()*branchCols.length)];
         };
-
-
 
         for ( i = 0; i < cylGeom.faces.length; i += 2 ) {    
           hex = colorHelper.parseHex(cylinderColorFunc());
@@ -501,8 +476,7 @@ function TreeGenerator(){
 
         var cylinder = new THREE.Mesh( cylGeom, material );
         cylinder.position.y = length/2;
-      
-
+    
         
         var sphere = new THREE.Mesh(sphGeom, material);
 
@@ -518,33 +492,34 @@ function TreeGenerator(){
         branch.length = length;
 
         //console.log("distance from tip: "+distanceFromTip);
+
         if(distanceFromTip == 1){
-            var numLeaves = Math.floor(Math.random()*10);
+            var numLeaves = LEAF_DENSITY;            
+
             //console.log("adding "+numLeaves+" leaves.");
             for( i=0; i<numLeaves; i++){
-                var newLeaf = buildLeaf();
-                newLeaf.position = branch.tip.position;
-                newLeaf.position.x += Math.random()*6 - 3;
+
+                var leaf_col = LEAF_COLS[Math.floor(Math.random()*LEAF_COLS.length)];
+                
+                //var leaf_col = colorHelper.variationsOn(COLOR_TOP,50);
+                var newLeaf = buildLeaf(leaf_col);
+
+                newLeaf.position.x += Math.random()*2 - 1;
                 newLeaf.position.y += Math.random()*3;
-                newLeaf.position.z += Math.random()*6 - 3;
+                newLeaf.position.z += Math.random()*2 - 1;
+                
+
                 newLeaf.rotation.x = Math.random()*2*Math.PI;
                 newLeaf.rotation.y = Math.random()*2*Math.PI;
                 newLeaf.rotation.z = Math.random()*2*Math.PI;
-                branch.add(newLeaf);
+                
+                branch.tip.add(newLeaf);
             }
         }
 
         return( branch );
     }
 
-    function spreadBranches(){
-      /*
-      for(var i=0; i<branches.length; i++){
-        for(var j=i+1; j<branches.length; j++){
-          if(branches[j].)
-      }
-    */
-    }
 
     function buildTree(treeData,branchLength,depth,height){
 
@@ -570,7 +545,22 @@ function TreeGenerator(){
       
     }
 
-    function buildScene(){
+    function _buildForest(){
+        for(var i=0; i<8; i++){
+        _data = [];
+        while(_data.length == 0) {
+            _numBranches = 0;
+            _data = randomTreeData();
+        }
+        //_initColors();
+        var newTree = buildTree(_data,BRANCH_LENGTH,treeDepth,0); 
+        newTree.position.x += Math.random()*400-200;
+        newTree.position.z += Math.random()*400-200;
+        _tree.add(newTree);
+      }
+    }
+
+    function _buildScene(){
       scene.remove(_tree);
       _data = [];
 
@@ -583,7 +573,11 @@ function TreeGenerator(){
       treeDepth = depthOfArray(_data);
 
       _tree = buildTree(_data,BRANCH_LENGTH,treeDepth,0); 
-      _tree.position.y -= 17;
+      _tree.position.y -= 18;
+
+      // hey let's just throw in a whole forest.
+      _buildForest();
+
       scene.add(_tree);
 
       makeGIF();
@@ -592,7 +586,7 @@ function TreeGenerator(){
 
     _this.makeNewTree = function(filename){
         _filename = filename;
-        buildScene();
+        _buildScene();
         renderScene();
     };
     
