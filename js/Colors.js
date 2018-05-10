@@ -225,9 +225,9 @@ function Colors(){
 
 
     this.randomDark = function(){
-        var lowR = Math.floor(Math.random()*30);
-        var lowG = Math.floor(Math.random()*30);
-        var lowB = Math.floor(Math.random()*30);
+        var lowR = Math.floor(Math.random()*45);
+        var lowG = Math.floor(Math.random()*45);
+        var lowB = Math.floor(Math.random()*45);
 
         return _this.rgbToHex({r:lowR, g:lowG, b:lowB});
 
