@@ -5,10 +5,44 @@ var fs = require('fs'),
     config = require(path.join(__dirname, 'config.js'));
 
 var T = new Twit(config);
-//T.post('statuses/update', { status: 'yeah boi.'}, function (err, data, response){console.log(data);});
+
 
 var stream = T.stream('statuses/filter', { track: ['@rttreebot'] });
-stream.on('tweet', tweetEvent);
+
+// soon
+//stream.on('tweet', tweetEvent);
+
+
+function tweetAForest(){
+    var treegen = new TreeGenerator();
+
+    var filename = 'tree'+Math.floor(Math.random()*999999);
+    treegen.makeNewTree(filename);
+
+    var filePath = './images/'+filename+'.gif';
+    T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log(data);
+            const params = {
+              status: "",
+              media_ids: data.media_id_string
+            }
+
+            T.post('statuses/update', params, function(err, data, response) {
+              if (err !== undefined) {
+                console.log(err);
+              } else {
+                console.log('Tweeted: ' + params.status);
+              }
+            });
+            console.log('Tweeted: ' + params.status);
+        }
+    });
+
+    //T.post('statuses/update', { status: 'hmm'}, function (err, data, response){console.log(data);});
+}
 
 function tweetEvent(tweet) {
 
@@ -20,15 +54,6 @@ function tweetEvent(tweet) {
     // var txt = tweet.text;
     // the status update or tweet ID in which we will reply
     var nameID  = tweet.id_str;
-
-    var treegen = new TreeGenerator();
-
-    var filename = 'tree'+Math.floor(Math.random()*999999);
-    treegen.makeNewTree(filename);
-    var filePath = './images/'+filename+'.gif';
-    T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
-      console.log(data);
-    })
 
     // What was the tweet replying to?
     var parentId =  tweet.in_reply_to_status_id_str;
@@ -72,5 +97,6 @@ function tweetEvent(tweet) {
         
         }
     });
-    
 };
+
+tweetAForest();
