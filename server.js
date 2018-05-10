@@ -7,7 +7,7 @@ var fs = require('fs'),
 var T = new Twit(config);
 
 
-var stream = T.stream('statuses/filter', { track: ['@rttreebot'] });
+//var stream = T.stream('statuses/filter', { track: ['@rttreebot'] });
 
 // soon
 //stream.on('tweet', tweetEvent);
@@ -99,4 +99,13 @@ function tweetEvent(tweet) {
     });
 };
 
+
+//tweetAForest();
+
+
+function tweetEveryThisManyMinutes(mins){
+    setInterval(tweetAForest, mins*60*1000);
+}
+
+tweetEveryThisManyMinutes(10);
 tweetAForest();

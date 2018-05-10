@@ -16,7 +16,7 @@ function TreeGenerator(){
 
     var fs = require('fs');
     var path = require('path');
-    PNG = require('pngjs').PNG;
+    var PNG = require('pngjs').PNG;
     var THREE = require('three');
     var omggif = require('omggif');
     var perlin = require('perlin-noise');
@@ -31,37 +31,40 @@ function TreeGenerator(){
     var _tree;
     var _filename;
 
-    //////////////////////////////////////////////////////////////////
-    // Some parameters that can be tweakedcls from the browser (we hope)
-    //////////////////////////////////////////////////////////////////
 
     var BRANCH_LENGTH = 2 + Math.random()*4;
     var BRANCH_RAD_MAX = 0.3 + Math.random()*1.2;
     var BRANCH_RAD_MIN = BRANCH_RAD_MAX*(Math.random()*0.03);
     var LENGTH_MULT = 0.85 + Math.random()*0.1;
-    var MAX_BRANCHES_PER_NODE = 3 + Math.random()*2;
+    var MAX_BRANCHES_PER_NODE = Math.floor(2 + Math.random()*3);
     var MAX_BRANCHES_TOTAL = 7777;
     var BASE_BRANCH_CHANCE = 0.7 + Math.random()*0.11;
-    var CHANCE_DECAY = 0.07 - Math.random()*0.072;
-    var MAX_DEPTH = 10;
+    var CHANCE_DECAY = Math.random()*0.07;
+    var MAX_DEPTH = 12;
     var ANGLE_MIN = 30;
     var ANGLE_MAX = 60 + Math.random()*60;
 
-    var LEAF_SIZE = 0.3 + Math.random()*1.4;
+    var LEAF_SIZE = 0.1 + Math.random()*1.4;
     var LEAF_DENSITY = Math.floor(Math.random()*12);
 
     var NUM_FRAMES = 128;
 
-    var NUM_TREES = 30;
+    var NUM_TREES = 50;
 
     var COLOR_BTM, COLOR_TOP, SKY_COL, GRND_COL, LEAF_BASE_COL, LEAF_COLS;
 
     _initColors();
 
-    var treeDepth = 0;
+    var _noise = perlin.generatePerlinNoise(480, 480);
 
-    var _noise = perlin.generatePerlinNoise(10, 480);
-    
+    console.log("MAX_BRANCHES_PER_NODE: "+MAX_BRANCHES_PER_NODE);
+    console.log("BASE_BRANCH_CHANCE: "+BASE_BRANCH_CHANCE);
+    console.log("MAX_DEPTH: "+MAX_DEPTH);
+    console.log("COLOR_BTM: "+COLOR_BTM);
+    console.log("COLOR_TOP: "+COLOR_TOP);
+    console.log("SKY_COL: "+SKY_COL);
+    console.log("GRND_COL: "+GRND_COL);
+    console.log("LEAF_BASE_COL: "+LEAF_BASE_COL);
 
 
     /////////////////////////////////////////
@@ -81,57 +84,34 @@ function TreeGenerator(){
     }
 
     var sceneWidth, sceneHeight, pixelRatio;
-
-    if(typeof window == 'undefined'){
-      sceneWidth = 800;
-      sceneHeight = 800;
-      pixelRatio = 1;
-    } else {
-      sceneWidth = window.innerWidth;
-      sceneHeight = window.innerHeight;
-      pixelRatio = window.devicePixelRatio;
-    }
+    sceneWidth = 800;
+    sceneHeight = 800;
+    pixelRatio = 1;
 
 
-    camera = new THREE.PerspectiveCamera( 40, sceneWidth / sceneHeight, 1, 1000 );
+    camera = new THREE.PerspectiveCamera( 50, sceneWidth / sceneHeight, 1, 1000 );
     camera.position.x = 0;
-    camera.position.y = 1;
-    camera.position.z = -20;
+    camera.position.y = 2;
+    camera.position.z = -30;
 
     var aLittleHigherPos = scene.position;
     aLittleHigherPos.y = 5;
     camera.lookAt( aLittleHigherPos );
 
-    if(typeof windwow == 'undefined'){
-       renderer = new SoftwareRenderer({
+    renderer = new SoftwareRenderer({
         alpha: true,
         antialias: true,
         preserveDrawingBuffer: true
-      });
-    } else {
-      renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: true,
-        preserveDrawingBuffer: true
-      });
-    }
-
-
+    });
 
     renderer.setPixelRatio( pixelRatio );
     renderer.setSize( sceneWidth, sceneHeight );
-
-    if(typeof document != 'undefined'){
-        document.getElementById("theTree").appendChild( renderer.domElement );  
-    }
-
 
     /////////////////////////////////////////
     // Lighting
     /////////////////////////////////////////
 
-    var ambientLight  = new THREE.AmbientLight( '#8888FF' );
-
+    var ambientLight  = new THREE.AmbientLight( '#FFFFFF' );
     scene.add( ambientLight );
 
 
@@ -152,7 +132,7 @@ function TreeGenerator(){
         COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(),50);
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM,180);
 
-        console.log(COLOR_BTM+" --> "+COLOR_TOP);
+        //console.log(COLOR_BTM+" --> "+COLOR_TOP);
         
         var prop1 = 0.4+Math.random()*0.2;
         var prop2 = 1 - prop1;
@@ -173,7 +153,14 @@ function TreeGenerator(){
     function makePaletteFromScene(pal){
 
         var firstsnap = renderer.render(scene, camera);
-        var eightbitbuffer = convertRGBAto8bit(firstsnap.data,pal);
+
+        console.log("took firstsnap. starting pal: "+pal);
+
+        savePNG(firstsnap.data, sceneWidth, sceneHeight);
+
+        console.log("saved png: "+_filename+".png");
+
+        var eightbitbuffer = convertRGBAto8bit(firstsnap.data, pal);
 
         console.log("generated palette, length "+pal.length);
 
@@ -181,8 +168,6 @@ function TreeGenerator(){
         while(pal.length < 256){
             pal.push(Math.floor(Math.random()*0xFFFFFF));
         }
-
-        //console.log("now it's "+pal.length);
 
         return pal;
     }
@@ -210,39 +195,49 @@ function TreeGenerator(){
 
         console.log("making GIF, filename "+_filename);
 
+        var gifData = [];
      
-      _palette = makePaletteFromScene(_palette);
+        _palette = makePaletteFromScene(_palette);
 
-      var gifBuffer = new Buffer(sceneWidth * sceneHeight * NUM_FRAMES); // holds the entire GIF output
-      var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {palette: _palette, loop: 0});
-      var y_axis = new THREE.Vector3(0,1,0);
-      var startingNoise = Math.floor(Math.random()*_noise.length/2);
-
-      for(var i=0; i<NUM_FRAMES; i++){
-        //controls.exposedRotate(300+i,0);
         
-        // spin around the central tree
-        //_tree.rotateOnAxis(y_axis,Math.PI/(NUM_FRAMES/2));
+    
+        var gifBuffer = new Buffer(sceneWidth * sceneHeight * NUM_FRAMES); // holds the entire GIF output
+        var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {palette: _palette, loop: 0});
+        var y_axis = new THREE.Vector3(0,1,0);
+        var startingNoise = Math.floor(Math.random()*_noise.length/2);
+    
+        for(var i=0; i<NUM_FRAMES; i++){
+
+            console.log(i);
+            //controls.exposedRotate(300+i,0);
+            
+            // spin around the central tree
+            //_tree.rotateOnAxis(y_axis,Math.PI/(NUM_FRAMES/2));
+            
+            // walk through the forest
+            _tree.position.z -= 0.3;
+            var wobble = (_noise[i+startingNoise] - 0.5)/100;
+            _tree.rotation.y += wobble;
+
+            var pixels = renderer.render(scene, camera);
+    
+            console.log(".");
+            var frameData = convertRGBAto8bit(pixels.data, _palette);
+            //gifData.push(frameData);
+            gif.addFrame(0, 0, pixels.width, pixels.height, frameData);
+
+    
+        }
+        //for(var i=NUM_FRAMES-1; i>=0; i--){
+        //    gif.addFrame(gifData[i]);
+        //}
+        var id = randomId();
+
+        //savePNG(pixels.data, sceneWidth, sceneHeight);
+
+        fs.writeFileSync('./images/'+_filename+'.gif', gifBuffer.slice(0, gif.end()));
+
         
-        // walk through the forest
-        _tree.position.z -= 0.2;
-        var wobble = (_noise[i+startingNoise] - 0.5)/100;
-        _tree.rotation.y += wobble;
-        //console.log(wobble);
-
-
-        var pixels = renderer.render(scene, camera);
-
-        console.log(".");
-        var frameData = convertRGBAto8bit(pixels.data, _palette);
-        gif.addFrame(0, 0, pixels.width, pixels.height, frameData);
-
-      }
-      var id = randomId();
-
-      //savePNG(pixels.data, sceneWidth, sceneHeight);
-
-      fs.writeFileSync('./images/'+_filename+'.gif', gifBuffer.slice(0, gif.end()));
 
     };
 
@@ -255,9 +250,9 @@ function TreeGenerator(){
       });
 
         for(var i=0;i<pixelData.length;i++) {
-        png.data[i] = pixelData[i];
-      }
-      png.pack().pipe(fs.createWriteStream('./test'+id+'.png'));
+            png.data[i] = pixelData[i];
+          }
+      png.pack().pipe(fs.createWriteStream('./images/'+_filename+'.png'));
     }
 
     function randomId(){
@@ -284,7 +279,7 @@ function TreeGenerator(){
        for(var i=0; i<rgbaBuffer.length; i+=4) {
             var colour = (rgbaBuffer[i] << 16) + (rgbaBuffer[i+1] << 8) + rgbaBuffer[i+2];
 
-            var skyline = 1.6;
+            var skyline = 1.75;
         
             // if this pixel is transparent, let's fill in a background.
             if(rgbaBuffer[i+3] == 0 && colour == 0){
@@ -301,8 +296,7 @@ function TreeGenerator(){
                     colour = blend3;
                 } else {
                     colour = grndColInt;   
-                }
-                
+                }   
             }
             
             var foundCol = false;
@@ -433,23 +427,26 @@ function TreeGenerator(){
       return degree*(Math.PI/180);
     }
 
-    function buildBranch(baseLength, distanceFromTip, distanceFromRoot){
+    function buildBranch(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth){
         var length = baseLength*(1 + Math.random()*0.4);
 
         var referenceLength = Math.min(length, BRANCH_LENGTH);
 
         var baseRadius = function(distFromTip, distFromRoot){
-            var fromBottom = BRANCH_RAD_MIN + ((treeDepth - distFromRoot)/treeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN); 
-            var fromTop = BRANCH_RAD_MIN + ((distFromTip)/treeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
-            //return (fromBottom + fromTop)/2;
+            var fromBottom = BRANCH_RAD_MIN + ((fullTreeDepth - distFromRoot)/fullTreeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN); 
+            var fromTop = BRANCH_RAD_MIN + ((distFromTip)/fullTreeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
+            //console.log("R     "+fromTop+"   ("+distFromTip+" / "+distFromRoot+", "+BRANCH_RAD_MIN+", "+fullTreeDepth+")");
             return fromTop;
         };
 
         var radiusBottom =  baseRadius(distanceFromTip, distanceFromRoot);
         var radiusTop = baseRadius(Math.max(0,distanceFromTip-1), distanceFromRoot+1);
-        //var radiusBottom =  BRANCH_RAD_MIN + ((distanceFromTip)/treeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
-        //var radiusTop = BRANCH_RAD_MIN + ((distanceFromTip-1)/treeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
+        //var radiusBottom =  BRANCH_RAD_MIN + ((distanceFromTip)/fullTreeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
+        //var radiusTop = BRANCH_RAD_MIN + ((distanceFromTip-1)/fullTreeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
         
+
+        // /console.log("branch r "+radiusBottom+"     -->     "+radiusTop);
+
         var cylGeom = new THREE.CylinderGeometry( radiusTop, radiusBottom, length, 8 );
         var sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
         var hex;
@@ -473,9 +470,9 @@ function TreeGenerator(){
         }
         */
        
-       //console.log("  ~ ~ ~  "+distanceFromRoot+" / "+treeDepth);
+       //console.log("  ~ ~ ~  "+distanceFromRoot+" / "+fullTreeDepth);
 
-       var propBtm = (treeDepth - distanceFromRoot)/treeDepth;
+       var propBtm = (fullTreeDepth - distanceFromRoot)/fullTreeDepth;
        var propTop = 1 - propBtm;
        
         var branchCol = colorHelper.mixHexCols(COLOR_BTM, COLOR_TOP, propBtm, propTop);
@@ -559,7 +556,7 @@ function TreeGenerator(){
     }
 
 
-    function buildTree(treeData,branchLength,depth,height){
+    function buildTree(treeData, branchLength, depth, height, fullTreeDepth){
 
       //console.log("building tree with "+treeData.length+" branches.");
       var fanRads = de2ra((ANGLE_MIN + (Math.random()*(ANGLE_MAX - ANGLE_MIN))));
@@ -567,11 +564,10 @@ function TreeGenerator(){
         fanRads = fanRads/4;
       }
 
-      var root = buildBranch(branchLength, depth, height);
-
+      var root = buildBranch(branchLength, depth, height, fullTreeDepth);
 
       for(var i=0; i<treeData.length; i++){
-        var newBranch = buildTree(treeData[i], branchLength*LENGTH_MULT, depthOfArray(treeData[i]), height+1);
+        var newBranch = buildTree(treeData[i], branchLength*LENGTH_MULT, depthOfArray(treeData[i]), height+1, fullTreeDepth);
         newBranch.rotation.x = root.rotation.x + (Math.random()*fanRads) - fanRads/2;
         newBranch.rotation.z = root.rotation.z + (Math.random()*fanRads) - fanRads/2;
         //newBranch.position.y = -0.05;
@@ -587,16 +583,23 @@ function TreeGenerator(){
     function _buildForest(){
         for(var i=0; i<NUM_TREES; i++){
         _data = [];
-        while(_data.length == 0) {
+        while(depthOfArray(_data) < 3) {
             _numBranches = 0;
             _data = randomTreeData();
         }
-        console.log("secondary tree has "+_numBranches+" branches.");
         //_initColors();
-        var newTree = buildTree(_data,BRANCH_LENGTH,treeDepth,0); 
-        newTree.position.x = (1 + Math.random()*20)*_randomSign() - _tree.position.x;
+        var newTree = buildTree(_data, BRANCH_LENGTH, depthOfArray(_data), 0, depthOfArray(_data) ); 
+        if(i%2==0){
+            newTree.position.x = (Math.random()*20)*_randomSign() - _tree.position.x;
+        } else {
+            newTree.position.x = (1 + Math.random()*40)*_randomSign() - _tree.position.x;    
+        }
+        
         // put all the trees behind the first one so we can walk through them
-        newTree.position.z = i*15 + (Math.random()*10 - 5);
+        newTree.position.z = i*7 + (Math.random()*10 - 5);
+
+        console.log("tree "+i+" has "+_numBranches+" branches, at x "+Math.round(newTree.position.x)+"  z "+Math.round(newTree.position.z));
+
         _tree.add(newTree);
       }
     }
@@ -605,15 +608,13 @@ function TreeGenerator(){
       scene.remove(_tree);
       _data = [];
 
-      while(_data.length == 0) {
+      while(depthOfArray(_data) < 3) {
         _numBranches = 0;
         _data = randomTreeData();
       }
       console.log("random tree has "+_numBranches+" branches.");
 
-      treeDepth = depthOfArray(_data);
-
-      _tree = buildTree(_data,BRANCH_LENGTH,treeDepth,0); 
+      _tree = buildTree(_data,BRANCH_LENGTH, depthOfArray(_data),0, depthOfArray(_data)); 
       _tree.position.x = (5 + Math.random()*5)*_randomSign();
       _tree.position.y = -10;
 
@@ -645,21 +646,6 @@ function TreeGenerator(){
       renderer.render( scene, camera );
     }
 
-
-    /////////////////////////////////////////
-    // Window Resizing
-    /////////////////////////////////////////
-    if(typeof window != 'undefined'){
-
-      window.addEventListener( 'resize', function () {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize( window.innerWidth, window.innerHeight );
-          //controls.handleResize();
-          renderScene();
-      }, false );
-
-    }
 
 
 
