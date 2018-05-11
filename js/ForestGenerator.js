@@ -690,10 +690,10 @@ function ForestGenerator() {
 
             if (i % 2 == 0) {
                 // Half of the trees we want relatively close to the center
-                newTree.position.x = (Math.random() * 25) * _randomSign() - _tree.position.x;
+                newTree.position.x = (Math.random() * (sceneWidth/30)) * _randomSign() - _tree.position.x;
             } else {
                 // and half can spread further out, with a wider spread as they are farther away.
-                newTree.position.x = (1 + Math.random() * (35 + i)) * _randomSign() - _tree.position.x;
+                newTree.position.x = (1 + Math.random() * (sceneWidth/20) + i) * _randomSign() - _tree.position.x;
             }
 
             // Some clumps of vegetation around the base of the trees.
