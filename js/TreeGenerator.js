@@ -32,8 +32,8 @@ function TreeGenerator(){
     var _filename;
 
 
-    var BRANCH_LENGTH = 2 + Math.random()*4;
-    var BRANCH_RAD_MAX = 0.1 + Math.random()*1.3;
+    var BRANCH_LENGTH = 2 + Math.random()*5;
+    var BRANCH_RAD_MAX = _pickRadius();
     var BRANCH_RAD_MIN = BRANCH_RAD_MAX*(Math.random()*0.03);
     var LENGTH_MULT = 0.85 + Math.random()*0.1;
     var MAX_BRANCHES_PER_NODE = Math.floor(2 + Math.random()*3);
@@ -44,14 +44,15 @@ function TreeGenerator(){
     var ANGLE_MIN = 30;
     var ANGLE_MAX = 60 + Math.random()*60;
 
-    var LEAF_SIZE = 0.1 + Math.random()*1.4;
+    var LEAF_SIZE = _pickLeafSize();
     var LEAF_DENSITY = Math.floor(Math.random()*12);
 
-    var NUM_FRAMES = 128;
+    //var NUM_FRAMES = 100;
+    var NUM_FRAMES = 5;
 
-    var NUM_TREES = 50;
+    var NUM_TREES = 40 + Math.floor(Math.random()*30);
 
-    var COLOR_BTM, COLOR_TOP, SKY_COL, GRND_COL, LEAF_BASE_COL, LEAF_COLS;
+    var COLOR_BTM, COLOR_TOP, SKY_COL, GRND_COL, LEAF_BASE_COL, TREELEAF_COLS, GRNDLEAF_COLS;
 
     _initColors();
 
@@ -126,6 +127,33 @@ function TreeGenerator(){
     //scene.add(b);
     //
 
+    function _pickRadius(){
+      var sizeRange = Math.random()*3;
+
+      if(sizeRange < 0.6){
+        return 0.1 + Math.random()*0.4;
+      } else if (sizeRange < 2){
+        return 0.4 + Math.random()*0.5;
+      } else if (sizeRange < 2.7){
+        return 0.6 + Math.random()*0.4;
+      } else {
+        return 0.8 + Math.random()*0.5;
+      }
+    }
+
+    function _pickLeafSize(){
+      var sizeRange = Math.random()*3;
+      if(sizeRange < 1){
+        return 0.1 + Math.random()*0.4;
+      } else if (sizeRange < 2.2){
+        return 0.3 + Math.random()*0.4;
+      } else if (sizeRange < 2.7){
+        return 0.6 + Math.random()*0.4;
+      } else {
+        return 0.8 + Math.random()*0.6;
+      }
+
+    }
 
     function _initColors(){
 
@@ -142,11 +170,14 @@ function TreeGenerator(){
 
         //var LEAF_BASE_COL= colorHelper.variationsOn("#66bc46",80);
         LEAF_BASE_COL= colorHelper.variationsOn(colorHelper.randomHex(),80);
-        LEAF_COLS = [];
+        TREELEAF_COLS = [];
         for(var i=0; i<8; i++){
-            LEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL,20));
+            TREELEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL,30));
         }
-
+        GRNDLEAF_COLS = [];
+        for(var i=0; i<12; i++){
+            GRNDLEAF_COLS.push(colorHelper.variationsOn(GRND_COL,20));
+        }
 
     }
 
@@ -156,7 +187,7 @@ function TreeGenerator(){
 
         //console.log("took firstsnap. starting pal: "+pal);
 
-        savePNG(firstsnap.data, sceneWidth, sceneHeight);
+        //savePNG(firstsnap.data, sceneWidth, sceneHeight);
 
         //console.log("saved png: "+_filename+".png");
 
@@ -193,7 +224,7 @@ function TreeGenerator(){
 
     _this.makeGIF = function(){
 
-        console.log("making GIF, filename "+_filename);
+        //console.log("making GIF, filename "+_filename);
 
         var gifData = [];
      
@@ -215,7 +246,7 @@ function TreeGenerator(){
             //_tree.rotateOnAxis(y_axis,Math.PI/(NUM_FRAMES/2));
             
             // walk through the forest
-            _tree.position.z -= 0.3;
+            _tree.position.z -= 0.4;
             var wobble = (_noise[i+startingNoise] - 0.5)/100;
             _tree.rotation.y += wobble;
 
@@ -237,7 +268,7 @@ function TreeGenerator(){
 
         fs.writeFileSync('./images/'+_filename+'.gif', gifBuffer.slice(0, gif.end()));
 
-        
+        console.log("wrote "+_filename+".gif");        
 
     };
 
@@ -410,10 +441,10 @@ function TreeGenerator(){
 
     }
 
-    function buildLeaf(leafCol){
+    function buildLeaf(leafCol, leafSize){
 
 
-        var geometry = new THREE.CircleGeometry( LEAF_SIZE, 8 );
+        var geometry = new THREE.CircleGeometry( leafSize, 8 );
 
         var material = new THREE.MeshBasicMaterial( { color: colorHelper.parseHex(leafCol) } );
         //var material = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
@@ -423,18 +454,33 @@ function TreeGenerator(){
         return leaf;
     }
 
+    function _buildMountain(size){
+
+
+        var geometry = new THREE.CircleGeometry( size, 64 );
+
+        var material = new THREE.MeshBasicMaterial( { color: colorHelper.parseHex(GRND_COL) } );
+        //var material = new THREE.MeshBasicMaterial( { color: colorHelper.parseHex(colorHelper.randomHex()) } );
+
+        var mountain = new THREE.Mesh( geometry, material );
+
+        mountain.rotation.x = -Math.PI;
+
+        return mountain;
+    }
+
     function de2ra(degree){
       return degree*(Math.PI/180);
     }
 
-    function buildBranch(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth){
+    function buildBranch(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth, minRad, maxRad){
         var length = baseLength*(1 + Math.random()*0.4);
 
         var referenceLength = Math.min(length, BRANCH_LENGTH);
 
         var baseRadius = function(distFromTip, distFromRoot){
-            var fromBottom = BRANCH_RAD_MIN + ((fullTreeDepth - distFromRoot)/fullTreeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN); 
-            var fromTop = BRANCH_RAD_MIN + ((distFromTip)/fullTreeDepth)*(BRANCH_RAD_MAX - BRANCH_RAD_MIN);
+            var fromBottom = minRad + ((fullTreeDepth - distFromRoot)/fullTreeDepth)*(maxRad - minRad); 
+            var fromTop = minRad + ((distFromTip)/fullTreeDepth)*(maxRad - minRad);
             //console.log("R     "+fromTop+"   ("+distFromTip+" / "+distFromRoot+", "+BRANCH_RAD_MIN+", "+fullTreeDepth+")");
             return fromTop;
         };
@@ -529,15 +575,21 @@ function TreeGenerator(){
         //console.log("distance from tip: "+distanceFromTip);
 
         if(distanceFromTip == 1){
-            var numLeaves = Math.floor(LEAF_DENSITY/2 + Math.random()*(LEAF_DENSITY/2));            
+            _makeLeavesAround(branch.tip, Math.floor(LEAF_DENSITY/2 + Math.random()*(LEAF_DENSITY/2)), TREELEAF_COLS, LEAF_SIZE);
+        }
+
+        return( branch );
+    }
+
+    function _makeLeavesAround(obj3d, numLeaves, colors, leafSize){
 
             //console.log("adding "+numLeaves+" leaves.");
             for( i=0; i<numLeaves; i++){
 
-                var leaf_col = LEAF_COLS[Math.floor(Math.random()*LEAF_COLS.length)];
+                var leaf_col = colors[Math.floor(Math.random()*colors.length)];
                 
                 //var leaf_col = colorHelper.variationsOn(COLOR_TOP,50);
-                var newLeaf = buildLeaf(leaf_col);
+                var newLeaf = buildLeaf(leaf_col, leafSize);
 
                 newLeaf.position.x += Math.random()*2 - 1;
                 newLeaf.position.y += Math.random()*3;
@@ -548,11 +600,8 @@ function TreeGenerator(){
                 newLeaf.rotation.y = Math.random()*2*Math.PI;
                 newLeaf.rotation.z = Math.random()*2*Math.PI;
                 
-                branch.tip.add(newLeaf);
+                obj3d.add(newLeaf);
             }
-        }
-
-        return( branch );
     }
 
 
@@ -561,10 +610,11 @@ function TreeGenerator(){
       //console.log("building tree with "+treeData.length+" branches.");
       var fanRads = de2ra((ANGLE_MIN + (Math.random()*(ANGLE_MAX - ANGLE_MIN))));
       if (height<2){
-        fanRads = fanRads/(2-height)*3;
+        fanRads = fanRads/4;
       }
 
-      var root = buildBranch(branchLength, depth, height, fullTreeDepth);
+      var workingRad = BRANCH_RAD_MIN + BRANCH_RAD_MAX*(0.6 + Math.random()*0.4);
+      var root = buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, workingRad);
 
       for(var i=0; i<treeData.length; i++){
         var newBranch = buildTree(treeData[i], branchLength*LENGTH_MULT, depthOfArray(treeData[i]), height+1, fullTreeDepth);
@@ -581,26 +631,37 @@ function TreeGenerator(){
     }
 
     function _buildForest(){
-        for(var i=0; i<NUM_TREES; i++){
-        _data = [];
-        while(depthOfArray(_data) < 3) {
-            _numBranches = 0;
-            _data = randomTreeData();
-        }
-        //_initColors();
-        var newTree = buildTree(_data, BRANCH_LENGTH, depthOfArray(_data), 0, depthOfArray(_data) ); 
-        if(i%2==0){
-            newTree.position.x = (Math.random()*20)*_randomSign() - _tree.position.x;
-        } else {
-            newTree.position.x = (1 + Math.random()*(40+i))*_randomSign() - _tree.position.x;    
-        }
-        
-        // put all the trees behind the first one so we can walk through them
-        newTree.position.z = i*5 + (Math.random()*10 - 5);
+      var i;
+      for(i=0; i<NUM_TREES; i++){
+         _data = [];
+         while(depthOfArray(_data) < 3) {
+             _numBranches = 0;
+             _data = randomTreeData();
+         }
+         //_initColors();
+         var newTree = buildTree(_data, BRANCH_LENGTH, depthOfArray(_data), 0, depthOfArray(_data) ); 
+         if(i%2==0){
+             newTree.position.x = (Math.random()*20)*_randomSign() - _tree.position.x;
+         } else {
+             newTree.position.x = (1 + Math.random()*(40+i))*_randomSign() - _tree.position.x;    
+         }
+         
+          _makeLeavesAround(newTree, Math.floor(Math.random()*30), GRNDLEAF_COLS, _pickLeafSize());
+  
+         // put all the trees behind the first one so we can walk through them
+         newTree.position.z = i*5 + (Math.random()*10 - 5);
+  
+         console.log("tree "+i+" has "+_numBranches+" branches, at x "+Math.round(newTree.position.x)+"  z "+Math.round(newTree.position.z));
+  
+         _tree.add(newTree);
+      }
 
-        console.log("tree "+i+" has "+_numBranches+" branches, at x "+Math.round(newTree.position.x)+"  z "+Math.round(newTree.position.z));
-
-        _tree.add(newTree);
+      for(i=0; i<NUM_TREES*2; i++){
+        var clump = new THREE.Object3D();
+        clump.position.x = Math.random()*80-40;
+        clump.position.z = Math.random()*200;
+        _makeLeavesAround(clump, Math.floor(Math.random()*15), GRNDLEAF_COLS, _pickLeafSize());
+        _tree.add(clump);
       }
     }
 
@@ -618,8 +679,20 @@ function TreeGenerator(){
       _tree.position.x = (5 + Math.random()*5)*_randomSign();
       _tree.position.y = -10;
 
+       _makeLeavesAround(_tree, Math.floor(Math.random()*30), GRNDLEAF_COLS, _pickLeafSize());
+
       // hey let's just throw in a whole forest.
       _buildForest();
+
+      var numHills = Math.floor(Math.random()*15);
+      for(var i=0; i<numHills; i++){
+        var hillSize = Math.floor(50+Math.random()*200);
+        var hill = _buildMountain(hillSize);
+        hill.position.z = 300 + i*5;
+        hill.position.x = Math.random()*300-150;
+        hill.position.y = Math.random()*9 - 5 - hillSize;
+        scene.add(hill);
+      }
 
       scene.add(_tree);
 
@@ -631,10 +704,11 @@ function TreeGenerator(){
     }
 
 
-    _this.makeNewTree = function(filename){
-        _filename = filename;
-        _buildScene();
-        renderScene();
+    _this.makeNewTree = function(numFrames, filename){
+      NUM_FRAMES = numFrames;
+      _filename = filename;
+      _buildScene();
+      renderScene();
     };
 
 

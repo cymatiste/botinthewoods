@@ -17,7 +17,7 @@ function tweetAForest(){
     var treegen = new TreeGenerator();
 
     var filename = 'tree'+Math.floor(Math.random()*999999);
-    treegen.makeNewTree(filename);
+    treegen.makeNewTree(100, filename);
 
     var filePath = './images/'+filename+'.gif';
     T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
