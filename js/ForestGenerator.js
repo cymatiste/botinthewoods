@@ -165,8 +165,9 @@ function ForestGenerator() {
         }
         // There are leaves on the ground too.  They match the ground.
         GRNDLEAF_COLS = [];
+        var slightlyBrighterGroundBase = colorHelper.brightenByAmt(GRND_COL,11*_randomSign());
         for (i = 0; i < 12; i++) {
-            GRNDLEAF_COLS.push(colorHelper.variationsOn(GRND_COL, 30));
+            GRNDLEAF_COLS.push(colorHelper.variationsOn(slightlyBrighterGroundBase, 30));
         }
 
     }
@@ -622,6 +623,52 @@ function ForestGenerator() {
     }
 
     /**
+     * Fluffy round clouds in the sky
+     * ------------------------------------
+     * @return {void} 
+     */
+    function _buildClouds(){
+        
+        var numClumps = Math.floor(Math.random()*7);
+        
+        var cloudMaxRad = 400;
+        var thinness = 0.08;
+
+        for(var i=0; i< numClumps; i++){
+
+            var cloudsPerClump = 3 + Math.floor(Math.random()*12);
+
+            var clumpCenterX = Math.round(Math.random()*500 - 250);
+            var clumpCenterY = Math.round(250 + Math.random()*300 - 150);
+            var cloudCol = colorHelper.brightenByAmt(SKY_COL, Math.floor(Math.random()*25));
+
+            console.log("clump "+i+": "+cloudsPerClump+" clouds around "+clumpCenterX+", "+clumpCenterY);
+
+            for(var j=0; j < cloudsPerClump; j++){
+                var geometry = new THREE.CircleGeometry(Math.random()*cloudMaxRad, 32);
+                
+                //var cloudCol = colorHelper.randomHex();
+                var material = new THREE.MeshBasicMaterial({
+                    color: colorHelper.parseHex(cloudCol)
+                });
+            
+                var cloud = new THREE.Mesh(geometry, material);
+                cloud.rotation.x = -Math.PI;
+                cloud.scale.y = Math.random()*thinness;
+                cloud.scale.x = 0.3 + Math.random()*0.7;
+                // darker clouds in the background please
+                cloud.position.z = 700 + (255 - colorHelper.valueOfHexCol(cloudCol));
+                var y_adj = cloudMaxRad*thinness*1.5;
+                cloud.position.y = clumpCenterY + Math.random()*y_adj - y_adj/2;
+                cloud.position.x = clumpCenterX + Math.random()*cloudMaxRad/2 - cloudMaxRad/4;
+                _tree.add(cloud);
+        
+            }
+        }
+    }
+        
+
+    /**
      * Build and position a bunch of trees in front of the camera to give the impression of a full surrounding forest.
      * Also some ground vegetation, why not.
      * -------------------------------------------------------------------------------------------------------------------
@@ -630,8 +677,9 @@ function ForestGenerator() {
     
     function _buildForest() {
         var i;
+        var actualNumTrees = NUM_TREES/2 + Math.floor(Math.random()*NUM_TREES);
         // Trees
-        for (i = 0; i < NUM_TREES; i++) {
+        for (i = 0; i < actualNumTrees; i++) {
             _data = [];
             while (_depthOfArray(_data) < 3) {
                 _numBranches = 0;
@@ -642,13 +690,14 @@ function ForestGenerator() {
 
             if (i % 2 == 0) {
                 // Half of the trees we want relatively close to the center
-                newTree.position.x = (Math.random() * 20) * _randomSign() - _tree.position.x;
+                newTree.position.x = (Math.random() * 25) * _randomSign() - _tree.position.x;
             } else {
                 // and half can spread further out, with a wider spread as they are farther away.
-                newTree.position.x = (1 + Math.random() * (40 + i)) * _randomSign() - _tree.position.x;
+                newTree.position.x = (1 + Math.random() * (35 + i)) * _randomSign() - _tree.position.x;
             }
 
             // Some clumps of vegetation around the base of the trees.
+            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), GRNDLEAF_COLS, _pickLeafSize());
             _makeLeavesAround(newTree, Math.floor(Math.random() * 30), GRNDLEAF_COLS, _pickLeafSize());
 
             // put all the trees behind the first one so we can walk through them
@@ -662,12 +711,29 @@ function ForestGenerator() {
         }
 
         // Ground cover
-        for (i = 0; i < NUM_TREES * 2; i++) {
+        for (i = 0; i < NUM_TREES * 4; i++) {
             var clump = new THREE.Object3D();
             clump.position.x = Math.random() * 80 - 40;
-            clump.position.z = Math.random() * 200;
+            clump.position.z = Math.random() * 150;
             _makeLeavesAround(clump, Math.floor(Math.random() * 15), GRNDLEAF_COLS, _pickLeafSize());
             _tree.add(clump);
+        }
+    }
+
+    /**
+     * Add some round hills in the bg
+     * ---------------------------------
+     * @return {void} 
+     */
+    function _buildHills(){
+        var numHills = Math.floor(Math.random() * 15);
+        for (var i = 0; i < numHills; i++) {
+            var hillSize = Math.floor(50 + Math.random() * 200);
+            var hill = _buildMountain(hillSize);
+            hill.position.z = 400 + i * 5;
+            hill.position.x = Math.random() * 300 - 150;
+            hill.position.y = Math.random() * 12 - 5 - hillSize;
+            _tree.add(hill);
         }
     }
 
@@ -694,16 +760,8 @@ function ForestGenerator() {
 
         // hey let's just throw in a whole forest.
         _buildForest();
-
-        var numHills = Math.floor(Math.random() * 15);
-        for (var i = 0; i < numHills; i++) {
-            var hillSize = Math.floor(50 + Math.random() * 200);
-            var hill = _buildMountain(hillSize);
-            hill.position.z = 400 + i * 5;
-            hill.position.x = Math.random() * 300 - 150;
-            hill.position.y = Math.random() * 12 - 5 - hillSize;
-            _tree.add(hill);
-        }
+        _buildHills();
+        _buildClouds();
 
         scene.add(_tree);   
     }

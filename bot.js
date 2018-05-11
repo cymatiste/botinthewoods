@@ -6,20 +6,26 @@ var fs = require('fs'),
 
 var T = new Twit(config);
 
-
+// Run this if we want to detect when people tweet us
 //var stream = T.stream('statuses/filter', { track: ['@rttreebot'] });
 
 // soon
 //stream.on('tweet', tweetEvent);
 
-
+/**
+ * Do it.
+ * @return {void}
+ */
 function tweetAForest(){
     var treegen = new ForestGenerator();
 
+    // Make the GIF
     var filename = 'tree'+Math.floor(Math.random()*999999);
     treegen.generateSceneGIF(100, filename);
 
     var filePath = './images/'+filename+'.gif';
+
+    // Upload the GIF
     T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
         if (err) {
             console.log(err)
@@ -30,6 +36,7 @@ function tweetAForest(){
               media_ids: data.media_id_string
             }
 
+            // Tweet the GIF
             T.post('statuses/update', params, function(err, data, response) {
               if (err !== undefined) {
                 console.log(err);
@@ -41,7 +48,6 @@ function tweetAForest(){
         }
     });
 
-    //T.post('statuses/update', { status: 'hmm'}, function (err, data, response){console.log(data);});
 }
 
 function tweetEvent(tweet) {
@@ -99,8 +105,6 @@ function tweetEvent(tweet) {
     });
 };
 
-
-//tweetAForest();
 
 
 function tweetEveryThisManyMinutes(mins){

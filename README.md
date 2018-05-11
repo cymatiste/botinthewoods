@@ -24,7 +24,7 @@ Then run:
 - cmd > node bot.js
 
 This will tweet every 15 minutes by default.
-If you want to test out creating GIFs without tweeting them, use js/test.js
+If you want to test out creating GIFs without tweeting them, use js/test.js (you can configure it to output fewer frames for much faster sampling)
 
 If you get "Javascript heap out of memory" errors, these instructions might help:
 https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c
@@ -32,7 +32,9 @@ https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0d
 
 ## Misc notes:
 
-This is a work in progress! Please send any comments or suggestions to sarah at xstnt dot net.
+This is a work in progress!  And it's kind of hacky, inputs not well sanitized; plz don't judge too hard. 
+
+Comments or suggestions are welcome; send them to sarah at xstnt dot net.
 
 You'll find a bunch of unused stuff in here too: 
 - an older web version of the tree generator with some exposed variables.  
