@@ -6,12 +6,11 @@ This project is distributed under an MIT license (see below).
 God bless all the people who made npm and the node modules I used to throw this together.
 
 ~~~~~~~~~~~~~~~~~
-  TO REPLICATE:
+TO REPLICATE:
 ~~~~~~~~~~~~~~~~~
 - install node
 - make a developer twitter account (there are lots of tutorials around on how to do this) and add a config.js in the root folder containing the following:
 
-//-------------------------------------------------------------------
 var config = {
     consumer_key: '__YOUR_CONSUMER_PUBLIC_KEY_HERE__',
     consumer_secret: '__YOUR_CONSUMER_SECRET_KEY_HERE__',
@@ -19,7 +18,7 @@ var config = {
     access_token_secret: '__YOUR_SECRET_ACCESS_TOKEN_HERE__'
 }
 module.exports = config;
-//--------------------------------------------------------------------
+
 
 Then run:
 - cmd > npm install
@@ -33,7 +32,7 @@ https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0d
 
 
 ~~~~~~~~~~~~~~~
-  MISC NOTES:
+MISC NOTES:
 ~~~~~~~~~~~~~~~
 
 This is a work in progress! Please send any comments or suggestions to sarah at xstnt dot net.
@@ -44,7 +43,7 @@ You'll find a bunch of unused stuff in here too:
 
 
 ~~~~~~~~~~~~
-  LICENSE:
+LICENSE:
 ~~~~~~~~~~~~
 Copyright 2018 Sarah Imrisek
 
