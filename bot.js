@@ -21,9 +21,9 @@ function tweetAForest(){
 
     // Make the GIF
     var filename = 'tree'+Math.floor(Math.random()*999999);
-    treegen.generateSceneGIF(100, filename);
+    treegen.generateSceneGIF(90, filename);
 
-    var filePath = './images/'+filename+'.gif';
+    var filePath = path.join(__dirname,'/images/',filename+'.gif');
 
     // Upload the GIF
     T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
@@ -33,7 +33,8 @@ function tweetAForest(){
             console.log(data);
             const params = {
               status: "",
-              media_ids: data.media_id_string
+              media_ids: [data.media_id_string],
+              encoding: 'base64'
             }
 
             // Tweet the GIF

@@ -69,8 +69,8 @@ function ForestGenerator() {
     }
 
     var sceneWidth, sceneHeight, pixelRatio;
-    sceneWidth = 800;
-    sceneHeight = 800;
+    sceneWidth = 640;
+    sceneHeight = 600;
     pixelRatio = 1;
 
 
@@ -596,7 +596,7 @@ function ForestGenerator() {
      * 
      * @return {THREE.Object3D}                 -- the 3D tree!
      */
-    function _buildTree(treeData, branchLength, depth, height, fullTreeDepth) {
+    function _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRadius) {
 
         var fanRads = _de2ra((ANGLE_MIN + (Math.random() * (ANGLE_MAX - ANGLE_MIN))));
         // Don't start fanning out too low in the tree.
@@ -604,16 +604,15 @@ function ForestGenerator() {
             fanRads = fanRads / 4;
         }
 
-        var workingRad = BRANCH_RAD_MIN + BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
-        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, workingRad);
+        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, maxBranchRadius);
 
         for (var i = 0; i < treeData.length; i++) {
-            var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth);
+            var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRadius);
             newBranch.rotation.x = root.rotation.x + (Math.random() * fanRads) - fanRads / 2;
             newBranch.rotation.z = root.rotation.z + (Math.random() * fanRads) - fanRads / 2;
 
             // Position this subtree somewhere along the parent branch if such exists.
-            newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
+            //newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
 
             root.tip.add(newBranch);
         }
@@ -685,8 +684,8 @@ function ForestGenerator() {
                 _numBranches = 0;
                 _data = _randomTreeData();
             }
-            
-            var newTree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data));
+            var workingRad = BRANCH_RAD_MIN + BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
+            var newTree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), workingRad);
 
             if (i % 2 == 0) {
                 // Half of the trees we want relatively close to the center
@@ -752,7 +751,7 @@ function ForestGenerator() {
         }
         console.log("random tree has " + _numBranches + " branches.");
 
-        _tree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data));
+        _tree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), BRANCH_RAD_MAX);
         _tree.position.x = (5 + Math.random() * 5) * _randomSign();
         _tree.position.y = -10;
 
