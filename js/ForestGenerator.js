@@ -69,8 +69,8 @@ function ForestGenerator() {
     }
 
     var sceneWidth, sceneHeight, pixelRatio;
-    sceneWidth = 800;
-    sceneHeight = 800;
+    sceneWidth = 640;
+    sceneHeight = 600;
     pixelRatio = 1;
 
 
