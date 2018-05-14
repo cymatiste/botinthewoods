@@ -5,4 +5,4 @@ TreeGenerator = require('./ForestGenerator.js');
 
 var treegen = new TreeGenerator();
 var filename = 'tree'+Math.floor(Math.random()*999999);
-treegen.generateSceneGIF(100,filename);
+treegen.generateSceneGIF(50,filename);

@@ -38,7 +38,7 @@ function ForestGenerator() {
     var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.11;
     var CHANCE_DECAY = Math.random() * 0.07 - 0.01;
     var MAX_DEPTH = 12;
-    var ANGLE_MIN = 30;
+    var ANGLE_MIN = 15 + Math.random()*30;
     var ANGLE_MAX = 60 + Math.random() * 60;
 
     var LEAF_SIZE = _pickLeafSize();
@@ -113,9 +113,9 @@ function ForestGenerator() {
         } else if (sizeRange < 2) {
             return 0.4 + Math.random() * 0.5;
         } else if (sizeRange < 2.7) {
-            return 0.6 + Math.random() * 0.4;
+            return 0.6 + Math.random() * 0.6;
         } else {
-            return 0.8 + Math.random() * 0.5;
+            return 0.8 + Math.random() * 0.8;
         }
     }
 
@@ -465,6 +465,58 @@ function ForestGenerator() {
         return mountain;
     }
 
+    function _flowerPath(){
+
+        console.log("PATH");
+
+        var numFlowers = 50 + Math.floor(Math.random()*50);
+        var newPath = new THREE.Object3D();
+        var targetCol = colorHelper.randomHex();
+        var petalNum = 6;
+        var petalSize = 0.5;
+
+        for(var i=0; i<numFlowers; i++){
+            var variedCol = colorHelper.variationsOn(targetCol,25);
+            var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GRND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
+            var f = new _flower(petalNum, flowerCol, petalSize);
+            f.position.z = i*Math.random()*3;
+            f.position.x = Math.random()*3 - 1.5;
+            //f.position.y = 5;
+            newPath.add(f);
+        }
+        return newPath;
+    }
+
+    function _flower(numPetals, col, petalSize){
+        //console.log("flower: "+numPetals+", "+col+", "+petalSize);
+        var flower = new THREE.Object3D();
+
+        for(var i=0; i<numPetals; i++){
+
+            var geometry = new THREE.CircleGeometry(petalSize, 16);
+            var material = new THREE.MeshBasicMaterial({
+                color: col
+            });
+            
+            var petal = new THREE.Mesh(geometry, material);
+            petal.position.z = 0.01;
+            
+            
+            petal.rotation.x = _de2ra(30);
+            //petal.rotation.z = _de2ra(30);
+            
+            petal.scale.y = 1.5/numPetals;
+            
+            
+            petal.rotation.y = i*_de2ra(360/numPetals);
+            
+            
+            flower.add(petal);
+        }
+        
+        return flower;
+    }
+
     /**
      * Convert degrees to radians
      * --------------------------------------------
@@ -604,8 +656,8 @@ function ForestGenerator() {
             fanRads = fanRads / 4;
         }
 
-        var workingRad = maxBranchRad * (0.6 + Math.random() * 0.4);
-        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, workingRad);
+        
+        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, maxBranchRad);
 
         for (var i = 0; i < treeData.length; i++) {
             var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRad);
@@ -613,7 +665,7 @@ function ForestGenerator() {
             newBranch.rotation.z = root.rotation.z + (Math.random() * fanRads) - fanRads / 2;
 
             // Position this subtree somewhere along the parent branch if such exists.
-            newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
+            //newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
 
             root.tip.add(newBranch);
         }
@@ -686,7 +738,8 @@ function ForestGenerator() {
                 _data = _randomTreeData();
             }
             
-            var newTree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), BRANCH_RAD_MAX);
+            var workingRad = BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
+            var newTree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), workingRad);
 
             if (i % 2 == 0) {
                 // Half of the trees we want relatively close to the center
@@ -743,6 +796,8 @@ function ForestGenerator() {
      * @return {void}
      */
     function _buildScene() {
+
+        console.log("_buildScene");
         scene.remove(_forest);
         _data = [];
 
@@ -754,6 +809,7 @@ function ForestGenerator() {
         _buildForest();
         _buildHills();
         _buildClouds();
+        //_forest.add(_flowerPath());
 
         scene.add(_forest);   
     }
