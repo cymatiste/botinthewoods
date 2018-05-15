@@ -736,12 +736,8 @@ function ForestGenerator() {
                 _numBranches = 0;
                 _data = _randomTreeData();
             }
-<<<<<<< HEAD
+
             var workingRad = BRANCH_RAD_MIN + BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
-=======
-            
-            var workingRad = BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
->>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
             var newTree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), workingRad);
 
             if (i % 2 == 0) {
@@ -800,21 +796,9 @@ function ForestGenerator() {
      */
     function _buildScene() {
 
-<<<<<<< HEAD
-        while (_depthOfArray(_data) < 3) {
-            _numBranches = 0;
-            _data = _randomTreeData();
-        }
-        console.log("random tree has " + _numBranches + " branches.");
-
-        _tree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), BRANCH_RAD_MAX);
-        _tree.position.x = (5 + Math.random() * 5) * _randomSign();
-        _tree.position.y = -10;
-=======
         console.log("_buildScene");
         scene.remove(_forest);
         _data = [];
->>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
 
         _forest = new THREE.Object3D();
         //_forest.position.x = (5 + Math.random() * 5) * _randomSign();
