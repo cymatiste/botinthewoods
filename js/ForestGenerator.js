@@ -648,11 +648,7 @@ function ForestGenerator() {
      * 
      * @return {THREE.Object3D}                 -- the 3D tree!
      */
-<<<<<<< HEAD
-    function _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRadius) {
-=======
     function _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad) {
->>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
 
         var fanRads = _de2ra((ANGLE_MIN + (Math.random() * (ANGLE_MAX - ANGLE_MIN))));
         // Don't start fanning out too low in the tree.
@@ -660,18 +656,10 @@ function ForestGenerator() {
             fanRads = fanRads / 4;
         }
 
-<<<<<<< HEAD
-        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, maxBranchRadius);
-
-        for (var i = 0; i < treeData.length; i++) {
-            var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRadius);
-=======
-        
         var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, maxBranchRad);
 
         for (var i = 0; i < treeData.length; i++) {
             var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRad);
->>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
             newBranch.rotation.x = root.rotation.x + (Math.random() * fanRads) - fanRads / 2;
             newBranch.rotation.z = root.rotation.z + (Math.random() * fanRads) - fanRads / 2;
 
