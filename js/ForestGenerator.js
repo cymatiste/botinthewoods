@@ -784,7 +784,7 @@ function ForestGenerator() {
             var hillRadius = Math.floor(30 + Math.random() * 50);
             var hillColor = GRND_COLS[Math.floor(Math.random()*GRND_COLS.length)] 
             var hill = _buildHill(hillRadius, hillColor);
-            hill.scale.y = 0.25;
+            hill.scale.y = 0.15;
 
             var xSpread = 50 + i*10;
             hill.position.z = i * 10;

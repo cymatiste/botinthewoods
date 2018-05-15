@@ -5,6 +5,7 @@ God bless all the people who made npm and the node modules I used to throw this 
 
 ## To replicate:
 - install node
+- In the project folder, cmd > npm install 
 - you can generate the scenes without a developer twitter account but if you want to tweet them you'll need one (there are lots of tutorials around on how to do this).  You'll also have to add a config.js in the root folder containing the following:
 
 ```
@@ -16,8 +17,6 @@ var config = {
 }
 module.exports = config;
 ```
-
-- cmd > npm install
 
 To generate a forest GIF:
 - cmd > node test.js
