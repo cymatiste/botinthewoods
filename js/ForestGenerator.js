@@ -164,13 +164,18 @@ function ForestGenerator() {
         }
         
         // There are leaves on the ground too.  They match the ground, which varies slightly.
+        // And flowers!  Which could be any colour.
         GROUND_COLS = [];
         VEG_COLS = [];
+        FLOWER_COLS = [];
+
         var vegBase = colorHelper.brightenByAmt(GROUND_COL,10*_randomSign());
-        
+        var flowerBase = colorHelper.randomHex();
+
         for (i = 0; i < 8; i++){
             GROUND_COLS.push(colorHelper.variationsOn(GROUND_COL, 15));
             VEG_COLS.push(colorHelper.variationsOn(vegBase, 30));
+            FLOWER_COLS.push(colorHelper.variationsOn(flowerBase,50));
         }
 
     }
@@ -475,23 +480,35 @@ function ForestGenerator() {
 
         var numFlowers = 50 + Math.floor(Math.random()*50);
         var newPath = new THREE.Object3D();
-        var targetCol = colorHelper.randomHex();
-        var petalNum = 6;
-        var petalSize = 0.5;
+        var petalNum = 5;
+        
+        var basePetalSize = 0.15 + Math.random()*0.25;
+
+        var flowerNoise = Math.floor(Math.random() * (_noise.length - numFlowers));
+
+        var startZ = Math.random()*20;
+        var zSpread = 3 + Math.random()*10;
 
         for(var i=0; i<numFlowers; i++){
-            var variedCol = colorHelper.variationsOn(targetCol,25);
+
+            var petalSize = basePetalSize*(0.8 + Math.random()*0.3);
+            var variedCol = FLOWER_COLS[Math.floor(Math.random()*FLOWER_COLS.length)];
             var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GROUND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
-            var f = new _flower(petalNum, flowerCol, petalSize);
-            f.position.z = i*Math.random()*3;
-            f.position.x = Math.random()*3 - 1.5;
+            var petalAngle = Math.PI*(1.5 - Math.random()*0.3);
+            var f = new _flower(petalNum, flowerCol, petalSize, petalAngle);
+            f.position.z = startZ + i*Math.random()*zSpread;
+            //f.position.x = _noise[flowerNoise+i] + Math.random()*4 - 2;
+            f.position.x = Math.random()*40 - 20;
+
+            f.rotation.z += Math.random()*0.02;
+            f.rotation.z += Math.random()*0.02;
             //f.position.y = 5;
             newPath.add(f);
         }
         return newPath;
     }
 
-    function _flower(numPetals, col, petalSize){
+    function _flower(numPetals, col, petalSize, petalAngle){
         //console.log("flower: "+numPetals+", "+col+", "+petalSize);
         var flower = new THREE.Object3D();
 
@@ -506,15 +523,17 @@ function ForestGenerator() {
             
             var petal = new THREE.Mesh(geometry, material);
             
-            petal.rotation.z = _de2ra(-45);
-            petal.position.z = 0.01;
+            petal.rotation.x = petalAngle;
+
+            petal.position.z = petalSize/1.5;
+            petal.scale.x = 2/numPetals;
             pivot.add(petal);
+            pivot.position.y = 1.1;
 
             //petal.rotation.z = _de2ra(30);
             
-            pivot.scale.y = 1.5/numPetals;
-            pivot.rotation.y = i*_de2ra(360/numPetals);
             
+            pivot.rotation.y = i*_de2ra(360/numPetals);
             
             flower.add(pivot);
         }
@@ -823,7 +842,7 @@ function ForestGenerator() {
         _buildForest();
         _buildHills();
         _buildClouds();
-        //_forest.add(_flowerPath());
+        _forest.add(_flowerPath());
 
         scene.add(_forest);   
     }

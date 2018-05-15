@@ -23,5 +23,6 @@ function _keepGenerating(numFrames){
 
 
 
-//_keepGenerating(30);
+//_keepGenerating(100);
 _newForest(100);
+

@@ -121,7 +121,7 @@ function keepGenerating(){
 
     // Make the GIF
     var filename = 'forest'+Math.floor(Math.random()*999999);
-    _GIFnames.push(gen.generateSceneGIF(90, filename));
+    _GIFnames.push(gen.generateSceneGIF(100, filename));
 
     logTimeElapsed();
     var minsElapsed = ((Date.now() - lastTimeStamp)/60000);
