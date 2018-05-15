@@ -1,13 +1,11 @@
 
 Generate and tweet an animated GIF of a little forest walk-through!
 
-This project is distributed under an MIT license (see below).
-
 God bless all the people who made npm and the node modules I used to throw this together.
 
 ## To replicate:
 - install node
-- make a developer twitter account (there are lots of tutorials around on how to do this) and add a config.js in the root folder containing the following:
+- you can generate the scenes without a developer twitter account but if you want to tweet them you'll need one (there are lots of tutorials around on how to do this).  You'll also have to add a config.js in the root folder containing the following:
 
 ```
 var config = {
@@ -19,24 +17,27 @@ var config = {
 module.exports = config;
 ```
 
-Then run:
 - cmd > npm install
+
+To generate a forest GIF:
+- cmd > node test.js
+(test.js can be edited to change the number of frames outputted.  Will eventually expose a bunch more options in here and make them command line parameters as well.)
+
+To generate and tweet one every half hour (plus however long it takes to build the thing)
 - cmd > node bot.js
 
-This will tweet every 30 minutes by default.
-If you want to test out creating GIFs without tweeting them, use 
-- cmd > node js/test.js 
-(you can configure it to output fewer frames for much faster sampling)
+All the actual work is done in js/ForestGenerator.js.  Again, this will get broken up eventually into useful subfiles.
+
 
 If you get "Javascript heap out of memory" errors, these instructions might help:
 https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c
 
 
-## Misc notes:
+## This is a work in progress:
 
-This is a work in progress!  And it's kind of hacky, inputs not well sanitized; plz don't judge too hard. 
+I haven't put any time yet into making it friendly for others to use.  This will get refactored as I work on it to be more flexible for adaptation to other purposes.
 
-Comments or suggestions are welcome; send them to sarah at xstnt dot net.
+Feedback and suggestions are more than welcome; tweet or dm them to @asthesparksfly.
 
 You'll find a bunch of unused stuff in here too: 
 - an older web version of the tree generator with some exposed variables.  

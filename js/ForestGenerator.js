@@ -453,11 +453,11 @@ function ForestGenerator() {
      * 
      * @return {THREE.Mesh}     -- the "mountain"
      */
-    function _buildMountain(size) {
+    function _buildHill(size,col) {
 
         var geometry = new THREE.CircleGeometry(size, 64);
         var material = new THREE.MeshBasicMaterial({
-            color: colorHelper.parseHex(GRND_COL)
+            color: colorHelper.parseHex(col)
         });
 
         var mountain = new THREE.Mesh(geometry, material);
@@ -773,18 +773,22 @@ function ForestGenerator() {
     }
 
     /**
-     * Add some round hills in the bg
-     * ---------------------------------
+     * Add some round hills in the bg 
+     * Edit: AND the foreground, why not!?
+     *       (Inspired by Melissa Launay "Midnight at Firefly Forest")
+     * --------------------------------------------------------------
      * @return {void} 
      */
     function _buildHills(){
-        var numHills = Math.floor(Math.random() * 15);
+        var numHills = 10 + Math.floor(Math.random() * 15);
         for (var i = 0; i < numHills; i++) {
-            var hillSize = Math.floor(50 + Math.random() * 200);
-            var hill = _buildMountain(hillSize);
-            hill.position.z = 400 + i * 5;
-            hill.position.x = Math.random() * 300 - 150;
-            hill.position.y = Math.random() * 12 - 5 - hillSize;
+            var hillRadius = Math.floor(5 + Math.random() * 10);
+            var hillColor = GRNDLEAF_COLS[Math.floor(Math.random()*GRNDLEAF_COLS.length)] 
+            var hill = _buildHill(hillRadius, hillColor);
+
+            hill.position.z = i * 10;
+            hill.position.x = Math.random() * 100 - 50;
+            hill.position.y = i*0.2 - hillRadius;
             _forest.add(hill);
         }
     }
