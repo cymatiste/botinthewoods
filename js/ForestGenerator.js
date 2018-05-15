@@ -505,8 +505,9 @@ function ForestGenerator() {
             });
             
             var petal = new THREE.Mesh(geometry, material);
+            
+            petal.rotation.z = _de2ra(-45);
             petal.position.z = 0.01;
-            petal.rotation.x = _de2ra(30);
             pivot.add(petal);
 
             //petal.rotation.z = _de2ra(30);
@@ -515,7 +516,7 @@ function ForestGenerator() {
             pivot.rotation.y = i*_de2ra(360/numPetals);
             
             
-            flower.add(petal);
+            flower.add(pivot);
         }
         
         return flower;
@@ -746,10 +747,13 @@ function ForestGenerator() {
 
             if (i % 2 == 0) {
                 // Half of the trees we want relatively close to the center
-                newTree.position.x = (Math.random() * (sceneWidth/30)) * _randomSign() - _forest.position.x;
+                newTree.position.x = (Math.random()*40) * _randomSign() - _forest.position.x;
+                
+                //newTree.position.x = 2000;
             } else {
-                // and half can spread further out, with a wider spread as they are farther away.
-                newTree.position.x = (1 + Math.random() * (sceneWidth/20) + i) * _randomSign() - _forest.position.x;
+                // and the other half can spread further out
+                newTree.position.x = (25 + Math.random()*50)*_randomSign();
+                //newTree.position.x = 2000;
             }
 
             // Some clumps of vegetation around the base of the trees.
@@ -770,7 +774,7 @@ function ForestGenerator() {
         for (i = 0; i < NUM_TREES * 12; i++) {
             var clump = new THREE.Object3D();
             clump.position.x = Math.random() * 80 - 40;
-            clump.position.z = Math.random() * 300;
+            clump.position.z = i + Math.random() * 300 - 150;
             _makeLeavesAround(clump, Math.floor(Math.random() * 15), VEG_COLS, _pickLeafSize(), 0);
             _forest.add(clump);
         }
@@ -819,7 +823,7 @@ function ForestGenerator() {
         _buildForest();
         _buildHills();
         _buildClouds();
-        _forest.add(_flowerPath());
+        //_forest.add(_flowerPath());
 
         scene.add(_forest);   
     }

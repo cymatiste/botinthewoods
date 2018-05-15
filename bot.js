@@ -26,10 +26,12 @@ function tweetAForest(){
     lastTimeStamp = Date.now();
     
     if(_GIFnames.length == 0){
+        console.log("...no GIFs yet, try again...");
         return;
     }
 
     var gifName = _GIFnames.shift();
+    var filePath = path.join(__dirname,'/images/',gifName+'.gif');
 
     // Upload the GIF
     T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
@@ -120,12 +122,14 @@ function keepGenerating(){
     // Make the GIF
     var filename = 'forest'+Math.floor(Math.random()*999999);
     _GIFnames.push(gen.generateSceneGIF(90, filename));
-    var filePath = path.join(__dirname,'/images/',filename+'.gif');
 
     logTimeElapsed();
-
-    if(((nowTime - lastTimeStamp)/60000) > _tweetInterval){
+    var minsElapsed = ((Date.now() - lastTimeStamp)/60000);
+    if( minsElapsed > _tweetInterval){
+        console.log("tryna tweet now.");
         tweetAForest();
+    } else {
+        console.log("..."+minsElapsed+" < "+_tweetInterval+", waiting...");
     }
     keepGenerating();
 }
