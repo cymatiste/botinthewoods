@@ -196,7 +196,7 @@ function ForestGenerator() {
 
         // If we didn't need all 256 colors, fine, just fill up the rest so the GIFmaker doesn't break.
         while (pal.length < 256) {
-            pal.push(Math.floor(Math.random() * 0xFFFFFF));
+            pal.push(colorHelper.parseHex(colorHelper.variationsOn(GROUND_COL),15));
         }
 
         return pal;
@@ -474,31 +474,33 @@ function ForestGenerator() {
         return mountain;
     }
 
-    function _flowerPath(){
-
-        console.log("PATH");
+    function _flowerPath(){   
 
         var numFlowers = 50 + Math.floor(Math.random()*50);
         var newPath = new THREE.Object3D();
-        var petalNum = 5;
+        var petalNum = 3 + Math.floor(Math.random()*9);
         
-        var basePetalSize = 0.15 + Math.random()*0.25;
+        var basePetalSize = 0.1 + Math.random()*0.2;
 
         var flowerNoise = Math.floor(Math.random() * (_noise.length - numFlowers));
 
-        var startZ = Math.random()*20;
+        var startZ = Math.random()*30 - 15;
         var zSpread = 3 + Math.random()*10;
+        var startX = Math.random()*sceneWidth;
+
+        console.log("@@@, "+numFlowers+" flowers, "+FLOWER_COLS[0]);
 
         for(var i=0; i<numFlowers; i++){
 
             var petalSize = basePetalSize*(0.8 + Math.random()*0.3);
             var variedCol = FLOWER_COLS[Math.floor(Math.random()*FLOWER_COLS.length)];
-            var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GROUND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
+            //var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GROUND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
+            var flowerCol = variedCol;
             var petalAngle = Math.PI*(1.5 - Math.random()*0.3);
             var f = new _flower(petalNum, flowerCol, petalSize, petalAngle);
             f.position.z = startZ + i*Math.random()*zSpread;
             //f.position.x = _noise[flowerNoise+i] + Math.random()*4 - 2;
-            f.position.x = Math.random()*40 - 20;
+            f.position.x = startX + Math.random()*40 - 20;
 
             f.rotation.z += Math.random()*0.02;
             f.rotation.z += Math.random()*0.02;
@@ -526,7 +528,7 @@ function ForestGenerator() {
             petal.rotation.x = petalAngle;
 
             petal.position.z = petalSize/1.5;
-            petal.scale.x = 2/numPetals;
+            petal.scale.x = 2.5/numPetals;
             pivot.add(petal);
             pivot.position.y = 1.1;
 
