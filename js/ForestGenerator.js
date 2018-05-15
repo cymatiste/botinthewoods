@@ -28,25 +28,25 @@ function ForestGenerator() {
     var _filename;
     var _palette = [];
 
-    var BRANCH_LENGTH = 2 + Math.random() * 5;
+    var BRANCH_LENGTH = 2 + Math.random() * 6;
     var BRANCH_RAD_MAX = _pickRadius();
     var BRANCH_RAD_MIN = BRANCH_RAD_MAX * (Math.random() * 0.03);
     var LENGTH_MULT = 0.85 + Math.random() * 0.1;
     var MAX_BRANCHES_PER_NODE = Math.floor(2 + Math.random() * 3);
     var MAX_BRANCHES_TOTAL = 7777;
-    var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.11;
-    var CHANCE_DECAY = Math.random() * 0.07 - 0.01;
+    var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.08;
+    var CHANCE_DECAY = Math.random() * 0.07;
     var MAX_DEPTH = 12;
     var ANGLE_MIN = 15 + Math.random()*30;
     var ANGLE_MAX = 60 + Math.random() * 60;
 
     var LEAF_SIZE = _pickLeafSize();
-    var LEAF_DENSITY = Math.floor(Math.random() * 20);
+    var LEAF_DENSITY = Math.floor(Math.random() * 24);
 
     //var NUM_FRAMES = 100;
     var NUM_FRAMES = 5;
 
-    var NUM_TREES = 40 + Math.floor(Math.random() * 30);
+    var NUM_TREES = 40 + Math.floor(Math.random() * 40);
 
     var COLOR_BTM, COLOR_TOP, SKY_COL, GROUND_COL, LEAF_BASE_COL, TREELEAF_COLS, GROUND_COLS, VEG_COLS;
 
@@ -497,6 +497,8 @@ function ForestGenerator() {
 
         for(var i=0; i<numPetals; i++){
 
+            var pivot = new THREE.Object3D();
+
             var geometry = new THREE.CircleGeometry(petalSize, 16);
             var material = new THREE.MeshBasicMaterial({
                 color: col
@@ -504,15 +506,13 @@ function ForestGenerator() {
             
             var petal = new THREE.Mesh(geometry, material);
             petal.position.z = 0.01;
-            
-            
             petal.rotation.x = _de2ra(30);
+            pivot.add(petal);
+
             //petal.rotation.z = _de2ra(30);
             
-            petal.scale.y = 1.5/numPetals;
-            
-            
-            petal.rotation.y = i*_de2ra(360/numPetals);
+            pivot.scale.y = 1.5/numPetals;
+            pivot.rotation.y = i*_de2ra(360/numPetals);
             
             
             flower.add(petal);
@@ -695,7 +695,7 @@ function ForestGenerator() {
 
             var clumpCenterX = Math.round(Math.random()*500 - 250);
             var clumpCenterY = Math.round(250 + Math.random()*300 - 150);
-            var cloudCol = colorHelper.brightenByAmt(SKY_COL, Math.floor(Math.random()*25));
+            var cloudCol = colorHelper.brightenByAmt(SKY_COL, Math.floor(Math.random()*30));
 
             console.log("clump "+i+": "+cloudsPerClump+" clouds around "+clumpCenterX+", "+clumpCenterY);
 
@@ -767,7 +767,7 @@ function ForestGenerator() {
         }
 
         // Ground cover
-        for (i = 0; i < NUM_TREES * 4; i++) {
+        for (i = 0; i < NUM_TREES * 12; i++) {
             var clump = new THREE.Object3D();
             clump.position.x = Math.random() * 80 - 40;
             clump.position.z = Math.random() * 300;
@@ -819,7 +819,7 @@ function ForestGenerator() {
         _buildForest();
         _buildHills();
         _buildClouds();
-        //_forest.add(_flowerPath());
+        _forest.add(_flowerPath());
 
         scene.add(_forest);   
     }

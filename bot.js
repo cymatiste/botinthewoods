@@ -6,7 +6,10 @@ var fs = require('fs'),
 
 var T = new Twit(config);
 
+var lastTimeStamp = Date.now();
+
 var _GIFnames = [];
+var _tweetInterval;
 
 // Run this if we want to detect when people tweet us
 //var stream = T.stream('statuses/filter', { track: ['@rttreebot'] });
@@ -19,6 +22,8 @@ var _GIFnames = [];
  * @return {void}
  */
 function tweetAForest(){
+
+    lastTimeStamp = Date.now();
     
     if(_GIFnames.length == 0){
         return;
@@ -108,7 +113,7 @@ function tweetEvent(tweet) {
 };
 
 
-function _keepGenerating(){
+function keepGenerating(){
 
     var gen = new ForestGenerator();
 
@@ -117,13 +122,24 @@ function _keepGenerating(){
     _GIFnames.push(gen.generateSceneGIF(90, filename));
     var filePath = path.join(__dirname,'/images/',filename+'.gif');
 
-    _keepGenerating();
+    logTimeElapsed();
+
+    if(((nowTime - lastTimeStamp)/60000) > _tweetInterval){
+        tweetAForest();
+    }
+    keepGenerating();
 }
+
+function logTimeElapsed(){
+    var nowTime = Date.now();
+    var timeElapsed = Math.floor((nowTime - lastTimeStamp)/60000);
+    console.log(" --- "+timeElapsed+" minutes ---");
+}
+
 
 function tweetEveryThisManyMinutes(mins){
-    setInterval(tweetAForest, mins*60*1000);
+    _tweetInterval = mins;
+    keepGenerating();    
 }
 
-tweetEveryThisManyMinutes(45);
-_keepGenerating();
-//tweetAForest();
+tweetEveryThisManyMinutes(30);
