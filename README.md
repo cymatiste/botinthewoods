@@ -23,8 +23,10 @@ Then run:
 - cmd > npm install
 - cmd > node bot.js
 
-This will tweet every 15 minutes by default.
-If you want to test out creating GIFs without tweeting them, use js/test.js (you can configure it to output fewer frames for much faster sampling)
+This will tweet every 30 minutes by default.
+If you want to test out creating GIFs without tweeting them, use 
+- cmd > node js/test.js 
+(you can configure it to output fewer frames for much faster sampling)
 
 If you get "Javascript heap out of memory" errors, these instructions might help:
 https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c

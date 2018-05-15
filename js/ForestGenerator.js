@@ -24,7 +24,7 @@ function ForestGenerator() {
 
     var colorHelper = new Colors();
 
-    var _tree;
+    var _forest;
     var _filename;
     var _palette = [];
 
@@ -38,7 +38,7 @@ function ForestGenerator() {
     var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.11;
     var CHANCE_DECAY = Math.random() * 0.07 - 0.01;
     var MAX_DEPTH = 12;
-    var ANGLE_MIN = 30;
+    var ANGLE_MIN = 15 + Math.random()*30;
     var ANGLE_MAX = 60 + Math.random() * 60;
 
     var LEAF_SIZE = _pickLeafSize();
@@ -47,7 +47,7 @@ function ForestGenerator() {
     //var NUM_FRAMES = 100;
     var NUM_FRAMES = 5;
 
-    var NUM_TREES = 40 + Math.floor(Math.random() * 30);
+    var NUM_forestS = 40 + Math.floor(Math.random() * 30);
 
     var COLOR_BTM, COLOR_TOP, SKY_COL, GRND_COL, LEAF_BASE_COL, TREELEAF_COLS, GRNDLEAF_COLS;
 
@@ -113,9 +113,9 @@ function ForestGenerator() {
         } else if (sizeRange < 2) {
             return 0.4 + Math.random() * 0.5;
         } else if (sizeRange < 2.7) {
-            return 0.6 + Math.random() * 0.4;
+            return 0.6 + Math.random() * 0.6;
         } else {
-            return 0.8 + Math.random() * 0.5;
+            return 0.8 + Math.random() * 0.8;
         }
     }
 
@@ -207,7 +207,7 @@ function ForestGenerator() {
         _palette = _makePaletteFromScene(_palette);
 
         // Arbitrarily step into the scene so they don't all start from the same position
-        _tree.position.z -= Math.random() * 10;
+        _forest.position.z -= Math.random() * 10;
 
         var gifBuffer = new Buffer(sceneWidth * sceneHeight * NUM_FRAMES); 
         var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {
@@ -224,9 +224,9 @@ function ForestGenerator() {
 
             // simulate walking through the forest by steadily moving forward,
             // and rotating the scene with perlin noise.
-            _tree.position.z -= 0.5;
+            _forest.position.z -= 0.5;
             var wobble = (_noise[i + startingNoise] - 0.5) / 150;
-            _tree.rotation.y += wobble;
+            _forest.rotation.y += wobble;
 
             var pixels = renderer.render(scene, camera);
             var frameData = _convertRGBAto8bit(pixels.data, _palette);
@@ -465,6 +465,58 @@ function ForestGenerator() {
         return mountain;
     }
 
+    function _flowerPath(){
+
+        console.log("PATH");
+
+        var numFlowers = 50 + Math.floor(Math.random()*50);
+        var newPath = new THREE.Object3D();
+        var targetCol = colorHelper.randomHex();
+        var petalNum = 6;
+        var petalSize = 0.5;
+
+        for(var i=0; i<numFlowers; i++){
+            var variedCol = colorHelper.variationsOn(targetCol,25);
+            var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GRND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
+            var f = new _flower(petalNum, flowerCol, petalSize);
+            f.position.z = i*Math.random()*3;
+            f.position.x = Math.random()*3 - 1.5;
+            //f.position.y = 5;
+            newPath.add(f);
+        }
+        return newPath;
+    }
+
+    function _flower(numPetals, col, petalSize){
+        //console.log("flower: "+numPetals+", "+col+", "+petalSize);
+        var flower = new THREE.Object3D();
+
+        for(var i=0; i<numPetals; i++){
+
+            var geometry = new THREE.CircleGeometry(petalSize, 16);
+            var material = new THREE.MeshBasicMaterial({
+                color: col
+            });
+            
+            var petal = new THREE.Mesh(geometry, material);
+            petal.position.z = 0.01;
+            
+            
+            petal.rotation.x = _de2ra(30);
+            //petal.rotation.z = _de2ra(30);
+            
+            petal.scale.y = 1.5/numPetals;
+            
+            
+            petal.rotation.y = i*_de2ra(360/numPetals);
+            
+            
+            flower.add(petal);
+        }
+        
+        return flower;
+    }
+
     /**
      * Convert degrees to radians
      * --------------------------------------------
@@ -596,7 +648,11 @@ function ForestGenerator() {
      * 
      * @return {THREE.Object3D}                 -- the 3D tree!
      */
+<<<<<<< HEAD
     function _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRadius) {
+=======
+    function _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad) {
+>>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
 
         var fanRads = _de2ra((ANGLE_MIN + (Math.random() * (ANGLE_MAX - ANGLE_MIN))));
         // Don't start fanning out too low in the tree.
@@ -604,10 +660,18 @@ function ForestGenerator() {
             fanRads = fanRads / 4;
         }
 
+<<<<<<< HEAD
         var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, maxBranchRadius);
 
         for (var i = 0; i < treeData.length; i++) {
             var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRadius);
+=======
+        
+        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, BRANCH_RAD_MIN, maxBranchRad);
+
+        for (var i = 0; i < treeData.length; i++) {
+            var newBranch = _buildTree(treeData[i], branchLength * LENGTH_MULT, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRad);
+>>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
             newBranch.rotation.x = root.rotation.x + (Math.random() * fanRads) - fanRads / 2;
             newBranch.rotation.z = root.rotation.z + (Math.random() * fanRads) - fanRads / 2;
 
@@ -660,7 +724,7 @@ function ForestGenerator() {
                 var y_adj = cloudMaxRad*thinness*1.5;
                 cloud.position.y = clumpCenterY + Math.random()*y_adj - y_adj/2;
                 cloud.position.x = clumpCenterX + Math.random()*cloudMaxRad/2 - cloudMaxRad/4;
-                _tree.add(cloud);
+                _forest.add(cloud);
         
             }
         }
@@ -676,7 +740,7 @@ function ForestGenerator() {
     
     function _buildForest() {
         var i;
-        var actualNumTrees = NUM_TREES/2 + Math.floor(Math.random()*NUM_TREES);
+        var actualNumTrees = NUM_forestS/2 + Math.floor(Math.random()*NUM_forestS);
         // Trees
         for (i = 0; i < actualNumTrees; i++) {
             _data = [];
@@ -684,15 +748,20 @@ function ForestGenerator() {
                 _numBranches = 0;
                 _data = _randomTreeData();
             }
+<<<<<<< HEAD
             var workingRad = BRANCH_RAD_MIN + BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
+=======
+            
+            var workingRad = BRANCH_RAD_MAX * (0.6 + Math.random() * 0.4);
+>>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
             var newTree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), workingRad);
 
             if (i % 2 == 0) {
                 // Half of the trees we want relatively close to the center
-                newTree.position.x = (Math.random() * (sceneWidth/30)) * _randomSign() - _tree.position.x;
+                newTree.position.x = (Math.random() * (sceneWidth/30)) * _randomSign() - _forest.position.x;
             } else {
                 // and half can spread further out, with a wider spread as they are farther away.
-                newTree.position.x = (1 + Math.random() * (sceneWidth/20) + i) * _randomSign() - _tree.position.x;
+                newTree.position.x = (1 + Math.random() * (sceneWidth/20) + i) * _randomSign() - _forest.position.x;
             }
 
             // Some clumps of vegetation around the base of the trees.
@@ -706,16 +775,16 @@ function ForestGenerator() {
             // get about how long it is taking to generate.
             console.log("tree " + i + " has " + _numBranches + " branches, at x " + Math.round(newTree.position.x) + "  z " + Math.round(newTree.position.z));
 
-            _tree.add(newTree);
+            _forest.add(newTree);
         }
 
         // Ground cover
-        for (i = 0; i < NUM_TREES * 4; i++) {
+        for (i = 0; i < NUM_forestS * 4; i++) {
             var clump = new THREE.Object3D();
             clump.position.x = Math.random() * 80 - 40;
             clump.position.z = Math.random() * 150;
             _makeLeavesAround(clump, Math.floor(Math.random() * 15), GRNDLEAF_COLS, _pickLeafSize());
-            _tree.add(clump);
+            _forest.add(clump);
         }
     }
 
@@ -732,7 +801,7 @@ function ForestGenerator() {
             hill.position.z = 400 + i * 5;
             hill.position.x = Math.random() * 300 - 150;
             hill.position.y = Math.random() * 12 - 5 - hillSize;
-            _tree.add(hill);
+            _forest.add(hill);
         }
     }
 
@@ -742,9 +811,8 @@ function ForestGenerator() {
      * @return {void}
      */
     function _buildScene() {
-        scene.remove(_tree);
-        _data = [];
 
+<<<<<<< HEAD
         while (_depthOfArray(_data) < 3) {
             _numBranches = 0;
             _data = _randomTreeData();
@@ -754,15 +822,23 @@ function ForestGenerator() {
         _tree = _buildTree(_data, BRANCH_LENGTH, _depthOfArray(_data), 0, _depthOfArray(_data), BRANCH_RAD_MAX);
         _tree.position.x = (5 + Math.random() * 5) * _randomSign();
         _tree.position.y = -10;
+=======
+        console.log("_buildScene");
+        scene.remove(_forest);
+        _data = [];
+>>>>>>> 0e302393805163bffacc3478bfc8e5089a9932bd
 
-        _makeLeavesAround(_tree, Math.floor(Math.random() * 30), GRNDLEAF_COLS, _pickLeafSize());
+        _forest = new THREE.Object3D();
+        //_forest.position.x = (5 + Math.random() * 5) * _randomSign();
+        _forest.position.y = -10;
 
         // hey let's just throw in a whole forest.
         _buildForest();
         _buildHills();
         _buildClouds();
+        //_forest.add(_flowerPath());
 
-        scene.add(_tree);   
+        scene.add(_forest);   
     }
 
     /**

@@ -62,7 +62,7 @@ function Colors(){
         var randomB = Math.floor(Math.random()*255);
         var rgbObj = {r:randomR, g:randomG, b:randomB};
 
-        console.dir(rgbObj);
+        //console.dir(rgbObj);
         return _this.rgbToHex(rgbObj);
     };
 

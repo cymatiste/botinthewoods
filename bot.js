@@ -112,5 +112,5 @@ function tweetEveryThisManyMinutes(mins){
     setInterval(tweetAForest, mins*60*1000);
 }
 
-tweetEveryThisManyMinutes(15);
-tweetAForest();
+tweetEveryThisManyMinutes(30);
+//tweetAForest();
