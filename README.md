@@ -33,7 +33,7 @@ If you get "Javascript heap out of memory" errors, these instructions might help
 https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c
 
 
-## This is a work in progress:
+## This is a work in progress!
 
 I haven't put any time yet into making it friendly for others to use.  This will get refactored as I work on it to be more flexible for adaptation to other purposes.
 
