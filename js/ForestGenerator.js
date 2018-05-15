@@ -628,7 +628,7 @@ function ForestGenerator() {
             var newLeaf = _buildLeaf(leaf_col, leafRadius);
 
             newLeaf.position.x += Math.random() * 1.5 - 0.75;
-            newLeaf.position.y += Math.random() * 2 + yAdjust;
+            newLeaf.position.y += Math.random() * 2;
             newLeaf.position.z += Math.random() * 1.5 - 0.75;
 
 
@@ -770,7 +770,7 @@ function ForestGenerator() {
             var clump = new THREE.Object3D();
             clump.position.x = Math.random() * 80 - 40;
             clump.position.z = Math.random() * 300;
-            _makeLeavesAround(clump, Math.floor(Math.random() * 15), VEG_COLS, _pickLeafSize(), i/4);
+            _makeLeavesAround(clump, Math.floor(Math.random() * 15), VEG_COLS, _pickLeafSize(), 0);
             _forest.add(clump);
         }
     }
