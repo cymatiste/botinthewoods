@@ -1,7 +1,7 @@
 var fs = require('fs'),
     path = require('path'),
     Twit = require('twit'),
-    ForestGenerator = require(path.join(__dirname, 'js/ForestGenerator.js'),
+    ForestGenerator = require(path.join(__dirname, 'js/ForestGenerator.js')),
     config = require(path.join(__dirname, 'config.js'));
 
 var T = new Twit(config);

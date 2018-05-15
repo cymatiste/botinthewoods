@@ -6,7 +6,7 @@ God bless all the people who made npm and the node modules I used to throw this 
 ## To replicate:
 - install node
 - In the project folder, cmd > npm install 
-- you can generate the scenes without a developer twitter account but if you want to tweet them you'll need one (there are lots of tutorials around on how to do this).  You'll also have to add a config.js in the root folder containing the following:
+- you can generate the scenes without a developer twitter account but if you want to tweet them you'll need one.  You'll also have to add a config.js in the root folder containing the following:
 
 ```
 var config = {
@@ -22,7 +22,7 @@ To generate a forest GIF:
 - cmd > node test.js
 (test.js can be edited to change the number of frames outputted.  Will eventually expose a bunch more options in here and make them command line parameters as well.)
 
-To generate and tweet one every half hour (plus however long it takes to build the thing)
+To generate and tweet one every half hour (plus however long it takes to render the GIF)
 - cmd > node bot.js
 
 All the actual work is done in js/ForestGenerator.js.  Again, this will get broken up eventually into useful subfiles.

@@ -48,7 +48,7 @@ function ForestGenerator() {
 
     var NUM_TREES = 40 + Math.floor(Math.random() * 30);
 
-    var COLOR_BTM, COLOR_TOP, SKY_COL, GRND_COL, LEAF_BASE_COL, TREELEAF_COLS, GRND_COLS;
+    var COLOR_BTM, COLOR_TOP, SKY_COL, GROUND_COL, LEAF_BASE_COL, TREELEAF_COLS, GROUND_COLS, VEG_COLS;
 
     _initColors();
 
@@ -153,7 +153,7 @@ function ForestGenerator() {
         
         // The sky and ground are a light blue and a muddy green, randomly permuted
         SKY_COL = colorHelper.variationsOn("#d4e9ff", 150);
-        GRND_COL = colorHelper.variationsOn("#657753", 150);
+        GROUND_COL = colorHelper.variationsOn("#657753", 150);
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
@@ -162,11 +162,15 @@ function ForestGenerator() {
         for (i = 0; i < 8; i++) {
             TREELEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL, 30));
         }
-        // There are leaves on the ground too.  They match the ground.
-        GRND_COLS = [];
-        //var slightlyBrighterGroundBase = colorHelper.brightenByAmt(GRND_COL,10*_randomSign());
-        for (i = 0; i < 16; i++) {
-            GRND_COLS.push(colorHelper.variationsOn(GRND_COL, 20));
+        
+        // There are leaves on the ground too.  They match the ground, which varies slightly.
+        GROUND_COLS = [];
+        VEG_COLS = [];
+        var vegBase = colorHelper.brightenByAmt(GROUND_COL,10*_randomSign());
+        
+        for (i = 0; i < 8; i++){
+            GROUND_COLS.push(colorHelper.variationsOn(GROUND_COL, 15));
+            VEG_COLS.push(colorHelper.variationsOn(vegBase, 30));
         }
 
     }
@@ -291,11 +295,11 @@ function ForestGenerator() {
 
         // We're going to add some stripes for a very primitive gradient where the sky meets the ground.
         var skyColInt = colorHelper.parseHex(SKY_COL);
-        var grndColInt = colorHelper.parseHex(GRND_COL);
-        var blend0 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GRND_COL, 0.9, 0.1));
-        var blend1 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GRND_COL, 0.7, 0.3));
-        var blend2 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GRND_COL, 0.5, 0.5));
-        var blend3 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GRND_COL, 0.3, 0.7));
+        var grndColInt = colorHelper.parseHex(GROUND_COL);
+        var blend0 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GROUND_COL, 0.9, 0.1));
+        var blend1 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GROUND_COL, 0.7, 0.3));
+        var blend2 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GROUND_COL, 0.5, 0.5));
+        var blend3 = colorHelper.parseHex(colorHelper.mixHexCols(SKY_COL, GROUND_COL, 0.3, 0.7));
 
 
         for (var i = 0; i < rgbaBuffer.length; i += 4) {
@@ -476,7 +480,7 @@ function ForestGenerator() {
 
         for(var i=0; i<numFlowers; i++){
             var variedCol = colorHelper.variationsOn(targetCol,25);
-            var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GRND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
+            var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GROUND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
             var f = new _flower(petalNum, flowerCol, petalSize);
             f.position.z = i*Math.random()*3;
             f.position.x = Math.random()*3 - 1.5;
@@ -599,7 +603,7 @@ function ForestGenerator() {
         branch.length = length;
 
         if (distanceFromTip == 1) {
-            _makeLeavesAround(branch.tip, Math.floor(LEAF_DENSITY*2 + Math.random() * (LEAF_DENSITY)), TREELEAF_COLS, LEAF_SIZE);
+            _makeLeavesAround(branch.tip, Math.floor(LEAF_DENSITY*2 + Math.random() * (LEAF_DENSITY)), TREELEAF_COLS, LEAF_SIZE, 0);
         }
 
         return (branch);
@@ -615,7 +619,7 @@ function ForestGenerator() {
      * 
      * @return {void}                   -- The leaves will be added as children of the obj.
      */
-    function _makeLeavesAround(obj3d, numLeaves, colors, leafRadius) {
+    function _makeLeavesAround(obj3d, numLeaves, colors, leafRadius, yAdjust) {
 
         for (i = 0; i < numLeaves; i++) {
 
@@ -624,7 +628,7 @@ function ForestGenerator() {
             var newLeaf = _buildLeaf(leaf_col, leafRadius);
 
             newLeaf.position.x += Math.random() * 1.5 - 0.75;
-            newLeaf.position.y += Math.random() * 2;
+            newLeaf.position.y += Math.random() * 2 + yAdjust;
             newLeaf.position.z += Math.random() * 1.5 - 0.75;
 
 
@@ -748,8 +752,8 @@ function ForestGenerator() {
             }
 
             // Some clumps of vegetation around the base of the trees.
-            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), GRND_COLS, _pickLeafSize());
-            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), GRND_COLS, _pickLeafSize());
+            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), VEG_COLS, _pickLeafSize(), 10);
+            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), VEG_COLS, _pickLeafSize(), 10);
 
             // put all the trees behind the first one so we can walk through them
             newTree.position.z = i * 5 + (Math.random() * 10 - 5);
@@ -765,8 +769,8 @@ function ForestGenerator() {
         for (i = 0; i < NUM_TREES * 4; i++) {
             var clump = new THREE.Object3D();
             clump.position.x = Math.random() * 80 - 40;
-            clump.position.z = Math.random() * 150;
-            _makeLeavesAround(clump, Math.floor(Math.random() * 15), GRND_COLS, _pickLeafSize());
+            clump.position.z = Math.random() * 300;
+            _makeLeavesAround(clump, Math.floor(Math.random() * 15), VEG_COLS, _pickLeafSize(), i/4);
             _forest.add(clump);
         }
     }
@@ -781,14 +785,15 @@ function ForestGenerator() {
     function _buildHills(){
         var numHills = NUM_TREES;
         for (var i = 0; i < numHills; i++) {
-            var hillRadius = Math.floor(30 + Math.random() * 50);
-            var hillColor = GRND_COLS[Math.floor(Math.random()*GRND_COLS.length)] 
+            var hillRadius = Math.floor(10 + Math.random() * 120);
+            var hillColor = GROUND_COLS[Math.floor(Math.random()*GROUND_COLS.length)] 
             var hill = _buildHill(hillRadius, hillColor);
-            hill.scale.y = 0.15;
+            hill.scale.y = 0.05 + Math.random()*0.1;
 
             var xSpread = 50 + i*10;
+            xSpread = i*10 + hillRadius;
             hill.position.z = i * 10;
-            hill.position.x = Math.random() * xSpread - xSpread/2 ;
+            hill.position.x = 5*_randomSign() + Math.random() * xSpread - xSpread/2 ;
             hill.position.y = i*0.22 - hillRadius*hill.scale.y;
             _forest.add(hill);
         }
