@@ -201,7 +201,7 @@ function ForestGenerator() {
     /**
      * Render and save to file an animated GIF of the scene
      * -----------------------------------------------------
-     * @return {void}
+     * @return {string} the filename saved.
      */
     _this.makeGIF = function() {
 
@@ -241,6 +241,7 @@ function ForestGenerator() {
         fs.writeFileSync('./images/' + _filename + '.gif', gifBuffer.slice(0, gif.end()));
         console.log("wrote " + _filename + ".gif");
 
+        return _filename;
     };
 
     /**
@@ -844,7 +845,7 @@ function ForestGenerator() {
         NUM_FRAMES = numFrames;
         _filename = filename;
         _buildScene();
-        _this.makeGIF();
+        return(_this.makeGIF());
     };
 
 }
