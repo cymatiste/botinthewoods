@@ -43,6 +43,8 @@ function ForestGenerator() {
     var LEAF_SIZE = _pickLeafSize();
     var LEAF_DENSITY = Math.floor(Math.random() * 24);
 
+    var NIGHT_MODE = (Math.random() < 0.25);
+
     console.log("BRANCH_LENGTH: "+BRANCH_LENGTH+"\n BRANCH_RAD_MAX: "+BRANCH_RAD_MAX+"\n BRANCH_RAD_MIN: "+BRANCH_RAD_MIN+"\n LENGTH_MULT: "+LENGTH_MULT+"\n MAX_BRANCHES_PER_NODE: "+MAX_BRANCHES_PER_NODE+"\n MAX_BRANCHES_TOTAL: "+MAX_BRANCHES_TOTAL+"\n BASE_BRANCH_CHANCE: "+BASE_BRANCH_CHANCE+"\n CHANCE_DECAY: "+CHANCE_DECAY+"\n MAX_DEPTH: "+MAX_DEPTH+"\n ANGLE_MIN: "+ANGLE_MIN+"\n ANGLE_MAX: "+ANGLE_MAX+"\n LEAF_SIZE: "+LEAF_SIZE+"\n LEAF_DENSITY: "+LEAF_DENSITY);
 
     var NUM_FRAMES = 100;
@@ -74,7 +76,7 @@ function ForestGenerator() {
     pixelRatio = 1;
 
 
-    camera = new THREE.PerspectiveCamera(50, sceneWidth / sceneHeight, 1, 1000);
+    camera = new THREE.PerspectiveCamera(50, sceneWidth / sceneHeight, 1, 1500);
     camera.position.x = 0;
     camera.position.y = 2;
     camera.position.z = -30;
@@ -165,17 +167,18 @@ function ForestGenerator() {
         var i;
 
         // The bottom of the tree is a random dark color. 
-        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(), 50);
+        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(), 15);
         // The top is a brighter color not too far away from the bottom col.
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM, 180);
         
-        // The sky and ground are a light blue and a muddy green, randomly permuted
-        SKY_COL = colorHelper.variationsOn("#d4e9ff", 150);
-        GROUND_COL = colorHelper.variationsOn("#657753", 150);
+        // The sky and ground are a blue and a muddy green, randomly permuted
+        SKY_COL = NIGHT_MODE? colorHelper.variationsOn("#111c56", 100) : colorHelper.variationsOn("#d4e9ff", 150);
+        GROUND_COL = NIGHT_MODE? colorHelper.brightenByAmt(colorHelper.variationsOn("#243024", 100),-30) : colorHelper.variationsOn("#657753", 150);
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
-        LEAF_BASE_COL = colorHelper.variationsOn(colorHelper.randomHex(), 80);
+        LEAF_BASE_COL = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomHex(), -100) : colorHelper.variationsOn(colorHelper.randomHex(), 80);
+        
         TREELEAF_COLS = [];
         for (i = 0; i < 8; i++) {
             TREELEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL, 30));
@@ -187,8 +190,11 @@ function ForestGenerator() {
         VEG_COLS = [];
         FLOWER_COLS = [];
 
-        var vegBase = colorHelper.brightenByAmt(GROUND_COL,10*_randomSign());
+        var vegBase = NIGHT_MODE ? GROUND_COL : colorHelper.brightenByAmt(GROUND_COL,10*_randomSign());
         var flowerBase = colorHelper.randomHex();
+        if(NIGHT_MODE){
+            flowerBase = colorHelper.brightenByAmt(flowerBase, -90);
+        }
 
         for (i = 0; i < 8; i++){
             GROUND_COLS.push(colorHelper.variationsOn(GROUND_COL, 15));
@@ -809,8 +815,8 @@ function ForestGenerator() {
             newTree.scale.x = newTree.scale.y = newTree.scale.z = newTree.scale.y*(0.8 + Math.random()*1.3);
 
             // Some clumps of vegetation around the base of the trees.
-            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), VEG_COLS, groundLeafSize, 10, BRANCH_RAD_MAX);
-            _makeLeavesAround(newTree, Math.floor(Math.random() * 30), VEG_COLS, groundLeafSize, 10, BRANCH_RAD_MIN);
+            _makeLeavesAround(newTree, 8 + Math.floor(Math.random() * 24), VEG_COLS, groundLeafSize, 10, BRANCH_RAD_MAX);
+            _makeLeavesAround(newTree, 8 + Math.floor(Math.random() * 24), VEG_COLS, _pickLeafSize(), 10, BRANCH_RAD_MAX);
 
             // put all the trees behind the first one so we can walk through them
             newTree.position.z = i*zInterval + (Math.random() * zInterval - zInterval/2);
@@ -856,6 +862,28 @@ function ForestGenerator() {
         }
     }
 
+    function _buildStar() {
+        var starCol = colorHelper.mixHexCols("#FFFFFF", SKY_COL, 0.7, 0.3);
+        var star = _buildLeaf(starCol, 1+Math.random()*0.5);
+        star.rotation.x = -Math.PI;
+        return star;
+    }
+
+    function _buildStars(){
+        var numStars = 100 + Math.random()*100;
+        var dome = new THREE.Object3D();
+        for(var i=0; i<numStars; i++){
+            var star = _buildStar();
+            dome.add(star);
+            star.position.x = Math.random()*500*_randomSign();
+            star.position.y = Math.random()*500*_randomSign();
+        }
+        dome.position.z = 1200;
+        dome.position.y = 600;
+        _forest.add(dome);
+    }
+
+
     /**
      * Build a scene with trees!  and hills!  
      * ---------------------------------------------------------------------------------------------
@@ -876,6 +904,10 @@ function ForestGenerator() {
         _buildHills();
         _buildClouds();
         _forest.add(_flowerPath());
+
+        if(NIGHT_MODE){
+            _buildStars();
+        }
 
         scene.add(_forest);   
     }
