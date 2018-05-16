@@ -33,8 +33,8 @@ function ForestGenerator() {
     var BRANCH_RAD_MIN = BRANCH_RAD_MAX * (Math.random() * 0.03);
     var LENGTH_MULT = 0.85 + Math.random() * 0.1;
     var MAX_BRANCHES_PER_NODE = Math.floor(2 + Math.random() * 3);
-    var MAX_BRANCHES_TOTAL = 7777;
-    var BASE_BRANCH_CHANCE = 0.75 + Math.random() * 0.1;
+    var MAX_BRANCHES_TOTAL = 3333;
+    var BASE_BRANCH_CHANCE = 0.72 + Math.random() * 0.05;
     var CHANCE_DECAY = _pickDecay();
     var MAX_DEPTH = 12;
     var ANGLE_MIN = 15 + Math.random()*30;
@@ -45,7 +45,7 @@ function ForestGenerator() {
 
     var NIGHT_MODE = (Math.random() < 0.25);
 
-    console.log("BRANCH_LENGTH: "+BRANCH_LENGTH+"\n BRANCH_RAD_MAX: "+BRANCH_RAD_MAX+"\n BRANCH_RAD_MIN: "+BRANCH_RAD_MIN+"\n LENGTH_MULT: "+LENGTH_MULT+"\n MAX_BRANCHES_PER_NODE: "+MAX_BRANCHES_PER_NODE+"\n MAX_BRANCHES_TOTAL: "+MAX_BRANCHES_TOTAL+"\n BASE_BRANCH_CHANCE: "+BASE_BRANCH_CHANCE+"\n CHANCE_DECAY: "+CHANCE_DECAY+"\n MAX_DEPTH: "+MAX_DEPTH+"\n ANGLE_MIN: "+ANGLE_MIN+"\n ANGLE_MAX: "+ANGLE_MAX+"\n LEAF_SIZE: "+LEAF_SIZE+"\n LEAF_DENSITY: "+LEAF_DENSITY);
+    console.log("BRANCH_LENGTH: "+BRANCH_LENGTH+"\n BRANCH_RAD_MAX: "+BRANCH_RAD_MAX+"\n BRANCH_RAD_MIN: "+BRANCH_RAD_MIN+"\n LENGTH_MULT: "+LENGTH_MULT+"\n MAX_BRANCHES_PER_NODE: "+MAX_BRANCHES_PER_NODE+"\n MAX_BRANCHES_TOTAL: "+MAX_BRANCHES_TOTAL+"\n BASE_BRANCH_CHANCE: "+BASE_BRANCH_CHANCE+"\n CHANCE_DECAY: "+CHANCE_DECAY+"\n MAX_DEPTH: "+MAX_DEPTH+"\n ANGLE_MIN: "+ANGLE_MIN+"\n ANGLE_MAX: "+ANGLE_MAX+"\n LEAF_SIZE: "+LEAF_SIZE+"\n LEAF_DENSITY: "+LEAF_DENSITY+"\n NIGHT? "+NIGHT_MODE);
 
     var NUM_FRAMES = 100;
     
@@ -172,12 +172,12 @@ function ForestGenerator() {
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM, 180);
         
         // The sky and ground are a blue and a muddy green, randomly permuted
-        SKY_COL = NIGHT_MODE? colorHelper.variationsOn("#111c56", 100) : colorHelper.variationsOn("#d4e9ff", 150);
-        GROUND_COL = NIGHT_MODE? colorHelper.brightenByAmt(colorHelper.variationsOn("#243024", 100),-30) : colorHelper.variationsOn("#657753", 150);
+        SKY_COL = NIGHT_MODE? colorHelper.variationsOn("#051c90", 100) : colorHelper.variationsOn("#d4e9ff", 150);
+        GROUND_COL = NIGHT_MODE ? colorHelper.variationsOn("#172e0e", 100) : colorHelper.variationsOn("#657753", 150);
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
-        LEAF_BASE_COL = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomHex(), -100) : colorHelper.variationsOn(colorHelper.randomHex(), 80);
+        LEAF_BASE_COL = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomHex(), -70) : colorHelper.variationsOn(colorHelper.randomHex(), 80);
         
         TREELEAF_COLS = [];
         for (i = 0; i < 8; i++) {
@@ -193,7 +193,7 @@ function ForestGenerator() {
         var vegBase = NIGHT_MODE ? GROUND_COL : colorHelper.brightenByAmt(GROUND_COL,10*_randomSign());
         var flowerBase = colorHelper.randomHex();
         if(NIGHT_MODE){
-            flowerBase = colorHelper.brightenByAmt(flowerBase, -90);
+            flowerBase = colorHelper.brightenByAmt(flowerBase, -100);
         }
 
         for (i = 0; i < 8; i++){
@@ -678,14 +678,17 @@ function ForestGenerator() {
 
             var newLeaf = _buildLeaf(leaf_col, leafRadius);
 
-            newLeaf.position.x += Math.random() * 1.5 - 0.75 + rAdjust;
-            newLeaf.position.y += Math.random() * 2 + rAdjust;
-            newLeaf.position.z += Math.random() * 1.5 - 0.75;
+           
+            newLeaf.position.y += Math.random() * 2 + yAdjust;
+            newLeaf.position.x += (Math.random() * 0.75 + rAdjust)*_randomSign();
+            newLeaf.position.z += (Math.random() * 0.75 + rAdjust)*_randomSign();
 
 
             newLeaf.rotation.x = Math.random() * 2 * Math.PI;
             newLeaf.rotation.y = Math.random() * 2 * Math.PI;
             newLeaf.rotation.z = Math.random() * 2 * Math.PI;
+
+            obj3d.rotation.y += Math.PI*2/numLeaves;
 
             obj3d.add(newLeaf);
         }
@@ -799,7 +802,7 @@ function ForestGenerator() {
             if (i % 3 == 0) {
                 // One third of the trees we want relatively close to the center         
                 // The last part of the calculation is to avoid running into trees with the camera    
-                newTree.position.x = (Math.random()*(30 + i)) * _randomSign() + (i < 10 ? 1 + Math.random()*2 : 0);
+                newTree.position.x = (Math.random()*(30 + i)) * _randomSign() + (i < NUM_TREES/3 ? 1 + Math.random()*2 : 0);
             } else {
                 // and the other half can spread further out
                 newTree.position.x = (20 + i*2 + (Math.random()*24 - 12))*_randomSign();
@@ -815,8 +818,8 @@ function ForestGenerator() {
             newTree.scale.x = newTree.scale.y = newTree.scale.z = newTree.scale.y*(0.8 + Math.random()*1.3);
 
             // Some clumps of vegetation around the base of the trees.
-            _makeLeavesAround(newTree, 8 + Math.floor(Math.random() * 24), VEG_COLS, groundLeafSize, 10, BRANCH_RAD_MAX);
-            _makeLeavesAround(newTree, 8 + Math.floor(Math.random() * 24), VEG_COLS, _pickLeafSize(), 10, BRANCH_RAD_MAX);
+            _makeLeavesAround(newTree, 8 + Math.floor(Math.random() * 24), VEG_COLS, groundLeafSize, 0, BRANCH_RAD_MAX);
+            _makeLeavesAround(newTree, 8 + Math.floor(Math.random() * 24), VEG_COLS, _pickLeafSize(), 0, BRANCH_RAD_MAX);
 
             // put all the trees behind the first one so we can walk through them
             newTree.position.z = i*zInterval + (Math.random() * zInterval - zInterval/2);
