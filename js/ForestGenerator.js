@@ -34,8 +34,8 @@ function ForestGenerator() {
     var LENGTH_MULT = 0.85 + Math.random() * 0.1;
     var MAX_BRANCHES_PER_NODE = Math.floor(2 + Math.random() * 3);
     var MAX_BRANCHES_TOTAL = 7777;
-    var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.08;
-    var CHANCE_DECAY = Math.random() * 0.07;
+    var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.13;
+    var CHANCE_DECAY = _pickDecay();
     var MAX_DEPTH = 12;
     var ANGLE_MIN = 15 + Math.random()*30;
     var ANGLE_MAX = 60 + Math.random() * 60;
@@ -116,6 +116,23 @@ function ForestGenerator() {
         } else {
             return 0.8 + Math.random() * 0.8;
         }
+    }
+
+    /**
+     * How less likely do branches become at each node?
+     * ----------------------------------------------------
+     * @return {Number} 0-1
+     */
+    function _pickDecay(){
+        var decayRange = Math.random();
+        if (decayRange < 0.2){
+            return Math.random()*0.035;
+        } else if (decayRange < 0.9){
+            return 0.035 + Math.random() * 0.2;
+        } else {
+            return 0.055 + Math.random()*0.015;
+        }
+        
     }
 
     /**
@@ -486,7 +503,7 @@ function ForestGenerator() {
 
         var startZ = Math.random()*30 - 15;
         var zSpread = 3 + Math.random()*10;
-        var startX = Math.random()*sceneWidth;
+        var startX = sceneWidth/4 + Math.random()*sceneWidth*(3/4);
 
         console.log("@@@, "+numFlowers+" flowers, "+FLOWER_COLS[0]);
 
@@ -501,9 +518,9 @@ function ForestGenerator() {
             f.position.z = startZ + i*Math.random()*zSpread;
             //f.position.x = _noise[flowerNoise+i] + Math.random()*4 - 2;
             f.position.x = startX + Math.random()*40 - 20;
-
-            f.rotation.z += Math.random()*0.02;
-            f.rotation.z += Math.random()*0.02;
+            f.position.y = Math.random()*0.2;
+            f.rotation.z += Math.random()*0.4;
+            f.rotation.z += Math.random()*0.4;
             //f.position.y = 5;
             newPath.add(f);
         }

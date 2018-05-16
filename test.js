@@ -14,15 +14,5 @@ function _newForest(numFrames){
 
 }
 
-function _keepGenerating(numFrames){
-
-    console.log("^_^ "+_newForest(numFrames));
-    
-    _keepGenerating();
-}
-
-
-
-//_keepGenerating(100);
 _newForest(100);
 

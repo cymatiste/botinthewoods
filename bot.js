@@ -6,8 +6,8 @@ var fs = require('fs'),
 
 var T = new Twit(config);
 
-var lastTimeStamp = Date.now();
-
+var _lastTimeStamp;
+var _firstRun = false;
 var _GIFnames = [];
 var _tweetInterval;
 
@@ -23,11 +23,11 @@ var _tweetInterval;
  */
 function tweetAForest(){
 
-    lastTimeStamp = Date.now();
+    _lastTimeStamp = Date.now();
     
     if(_GIFnames.length == 0){
         console.log("...no GIFs yet, try again...");
-        return;
+        keepGenerating();
     }
 
     var gifName = _GIFnames.shift();
@@ -36,7 +36,8 @@ function tweetAForest(){
     // Upload the GIF
     T.postMediaChunked({ file_path: filePath }, function (err, data, response) {
         if (err) {
-            console.log(err)
+            console.log(err);
+            tweetAForest();
         } else {
             console.log(data);
             const params = {
@@ -49,14 +50,17 @@ function tweetAForest(){
             T.post('statuses/update', params, function(err, data, response) {
               if (err !== undefined) {
                 console.log(err);
+                tweetAForest();
               } else {
                 console.log('Tweeted: ' + params.status);
+                keepGenerating();
               }
             });
-            console.log('Tweeted: ' + params.status);
+            //console.log('Tweeted: ' + params.status);
+            //keepGenerating();            
         }
     });
-
+    
 }
 
 function tweetEvent(tweet) {
@@ -124,26 +128,28 @@ function keepGenerating(){
     _GIFnames.push(gen.generateSceneGIF(100, filename));
 
     logTimeElapsed();
-    var minsElapsed = ((Date.now() - lastTimeStamp)/60000);
-    if( minsElapsed > _tweetInterval){
+    var minsElapsed = ((Date.now() - _lastTimeStamp)/60000);
+    if( _firstRun || minsElapsed > _tweetInterval){
+        _firstRun = false;
         console.log("tryna tweet now.");
         tweetAForest();
     } else {
         console.log("..."+minsElapsed+" < "+_tweetInterval+", waiting...");
+        keepGenerating();
     }
-    keepGenerating();
 }
 
 function logTimeElapsed(){
     var nowTime = Date.now();
-    var timeElapsed = Math.floor((nowTime - lastTimeStamp)/60000);
+    var timeElapsed = Math.floor((nowTime - _lastTimeStamp)/60000);
     console.log(" --- "+timeElapsed+" minutes ---");
 }
 
 
 function tweetEveryThisManyMinutes(mins){
+    _lastTimeStamp = Date.now();
     _tweetInterval = mins;
     keepGenerating();    
 }
 
-tweetEveryThisManyMinutes(30);
+tweetEveryThisManyMinutes(45);
