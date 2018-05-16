@@ -171,9 +171,9 @@ function ForestGenerator() {
         // The top is a brighter color not too far away from the bottom col.
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM, 180);
         
-        // The sky and ground are a blue and a muddy green, randomly permuted
-        SKY_COL = NIGHT_MODE? colorHelper.variationsOn("#051c90", 100) : colorHelper.variationsOn("#d4e9ff", 150);
-        GROUND_COL = NIGHT_MODE ? colorHelper.variationsOn("#172e0e", 100) : colorHelper.variationsOn("#657753", 150);
+        // The sky and ground are a pastel blue and a muddy green, randomly permuted
+        SKY_COL = NIGHT_MODE? colorHelper.variationsOn("#415161", 100) : colorHelper.variationsOn("#d4e9ff", 150);
+        GROUND_COL = NIGHT_MODE ? colorHelper.variationsOn("#223014", 100) : colorHelper.variationsOn("#657753", 150);
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
@@ -523,7 +523,7 @@ function ForestGenerator() {
             var flowerCol = variedCol;
             var petalAngle = Math.PI*(1.5 - Math.random()*0.25);
             var f = new _flower(petalNum, flowerCol, petalSize, petalAngle);
-            f.position.z = startZ + i*Math.random()*zSpread;
+            f.position.z = startZ + i*Math.random()*zSpread - zSpread/3;
             f.position.x = startX + Math.random()*xSpread - xSpread/2;
             f.position.y = Math.random()*0.3;
 
@@ -802,7 +802,7 @@ function ForestGenerator() {
             if (i % 3 == 0) {
                 // One third of the trees we want relatively close to the center         
                 // The last part of the calculation is to avoid running into trees with the camera    
-                newTree.position.x = (Math.random()*(30 + i)) * _randomSign() + (i < NUM_TREES/3 ? 1 + Math.random()*2 : 0);
+                newTree.position.x = (Math.random()*(30 + i) + (i < NUM_TREES/3 ? BRANCH_RAD_MAX*2 : 0)) * _randomSign() ;
             } else {
                 // and the other half can spread further out
                 newTree.position.x = (20 + i*2 + (Math.random()*24 - 12))*_randomSign();
