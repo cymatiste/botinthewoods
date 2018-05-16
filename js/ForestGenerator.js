@@ -34,7 +34,7 @@ function ForestGenerator() {
     var LENGTH_MULT = 0.85 + Math.random() * 0.1;
     var MAX_BRANCHES_PER_NODE = Math.floor(2 + Math.random() * 3);
     var MAX_BRANCHES_TOTAL = 7777;
-    var BASE_BRANCH_CHANCE = 0.7 + Math.random() * 0.13;
+    var BASE_BRANCH_CHANCE = 0.75 + Math.random() * 0.1;
     var CHANCE_DECAY = _pickDecay();
     var MAX_DEPTH = 12;
     var ANGLE_MIN = 15 + Math.random()*30;
@@ -42,6 +42,8 @@ function ForestGenerator() {
 
     var LEAF_SIZE = _pickLeafSize();
     var LEAF_DENSITY = Math.floor(Math.random() * 24);
+
+    console.log("BRANCH_LENGTH: "+BRANCH_LENGTH++"\n BRANCH_RAD_MAX: "+BRANCH_RAD_MAX++"\n BRANCH_RAD_MIN: "+BRANCH_RAD_MIN++"\n LENGTH_MULT: "+LENGTH_MULT++"\n MAX_BRANCHES_PER_NODE: "+MAX_BRANCHES_PER_NODE++"\n MAX_BRANCHES_TOTAL: "+MAX_BRANCHES_TOTAL++"\n BASE_BRANCH_CHANCE: "+BASE_BRANCH_CHANCE++"\n CHANCE_DECAY: "+CHANCE_DECAY++"\n MAX_DEPTH: "+MAX_DEPTH++"\n ANGLE_MIN: "+ANGLE_MIN++"\n ANGLE_MAX: "+ANGLE_MAX++"\n LEAF_SIZE: "+LEAF_SIZE++"\n LEAF_DENSITY: "+LEAF_DENSITY);
 
     //var NUM_FRAMES = 100;
     var NUM_FRAMES = 5;
@@ -105,16 +107,16 @@ function ForestGenerator() {
      * @return {Number}
      */
     function _pickRadius() {
-        var sizeRange = Math.random() * 3;
+        var sizeRange = Math.random();
 
-        if (sizeRange < 0.6) {
+        if (sizeRange < 0.2) {
             return 0.1 + Math.random() * 0.4;
-        } else if (sizeRange < 2) {
+        } else if (sizeRange < 0.5) {
             return 0.4 + Math.random() * 0.5;
-        } else if (sizeRange < 2.7) {
+        } else if (sizeRange < 0.9) {
             return 0.6 + Math.random() * 0.6;
         } else {
-            return 0.8 + Math.random() * 0.8;
+            return 0.8 + Math.random() * 2;
         }
     }
 
@@ -128,7 +130,7 @@ function ForestGenerator() {
         if (decayRange < 0.2){
             return Math.random()*0.035;
         } else if (decayRange < 0.9){
-            return 0.035 + Math.random() * 0.2;
+            return 0.035 + Math.random() * 0.02;
         } else {
             return 0.055 + Math.random()*0.015;
         }
@@ -493,23 +495,23 @@ function ForestGenerator() {
 
     function _flowerPath(){   
 
-        var numFlowers = 50 + Math.floor(Math.random()*50);
+        var numFlowers = 50 + Math.floor(Math.random()*100);
         var newPath = new THREE.Object3D();
-        var petalNum = 3 + Math.floor(Math.random()*9);
+        var petalNum = 3 + Math.floor(Math.random()*4) + Math.floor(Math.random()*Math.random()*12);
         
-        var basePetalSize = 0.1 + Math.random()*0.2;
+        var basePetalSize = 1 + 0.1 + Math.random()*0.2;
 
         var flowerNoise = Math.floor(Math.random() * (_noise.length - numFlowers));
 
-        var startZ = Math.random()*30 - 15;
-        var zSpread = 3 + Math.random()*10;
-        var startX = sceneWidth/4 + Math.random()*sceneWidth*(3/4);
+        var startZ = Math.random()*20;
+        var zSpread = Math.random()*10;
+        var startX = -20 + Math.random()*40;
 
-        console.log("@@@, "+numFlowers+" flowers, "+FLOWER_COLS[0]);
+        console.log("@@@, "+numFlowers+" flowers, "+FLOWER_COLS[0] + " around x "+startX+", z "+startZ);
 
         for(var i=0; i<numFlowers; i++){
 
-            var petalSize = basePetalSize*(0.8 + Math.random()*0.3);
+            var petalSize = basePetalSize*(0.2 + Math.random()*0.3);
             var variedCol = FLOWER_COLS[Math.floor(Math.random()*FLOWER_COLS.length)];
             //var flowerCol = colorHelper.parseHex(colorHelper.mixHexCols(variedCol,GROUND_COL,(numFlowers-i)/numFlowers,i/numFlowers));
             var flowerCol = variedCol;
@@ -518,9 +520,9 @@ function ForestGenerator() {
             f.position.z = startZ + i*Math.random()*zSpread;
             //f.position.x = _noise[flowerNoise+i] + Math.random()*4 - 2;
             f.position.x = startX + Math.random()*40 - 20;
-            f.position.y = Math.random()*0.2;
-            f.rotation.z += Math.random()*0.4;
-            f.rotation.z += Math.random()*0.4;
+            f.position.y = Math.random()*0.3;
+            f.rotation.x += Math.random()*0.6 - 0.3;
+            f.rotation.z += Math.random()*0.6 - 0.3;
             //f.position.y = 5;
             newPath.add(f);
         }
@@ -545,7 +547,7 @@ function ForestGenerator() {
             petal.rotation.x = petalAngle;
 
             petal.position.z = petalSize/1.5;
-            petal.scale.x = 2.5/numPetals;
+            petal.scale.x = 2/numPetals;
             pivot.add(petal);
             pivot.position.y = 1.1;
 
@@ -793,6 +795,7 @@ function ForestGenerator() {
                 newTree.position.x = (25 + Math.random()*50)*_randomSign();
                 //newTree.position.x = 2000;
             }
+            newTree.scale.x = newTree.scale.y = newTree.scale.z = 1 + Math.random()*2;
 
             // Some clumps of vegetation around the base of the trees.
             _makeLeavesAround(newTree, Math.floor(Math.random() * 30), VEG_COLS, _pickLeafSize(), 10);
