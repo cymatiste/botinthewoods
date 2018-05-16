@@ -167,7 +167,7 @@ function ForestGenerator() {
         var i;
 
         // The bottom of the tree is a random dark color. 
-        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(), 15);
+        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(), NIGHT_MODE ? 15 : -5);
         // The top is a brighter color not too far away from the bottom col.
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM, 180);
         
@@ -867,7 +867,7 @@ function ForestGenerator() {
 
     function _buildStar() {
         var starCol = colorHelper.mixHexCols("#FFFFFF", SKY_COL, 0.7, 0.3);
-        var star = _buildLeaf(starCol, 1+Math.random()*0.5);
+        var star = _buildLeaf(starCol, 1+Math.random()*1);
         star.rotation.x = -Math.PI;
         return star;
     }
