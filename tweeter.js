@@ -58,8 +58,8 @@ function _tweetAForest(){
     });
 }
 
-function tweetEveryThisManyMinutes(mins){
+function _tweetEveryThisManyMinutes(mins){
     setInterval(_tweetAForest, mins*60*1000);    
 }
 
-tweetEveryThisManyMinutes(45);
+_tweetEveryThisManyMinutes(60);

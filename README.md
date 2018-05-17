@@ -19,15 +19,16 @@ var config = {
 module.exports = config;
 ```
 
-To generate forest GIFs:
+**To generate forest GIFs:**
 - add a file 'tweetables.json' in the project folder with content:
 ```
 { gifNames: [] }
 ```
 - cmd > node gifmaker.js
+
 (You can set the number of frames outputted inside this file.  I might eventually expose a bunch more options in here and make them command line parameters as well.)
 
-To tweet GIFs you've already created:
+**To tweet GIFs you've already created**:
 - cmd > node bot.js
 
 You can run them simultaneously in different consoles.
