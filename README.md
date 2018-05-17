@@ -7,7 +7,7 @@ God bless all the people who made npm and the node modules I used to throw this 
 
 I haven't put any time yet into making it friendly for others to use.  With any luck this will get refactored as I continue to play with it to make it more flexible for adaptation to other purposes.
 
-Feedback and suggestions are more than welcome; tweet or dm them to @asthesparksfly.
+Feedback and suggestions are more than welcome; tweet or dm them to https://twitter.com/asthesparksfly.
 
 ## To replicate:
 - install node
