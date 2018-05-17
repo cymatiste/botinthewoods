@@ -167,7 +167,7 @@ function ForestGenerator() {
         var i;
 
         // The bottom of the tree is a random dark color. 
-        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(), NIGHT_MODE ? 15 : -5);
+        COLOR_BTM = colorHelper.brightenByAmt(colorHelper.randomDark(), NIGHT_MODE ? Math.random()*10-5 : 10+Math.random()*10);
         // The top is a brighter color not too far away from the bottom col.
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM, 180);
         
