@@ -28,7 +28,7 @@ module.exports = config;
  (You can set the number of frames outputted inside this file.  I might eventually expose a bunch more options in here and make them command line parameters as well.)
 
 **To tweet GIFs you've already created**:
-- cmd > node bot.js
+- cmd > node tweeter.js
 
 You can run them simultaneously in different consoles.
 
