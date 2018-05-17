@@ -59,7 +59,10 @@ function _tweetAForest(){
 }
 
 function _tweetEveryThisManyMinutes(mins){
-    setInterval(_tweetAForest, mins*60*1000);    
+    setInterval(_tweetAForest, mins*60*1000);   
+    if(_firstRun){
+        _tweetAForest();
+    } 
 }
 
 _tweetEveryThisManyMinutes(60);

@@ -6,7 +6,7 @@ God bless all the people who made npm and the node modules I used to throw this 
 ## To replicate:
 - install node
 - create a folder named 'images' in the project folder.
-- In the project folder, cmd > npm install 
+- In the project folder, cmd > *npm install* 
 - you can generate the scenes without a developer twitter account but if you want to tweet them you'll need one.  You'll also have to add a config.js in the project folder containing the following:
 
 ```
@@ -24,13 +24,13 @@ module.exports = config;
 ```
 { gifNames: [] }
 ```
-- cmd > node gifmaker.js 
+- cmd > *node gifmaker.js* 
  (You can set the number of frames outputted inside this file.  I might eventually expose a bunch more options in here and make them command line parameters as well.)
 
 **To tweet GIFs you've already created**:
-- cmd > node tweeter.js
+- cmd > *node tweeter.js*
 
-You can run them simultaneously in different consoles.
+You can run *gifmaker* and *tweeter* simultaneously in different consoles.
 
 All the actual work is done in js/ForestGenerator.js.  Again, this might get broken up eventually into useful subfiles.
 
