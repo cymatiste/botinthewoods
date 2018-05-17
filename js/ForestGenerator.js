@@ -878,8 +878,8 @@ function ForestGenerator() {
         for(var i=0; i<numStars; i++){
             var star = _buildStar();
             dome.add(star);
-            star.position.x = Math.random()*500*_randomSign();
-            star.position.y = Math.random()*500*_randomSign();
+            star.position.x = Math.random()*700*_randomSign();
+            star.position.y = Math.random()*700*_randomSign();
         }
         dome.position.z = 1200;
         dome.position.y = 600;

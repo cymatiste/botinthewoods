@@ -7,7 +7,7 @@ var fs = require('fs'),
 var T = new Twit(config);
 
 var _lastTimeStamp;
-var _firstRun = false;
+var _firstRun = true;
 var _GIFnames = [];
 var _tweetInterval;
 
