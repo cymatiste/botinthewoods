@@ -150,11 +150,11 @@ function ForestGenerator() {
     function _pickLeafSize() {
         var sizeRange = Math.random();
         if (sizeRange < 0.33) {
-            return _random(0.15, 0.3);
+            return _random(0.15, 0.4);
         } else if (sizeRange < 0.7) {
-            return _random(0.3, 0.7);
+            return _random(0.4, 0.8);
         } else if (sizeRange < 0.9) {
-            return _random(0.7, 1);
+            return _random(0.8, 1);
         } else {
             return _random(1, 1.4);
         }
@@ -173,14 +173,14 @@ function ForestGenerator() {
         // The bottom of the tree is a random dark color. 
         COLOR_BTM = colorHelper.randomDark();
         if(!NIGHT_MODE){
-            COLOR_BTM = colorHelper.brightenByAmt(COLOR_BTM, _random(30,50));
+            COLOR_BTM = colorHelper.brightenByAmt(COLOR_BTM, _random(30,80));
         }
         // The top is a brighter color not too far away from the bottom col.
         COLOR_TOP = colorHelper.variationsOn(COLOR_BTM, 180);
         
         // The sky and ground are a pastel blue and a muddy green, randomly permuted
         SKY_COL = NIGHT_MODE ? colorHelper.variationsOn("#4d6876", 120) : colorHelper.variationsOn("#bdeff1", 150);
-        GROUND_COL = NIGHT_MODE ? colorHelper.variationsOn("#40523c", 120) : colorHelper.variationsOn("#78836e", 150);
+        GROUND_COL = NIGHT_MODE ? colorHelper.variationsOn("#40523c", 80) : colorHelper.variationsOn("#78836e", 150);
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
@@ -833,7 +833,8 @@ function ForestGenerator() {
         var i;
         var numTrees = _randomInt(NUM_TREES*0.5, NUM_TREES*1.5);
         var groundLeafSize = _pickLeafSize();
-        var zInterval = 400/NUM_TREES;
+        var zInterval = _random(300,400)/NUM_TREES;
+       
         // Trees
         for (i = 0; i < NUM_TREES; i++) {
             _data = [];
@@ -848,13 +849,14 @@ function ForestGenerator() {
             if (i % 3 == 0) {
                 // One third of the trees we want relatively close to the center         
                 // The last part of the calculation is to avoid running into trees with the camera    
-                var startX = BRANCH_RAD_MAX*2;
-                newTree.position.x = _randomSign(_random(startX, 30 + i));
+                newTree.position.x = _randomSign(_random(0, 50));
+                //newTree.rotation.x = Math.PI;
+                //newTree.position.y = 10;
 
             } else {
                 // and the other half can spread further out
-                newTree.position.x = _randomSign(20 + i*2 + _random(-12,12));
-             
+                //newTree.position.x = _randomSign(20 + i/2 + _random(-20,20));
+                newTree.position.x = _randomSign(_random(10+i/3,60 + i));
             }
 
             var wrapper = new THREE.Object3D();
@@ -866,14 +868,14 @@ function ForestGenerator() {
                 wrapper.add(newTree);
             }
 
-            newTree.scale.x = newTree.scale.y = newTree.scale.z = _random(0.8, 1.5);
+            newTree.scale.x = newTree.scale.y = newTree.scale.z = _random(0.8, 1.7);
 
             // Some clumps of vegetation around the base of the trees.
             _makeLeavesAround(newTree, 8 + _randomInt(24), VEG_COLS, groundLeafSize, 0, _random(BRANCH_RAD_MAX, BRANCH_RAD_MAX*2*newTree.scale.x));
             _makeLeavesAround(newTree, 8 + _randomInt(24), VEG_COLS, _pickLeafSize(), 0, _random(BRANCH_RAD_MAX, BRANCH_RAD_MAX*2*newTree.scale.x));
 
             // put all the trees behind the first one so we can walk through them
-            newTree.position.z = i*zInterval + _random(- zInterval/2, zInterval/2);
+            wrapper.position.z = i*zInterval + _random(- zInterval/2, zInterval/2);
 
             // Good to get an idea of how complicated a thing we are building so we know how anxious to 
             // get about how long it is taking to generate.
@@ -901,11 +903,12 @@ function ForestGenerator() {
      */
     function _buildHills(){
         var numHills = NUM_TREES;
+        var baseScale = _random(1,2);
         for (var i = 0; i < numHills; i++) {
             var hillRadius = _randomInt(10,120);
             var hillColor = _randomFrom(GROUND_COLS); 
             var hill = _buildHill(hillRadius, hillColor);
-            hill.scale.y = _random(0.05, 0.15);
+            hill.scale.y = _random(0.05, 0.15)*baseScale;
 
             var xSpread = 50 + i*10;
             xSpread = i*10 + hillRadius;
