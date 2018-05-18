@@ -7,7 +7,7 @@ var T = new Twit(config);
 
 var _firstRun = true;
 
-var _json;
+var _json, _status;
 
 /**
  * Do it.
@@ -19,6 +19,12 @@ function _tweetAForest(){
     
     if(_json.gifNames.length == 0){
         console.log("...no GIFs yet, try again...");
+        return;
+    }
+    if(_json.quotes.length > 0){
+        _status = _json.quotes.shift();
+    } else {
+        _status = "";
     }
 
     var gifName = _json.gifNames.shift();
@@ -31,7 +37,7 @@ function _tweetAForest(){
         } else {
             console.log(data);
             const params = {
-              status: "",
+              status: _status,
               media_ids: [data.media_id_string],
               encoding: 'base64'
             }
@@ -65,4 +71,4 @@ function _tweetEveryThisManyMinutes(mins){
     } 
 }
 
-_tweetEveryThisManyMinutes(60);
+_tweetEveryThisManyMinutes(120);

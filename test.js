@@ -14,5 +14,5 @@ function _newForest(numFrames){
 
 }
 
-_newForest(20);
+_newForest(1);
 
