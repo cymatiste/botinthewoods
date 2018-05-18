@@ -49,13 +49,14 @@ function ForestGenerator() {
     
     var NUM_TREES = _randomInt(50, 120);
 
-    var COLOR_BTM, COLOR_TOP, SKY_COL, GROUND_COL, LEAF_BASE_COL, TREELEAF_COLS, GROUND_COLS, VEG_COLS;
+    var COLOR_BTM, COLOR_TOP, SKY_COL, GROUND_COL, LEAF_BASE_COL, TREELEAF_COLS, GROUND_COLS, VEG_COLS, STONE_COLS;
 
     _initColors();
 
     console.log("BRANCH_LENGTH: "+BRANCH_LENGTH+"\n BRANCH_RAD_MAX: "+BRANCH_RAD_MAX+"\n BRANCH_RAD_MIN: "+BRANCH_RAD_MIN+"\n LENGTH_MULT: "+LENGTH_MULT+"\n MAX_BRANCHES_PER_NODE: "+MAX_BRANCHES_PER_NODE+"\n MAX_BRANCHES_TOTAL: "+MAX_BRANCHES_TOTAL+"\n BASE_BRANCH_CHANCE: "+BASE_BRANCH_CHANCE+"\n CHANCE_DECAY: "+CHANCE_DECAY+"\n MAX_DEPTH: "+MAX_DEPTH+"\n ANGLE_MIN: "+ANGLE_MIN+"\n ANGLE_MAX: "+ANGLE_MAX+"\n LEAF_SIZE: "+LEAF_SIZE+"\n LEAF_DENSITY: "+LEAF_DENSITY+"\n N I G H T ? "+NIGHT_MODE+"\n COLOR_BTM: "+COLOR_BTM+"\n COLOR_TOP: "+COLOR_TOP);
 
-    var _noise = perlin.generatePerlinNoise(480, 480);
+    var _noise = perlin.generatePerlinNoise(1000, 1000);
+    var _startingNoise = _randomInt(_noise.length / 2);
 
 
     var scene,
@@ -186,27 +187,29 @@ function ForestGenerator() {
         // We keep the number of leaf colors down so we don't run out of colors.
         LEAF_BASE_COL = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomHex(), -60) : colorHelper.variationsOn(colorHelper.randomHex(), 80);
         
-        TREELEAF_COLS = [];
-        for (i = 0; i < 8; i++) {
-            TREELEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL, 30));
-        }
-        
         // There are leaves on the ground too.  They match the ground, which varies slightly.
         // And flowers!  Which could be any colour.
+        TREELEAF_COLS = [];
         GROUND_COLS = [];
         VEG_COLS = [];
         FLOWER_COLS = [];
+        STONE_COLS = [];
 
         var vegBase = NIGHT_MODE ? GROUND_COL : colorHelper.brightenByAmt(GROUND_COL,_random(-10,10));
         var flowerBase = colorHelper.randomHex();
         if(NIGHT_MODE){
             flowerBase = colorHelper.brightenByAmt(flowerBase, -100);
         }
-
+        var stoneGrey = colorHelper.greyHex(NIGHT_MODE?_randomInt(20,60):_randomInt(90,130));
+        var stoneBase = colorHelper.mixHexCols(stoneGrey,GROUND_COL,0.7,0.3);
+        stoneBase = colorHelper.mixHexCols(stoneBase,SKY_COL,0.8,0.2);
+        STONE_COLS[0] = stoneBase;
+ 
         for (i = 0; i < 8; i++){
+            TREELEAF_COLS.push(colorHelper.variationsOn(LEAF_BASE_COL, 30));
             GROUND_COLS.push(colorHelper.variationsOn(GROUND_COL, 15));
             VEG_COLS.push(colorHelper.variationsOn(vegBase, 30));
-            FLOWER_COLS.push(colorHelper.variationsOn(flowerBase,50));
+            FLOWER_COLS.push(colorHelper.variationsOn(flowerBase, 50));
         }
 
     }
@@ -232,6 +235,43 @@ function ForestGenerator() {
 
         return pal;
     }
+
+    function _stonePath(){
+        
+        var path = new THREE.Object3D();
+        var stepSize = 0.5;
+        var currentPoint = new THREE.Vector3(0,0,-30);
+        var wending = _random(1,3);
+        var clusterSpread = _random(1,5);
+            
+        for(var i=0; i<400/stepSize; i++){
+
+            var numStonesInCluster = _random(10,20);
+            var clusterRadius = _random(1,3);
+            var minSize = 0.07, maxSize = 0.3;
+        
+            var cluster = new THREE.Object3D();    
+            for(var s=0; s<numStonesInCluster; s++){
+
+                var stoneX = _random(-clusterRadius, clusterRadius);
+                
+                var stoneSize = minSize + maxSize*((clusterRadius - Math.abs(stoneX))/clusterRadius);
+                var stone = _buildStone(STONE_COLS[0], stoneSize);
+                stone.position.x = stoneX;
+                stone.position.z = _random(-clusterRadius, clusterRadius);
+
+                cluster.add(stone);
+            }
+            cluster.position.x = clusterSpread*_noise[Math.floor(i/wending)];
+            cluster.position.z = currentPoint.z + i*stepSize;
+            //clusterWrapper.rotation.y = _perlinRotation(i);
+            //console.log("stones at z "+cluster.position.z);
+           
+            path.add(cluster);
+        }
+        //path.position.y = 0.5;
+        return path;
+    }
  
 
     /**
@@ -245,16 +285,13 @@ function ForestGenerator() {
 
         _palette = _makePaletteFromScene(_palette);
 
-        // Arbitrarily step into the scene so they don't all start from the same position
-        _forest.position.z -= _random(0, 10);
-
         var gifBuffer = new Buffer(sceneWidth * sceneHeight * NUM_FRAMES); 
         var gif = new omggif.GifWriter(gifBuffer, sceneWidth, sceneHeight, {
             palette: _palette,
             loop: 0
         });
         var y_axis = new THREE.Vector3(0, 1, 0);
-        var startingNoise = _randomInt(_noise.length / 2);
+        
 
         for (var i = 0; i < NUM_FRAMES; i++) {
 
@@ -264,7 +301,7 @@ function ForestGenerator() {
             // simulate walking through the forest by steadily moving forward,
             // and rotating the scene with perlin noise.
             _forest.position.z -= 0.5;
-            var wobble = (_noise[i + startingNoise] - 0.5) / 150;
+            var wobble = _perlinRotation(i);
             _forest.rotation.y += wobble;
 
             var pixels = renderer.render(scene, camera);
@@ -279,6 +316,10 @@ function ForestGenerator() {
 
         return _filename;
     };
+
+    function _perlinRotation(index){
+        return (_noise[index + _startingNoise] - 0.5) / 150;
+    }
 
     /**
      * Saves a png of the scene to file. For testing.
@@ -455,24 +496,18 @@ function ForestGenerator() {
     }
 
 
-    /**
-     * "Leaf"
-     * Make a circular mesh in the specified size and color
-     * -------------------------------------------------------
-     * @param  {String} leafCol     -- a hex color string
-     * @param  {Number} leafSize    -- the leaf radius
-     * 
-     * @return {THREE.Mesh}         -- the "leaf"
-     */
-    function _buildLeaf(leafCol, leafSize) {
+    function _buildLeaf(leafCol, leafSize){
+        return _circleMesh(leafCol, leafSize);
+    }
 
-        var geometry = new THREE.CircleGeometry(leafSize, 8);
+    function _circleMesh(col, radius) {
+
+        var geometry = new THREE.CircleGeometry(radius, 8);
         var material = new THREE.MeshBasicMaterial({
-            color: colorHelper.parseHex(leafCol)
+            color: colorHelper.parseHex(col)
         });
 
-        var leaf = new THREE.Mesh(geometry, material);
-        return leaf;
+        return new THREE.Mesh(geometry, material);
     }
 
     /**
@@ -496,11 +531,11 @@ function ForestGenerator() {
         return hill;
     }
 
-    function _flowerPath(){   
+    function _flowers(){   
 
         var numFlowers = _randomInt(50, 150);
         var newPath = new THREE.Object3D();
-        var petalNum = _randomInt(3 + _randomInt(3) + _randomInt(_random(9)));
+        var petalNum = _randomInt(3,3 + _randomInt(3) + _randomInt(_random(9)));
         
         var basePetalSize = _random(0.7, 1);
 
@@ -511,7 +546,7 @@ function ForestGenerator() {
         var startX = _random(-20, 20);
         var xSpread = 40;
 
-        console.log("@@@, "+numFlowers+" flowers, "+petalNum+" petals, "+FLOWER_COLS[0] + " around x "+startX+", z "+startZ);
+        console.log("@@@, "+numFlowers+" flowers, "+petalNum+" petals, "+FLOWER_COLS[0]);
 
         for(var i=0; i<numFlowers; i++){
 
@@ -859,13 +894,13 @@ function ForestGenerator() {
                 newTree.position.x = _randomSign(_random(10+i/3,60 + i));
             }
 
-            var wrapper = new THREE.Object3D();
+            var wrappedTree = new THREE.Object3D();
              if(Math.random()<0.01){
-                newTree.rotation.x = Math.PI/2;
-                wrapper.add(newTree);
-                wrapper.rotation.y = _random(0, Math.PI*2);
+                wrappedTree.rotation.x = Math.PI/2;
+                wrappedTree.add(newTree);
+                wrappedTree.rotation.y = _random(0, Math.PI*2);
             } else {
-                wrapper.add(newTree);
+                wrappedTree.add(newTree);
             }
 
             newTree.scale.x = newTree.scale.y = newTree.scale.z = _random(0.8, 1.7);
@@ -875,13 +910,14 @@ function ForestGenerator() {
             _makeLeavesAround(newTree, 8 + _randomInt(24), VEG_COLS, _pickLeafSize(), 0, _random(BRANCH_RAD_MAX, BRANCH_RAD_MAX*2*newTree.scale.x));
 
             // put all the trees behind the first one so we can walk through them
-            wrapper.position.z = i*zInterval + _random(- zInterval/2, zInterval/2);
+            wrappedTree.position.z = i*zInterval + _random(- zInterval/2, zInterval/2);
 
             // Good to get an idea of how complicated a thing we are building so we know how anxious to 
             // get about how long it is taking to generate.
-            console.log("tree " + i + " has " + _numBranches + " branches, at x " + Math.round(newTree.position.x) + "  z " + Math.round(newTree.position.z));
+            console.log("tree " + i + " has " + _numBranches + " branches");
 
-            _forest.add(wrapper);
+
+            _forest.add(wrappedTree);
         }
 
         // Ground cover
@@ -919,9 +955,15 @@ function ForestGenerator() {
         }
     }
 
+    function _buildStone(col, size){
+        var stone = _circleMesh(col, size);
+        stone.rotation.x = -Math.PI/2;
+        return stone;
+    }
+
     function _buildStar() {
         var starCol = colorHelper.mixHexCols("#FFFFFF", SKY_COL, 0.7, 0.3);
-        var star = _buildLeaf(starCol, _random(1, 2));
+        var star = _circleMesh(starCol, _random(1, 3));
         star.rotation.x = -Math.PI;
         return star;
     }
@@ -959,8 +1001,11 @@ function ForestGenerator() {
         _buildForest();
         _buildHills();
         _buildClouds();
-        _forest.add(_flowerPath());
-
+        _forest.add(_flowers());
+        if(Math.random()<0.5){
+            _forest.add(_stonePath());    
+        }
+        
         if(NIGHT_MODE){
             _buildStars();
         }

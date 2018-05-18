@@ -66,6 +66,16 @@ function Colors(){
         return _this.rgbToHex(rgbObj);
     };
 
+    /**
+     * Return a hex string representing a grey with value provided in the RGB range
+     * -------------------------------------------------------------------------------
+     * @param  {val255} 
+     * @return {string}
+     */
+    this.greyHex = function(val255){
+        return _this.rgbToHex({r:val255,g:val255,b:val255});
+    }
+
     this.randomBright = function(){
         var hexString = "#";
         var dropCol = Math.floor(Math.random()*3);
