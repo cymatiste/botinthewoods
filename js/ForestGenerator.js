@@ -21,7 +21,9 @@ function ForestGenerator() {
     var Randoms = require('./Randoms.js');
     var DeciduousTrees = require('./DeciduousTrees');
     var ConiferousTrees = require('./ConiferousTrees');
+    var Ferns = require('./Ferns.js');
     var SoftwareRenderer = require('three-software-renderer');
+
 
     config = require(path.join(__dirname, '../config.js'));
 
@@ -29,6 +31,7 @@ function ForestGenerator() {
     var _r = new Randoms();
     var _decid = new DeciduousTrees();
     var _conif = new ConiferousTrees();
+    var _ferns = new Ferns();
 
     var _forest;
     var _filename;
@@ -75,7 +78,7 @@ function ForestGenerator() {
     camera.position.z = -20;
 
     var aLittleHigherPos = scene.position;
-    aLittleHigherPos.y = 5;
+    aLittleHigherPos.y = _r.random(3,5);
     camera.lookAt(aLittleHigherPos);
 
     renderer = new SoftwareRenderer({
@@ -134,7 +137,7 @@ function ForestGenerator() {
         FLOWER_COLS = [];
         STONE_COLS = [];
 
-        var vegBase = NIGHT_MODE ? GROUND_COL : colorHelper.brightenByAmt(GROUND_COL,_r.random(-10,10));
+        var vegBase = NIGHT_MODE ? GROUND_COL : colorHelper.brightenByAmt(GROUND_COL,_r.random(-30,10));
         
         var stoneGrey = colorHelper.greyHex(NIGHT_MODE?_r.randomInt(20,60):_r.randomInt(90,130));
         var stoneBase = colorHelper.mixHexCols(stoneGrey,GROUND_COL,0.7,0.3);
@@ -143,8 +146,8 @@ function ForestGenerator() {
         STONE_COLS[0] = stoneBase;
  
         for (i = 0; i < 8; i++){
-            GROUND_COLS.push(colorHelper.variationsOn(GROUND_COL, 15));
-            VEG_COLS.push(colorHelper.variationsOn(vegBase, 30));
+            GROUND_COLS.push(colorHelper.variationsOn(GROUND_COL, 20));
+            VEG_COLS.push(colorHelper.variationsOn(vegBase, 40));
         }
     }
 
@@ -455,7 +458,8 @@ function ForestGenerator() {
 
     function _bushColors(){
         var cols = [];
-        var bushBase = colorHelper.mixHexCols(colorHelper.variationsOn(GROUND_COL, 75),_decid.options.COLOR_BTM,0.8,0.2);
+        var bushBase = colorHelper.mixHexCols(colorHelper.variationsOn(GROUND_COL, 75),_decid.options.COLOR_BTM,0.3,0.7);
+        bushBase = colorHelper.mixHexCols(colorHelper.randomHex(),bushBase,0.5,0.5);
         for (i = 0; i < 4; i++){
             cols.push(colorHelper.variationsOn(bushBase, 20));
         }
@@ -482,16 +486,26 @@ function ForestGenerator() {
     function _buildBushes(){
         var bushHeight = _decid.options.BRANCH_L;
         var bushWidth = _r.randomInt(2,6);
-        var numBushes = _r.randomInt(0,NUM_TREES/3);
+        var numBushes = _r.randomInt(0,NUM_TREES*2);
         var bushColors = _bushColors();
         var leafSize = _r.random(_decid.options.LEAF_SIZE/2,_decid.options.LEAF_SIZE);
         var leafWidth = _r.random(0.7,1);
+
+        console.log("{}{} "+numBushes);
         for (var i = 0; i < numBushes; i++) {
+            /*
+            var newFern = _ferns.getFern(_r.randomFrom(bushColors));
+            newFern.position.z = _r.random(- 30, 20);
+            newFern.position.x = _r.randomSign(_r.random(0,40 + i) + (PATH_MODE ? _r.random(1,2) : 0));
+            _forest.add(newFern);
+            */
+            
             console.log("bush "+i);
             var newBush = _bush(_r.random(bushHeight*0.5,bushHeight*1.2),bushWidth,bushColors,leafSize, leafWidth);
             newBush.position.z = _r.random(- 20, 150);
             newBush.position.x = _r.randomSign(_r.random(0,40 + i) + (PATH_MODE ? _r.random(1,2) : 0));
             _forest.add(newBush);
+            
         }
     }
 

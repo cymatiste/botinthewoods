@@ -6,6 +6,7 @@ var fs = require('fs'),
 var T = new Twit(config);
 
 var _firstRun = true;
+var _threading = false;
 
 var _json, _status;
 
@@ -43,7 +44,7 @@ function _tweetAForest(){
             var replyId = _json.replyTo;
             var params;
 
-            if(replyId !== null && replyId.length > 0){
+            if(_threading && replyId !== null && replyId.length > 0){
 		    	_status = "@botinthewoods \n"+_status;
 		    	params = {
 		            status: _status,
