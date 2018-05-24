@@ -486,7 +486,7 @@ function ForestGenerator() {
     function _buildBushes(){
         var bushHeight = _decid.options.BRANCH_L;
         var bushWidth = _r.randomInt(2,6);
-        var numBushes = _r.randomInt(0,NUM_TREES*1.5);
+        var numBushes = _r.randomInt(0,NUM_TREES*2);
         var bushColors = _bushColors();
         var leafSize = _r.random(_decid.options.LEAF_SIZE/2,_decid.options.LEAF_SIZE);
         var leafWidth = _r.random(0.7,1);
@@ -502,7 +502,7 @@ function ForestGenerator() {
             
             console.log("bush "+i);
             var newBush = _bush(_r.random(bushHeight*0.5,bushHeight*1.2),bushWidth,bushColors,leafSize, leafWidth);
-            newBush.position.z = _r.random(- 20, 150);
+            newBush.position.z = _r.random(-30, 200);
             newBush.position.x = _r.randomSign(_r.random(0,40 + i) + (PATH_MODE ? _r.random(1,2) : 0));
             _forest.add(newBush);
             

@@ -399,7 +399,7 @@ function DeciduousTrees(nightMode) {
         var maxRad = _pickRadius();
 
         // The bottom of the tree is a random dark colour and the top is a variation on same
-        var bottom_color = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomDark(), _r.random(0,30) : colorHelper.brightenByAmt(colorHelper.randomDark(), _r.random(30,80));
+        var bottom_color = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomDark(), _r.random(0,30)) : colorHelper.brightenByAmt(colorHelper.randomDark(), _r.random(30,80));
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
@@ -426,12 +426,11 @@ function DeciduousTrees(nightMode) {
             LEAF_W: _r.random(0.7,1),
             MAX_DEPTH: 12, 
             MAX_BRANCHES_TOTAL: 3333, 
-            MAX_BRANCHES_PER_NODE:  _r.randomInt(2, 5),
-            LEAF_DENSITY: _r.randomInt(24)
+            MAX_BRANCHES_PER_NODE:  _r.randomInt(2, 5)
         };
 
         return options;
-    };
+    }
 }
 
 module.exports = DeciduousTrees;
