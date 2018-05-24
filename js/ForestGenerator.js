@@ -458,8 +458,8 @@ function ForestGenerator() {
 
     function _bushColors(){
         var cols = [];
-        var bushBase = colorHelper.mixHexCols(colorHelper.variationsOn(GROUND_COL, 75),_decid.options.COLOR_BTM,0.3,0.7);
-        bushBase = colorHelper.mixHexCols(colorHelper.randomHex(),bushBase,0.5,0.5);
+        var bushBase = colorHelper.mixHexCols(colorHelper.randomHex(),_decid.options.COLOR_BTM,0.3,0.7);
+        bushBase = colorHelper.mixHexCols(bushBase,GROUND_COL,0.4,0.6);
         for (i = 0; i < 4; i++){
             cols.push(colorHelper.variationsOn(bushBase, 20));
         }
@@ -486,7 +486,7 @@ function ForestGenerator() {
     function _buildBushes(){
         var bushHeight = _decid.options.BRANCH_L;
         var bushWidth = _r.randomInt(2,6);
-        var numBushes = _r.randomInt(0,NUM_TREES*2);
+        var numBushes = _r.randomInt(0,NUM_TREES*1.5);
         var bushColors = _bushColors();
         var leafSize = _r.random(_decid.options.LEAF_SIZE/2,_decid.options.LEAF_SIZE);
         var leafWidth = _r.random(0.7,1);
