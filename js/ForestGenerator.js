@@ -62,7 +62,7 @@ function ForestGenerator() {
     scene = new THREE.Scene();
 
     var sceneWidth, sceneHeight, pixelRatio;
-    sceneWidth = 640;
+    sceneWidth = 600;
     sceneHeight = 600;
    
     // When generating twitter headers
@@ -173,7 +173,8 @@ function ForestGenerator() {
         return pal;
     }
 
-    function _stonePath(){
+
+    function _dirtPath(){
         
         var path = new THREE.Object3D();
         var stepSize = 0.5;
@@ -417,14 +418,12 @@ function ForestGenerator() {
         return new THREE.Mesh(geometry, material);
     }
 
-    function _sphereMesh(col, radius){
-        var sphGeom = new THREE.SphereGeometry(radius, 2, 2);
-        var hex;
+    function _hemisphereMesh(col, radius){
+        var sphGeom = new THREE.SphereGeometry(radius, 5, 4, 0, Math.PI*2, 0, Math.PI/2);
+        var hex = colorHelper.parseHex(col);         
 
-        for (i = 0; i < sphGeom.faces.length; i += 2) {
-            hex = colorHelper.parseHex(col);
+        for (i = 0; i < sphGeom.faces.length; i ++) {
             sphGeom.faces[i].color.setHex(hex);
-            sphGeom.faces[i + 1].color.setHex(hex);
         }
 
         var material = new THREE.MeshBasicMaterial({
@@ -483,27 +482,52 @@ function ForestGenerator() {
         return bush;
     }
 
+    function _buildRocks(){
+        var numRocks = _r.randomInt(NUM_TREES*2,NUM_TREES*4);
+        var baseGrey = colorHelper.greyHex(NIGHT_MODE ? _r.randomInt(10,50) : _r.randomInt(30,100));
+        var rockCol = colorHelper.mixHexCols(GROUND_COL,baseGrey,0.6,0.4);
+        
+        console.log("[) "+numRocks);
+        for(var i=0; i<numRocks; i++){
+            var rockRad = _r.random(0.1,3);
+            var rock = _hemisphereMesh(rockCol, rockRad);
+
+            //rock.position.y = -rockRad*0.6;
+            rock.scale.y = _r.random(0.1,0.8);
+            rock.scale.x = _r.random(0.5,1);
+            rock.position.z = _r.random(-30, 200);
+            rock.position.x = _r.randomSign(_r.random(3,40 + i));
+            rock.rotation.y = _r.random(0,Math.PI*2);
+            _forest.add(rock);
+            
+        }
+    }
+
     function _buildBushes(){
-        var bushHeight = _decid.options.BRANCH_L;
+        var bushHeight = _r.random(0.4,1);
         var bushWidth = _r.randomInt(2,6);
-        var numBushes = _r.randomInt(0,NUM_TREES*2);
+        var numBushes = _r.randomInt(0,NUM_TREES);
         var bushColors = _bushColors();
-        var leafSize = _r.random(_decid.options.LEAF_SIZE/2,_decid.options.LEAF_SIZE);
+        var leafSize = _r.random(_decid.options.LEAF_SIZE,_decid.options.LEAF_SIZE);
         var leafWidth = _r.random(0.7,1);
+        var i;
 
         console.log("{}{} "+numBushes);
-        for (var i = 0; i < numBushes; i++) {
-            /*
-            var newFern = _ferns.getFern(_r.randomFrom(bushColors));
-            newFern.position.z = _r.random(- 30, 20);
-            newFern.position.x = _r.randomSign(_r.random(0,40 + i) + (PATH_MODE ? _r.random(1,2) : 0));
-            _forest.add(newFern);
-            */
-            
-            console.log("bush "+i);
+        
+        for (i = 0; i < numBushes; i++) {
+          
+            //console.log("bush "+i);
             var newBush = _bush(_r.random(bushHeight*0.5,bushHeight*1.2),bushWidth,bushColors,leafSize, leafWidth);
             newBush.position.z = _r.random(-30, 200);
-            newBush.position.x = _r.randomSign(_r.random(0,40 + i) + (PATH_MODE ? _r.random(1,2) : 0));
+            newBush.position.x = _r.randomSign(_r.random(4,40 + i));
+            _forest.add(newBush);
+            
+        }
+        // Add a big ridge at the back of the scene
+        for (i = 0; i < 50; i++) {
+            var newBush = _bush(_r.random(bushHeight*40,bushHeight*40),bushWidth*5,bushColors,leafSize*4, leafWidth);
+            newBush.position.z = _r.random(300, 600);
+            newBush.position.x = _r.randomSign(_r.random(0,300));
             _forest.add(newBush);
             
         }
@@ -711,14 +735,14 @@ function ForestGenerator() {
             if (i % 3 == 0) {
                 // One third of the trees we want relatively close to the center         
                 // The last part of the calculation is to avoid running into trees with the camera    
-                newTree.position.x = _r.randomSign(_r.random(0, 50) + (PATH_MODE ? _r.random(2,3) : 0));
+                newTree.position.x = _r.randomSign(_r.random(0, 50) + (i < 20 ? _r.random(2,3) : 0));
                 //newTree.rotation.x = Math.PI;
                 //newTree.position.y = 10;
 
             } else {
                 // and the other half can spread further out
                 //newTree.position.x = _r.randomSign(20 + i/2 + _r.random(-20,20));
-                newTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (PATH_MODE ? _r.random(2,3) : 0));
+                newTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
             }
 
             var wrappedTree = new THREE.Object3D();
@@ -822,9 +846,10 @@ function ForestGenerator() {
         _buildHills();
         _buildClouds();
         _buildBushes();
+        _buildRocks();
         _forest.add(_flowers());    
         if(PATH_MODE){
-            _forest.add(_stonePath());    
+            _forest.add(_dirtPath());    
         }
         
         if(NIGHT_MODE){

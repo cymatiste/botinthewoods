@@ -46,10 +46,10 @@ function ConiferousTrees(nightMode) {
      */
     function _pickDecay(){
         var decayRange = Math.random();
-        if (decayRange < 0.15){
-            return _r.random(0.01, 0.04);
+        if (decayRange < 0.3){
+            return _r.random(0.01, 0.03);
         } else if (decayRange < 0.9){
-            return _r.random(0.04, 0.06);
+            return _r.random(0.03, 0.06);
         } else {
             return _r.random(0.06, 0.07);
         }

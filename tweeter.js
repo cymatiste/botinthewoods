@@ -67,7 +67,7 @@ function _tweetAForest(){
 
                 } else {
                     console.log('Tweeted: ' + params.status+", "+data);
-                    if(_json.quotes.length > 0){
+                    if(_threading && _json.quotes.length > 0){
                 		_json.replyTo = data.id_str;
                 	} else {
                 		_json.replyTo = "";
@@ -78,7 +78,7 @@ function _tweetAForest(){
                         if (err){
                             console.log(err);
                         } else {
-                            console.log("json updated.");
+                            console.log("tweetables updated.");
                         }      
                     });
                 }

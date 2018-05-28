@@ -7,7 +7,7 @@ function _newForest(numFrames){
 
     var gen = new ForestGenerator();
 
-    var numTrees = 20;
+    var numTrees = 100;
     // Make the GIF
     var filename = 'test'+Math.floor(Math.random()*999999);
     console.log("plz generate "+filename);
