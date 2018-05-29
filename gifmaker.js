@@ -1,15 +1,15 @@
 var fs = require('fs'),
     path = require('path'),
-    //Names = require(path.join(__dirname, 'js/Names.js'));
+    Names = require(path.join(__dirname, 'js/Names.js'));
     ForestGenerator = require(path.join(__dirname, 'js/ForestGenerator.js'));
 
-//var _namer = new Names();
+var _namer = new Names();
 var _filename;
 
 function _keepGenerating(){
     // Make the GIF
-    _filename = 'forest'+Math.floor(Math.random()*999999);
-    //_filename = _namer.getName();
+    //_filename = 'forest'+Math.floor(Math.random()*999999);
+    _filename = _namer.getName();
     //console.log("got filename "+_filename);
     setTimeout(function(){_makeForest(_filename);},2000);
 }
@@ -24,6 +24,7 @@ function _recordAsTweetable(filename){
     var json = JSON.parse(fs.readFileSync('tweetables.json', 'utf8'));
     json.gifNames.push(filename);
     var toWrite = JSON.stringify(json);
+    console.log("adding --------->  "+filename);
     fs.writeFile('tweetables.json', toWrite, 'utf8', _fileWriteCallback);
 }
 

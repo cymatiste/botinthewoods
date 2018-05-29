@@ -48,7 +48,7 @@ function ForestGenerator() {
 
     var SKY_COL, GROUND_COL, GROUND_COLS, VEG_COLS, STONE_COLS;
 
-    var _RIDGE_Z1 = 350;
+    var _RIDGE_Z1 = 500;
     var _RIDGE_Z2 = 700;
 
     _initColors();
@@ -738,7 +738,7 @@ function ForestGenerator() {
             var wrappedTree = new THREE.Object3D();
             // If a tree falls in the forest;
             wrappedTree.add(newTree);
-             if(Math.random()<0.05){
+             if(Math.random()<0.1){
                 wrappedTree.rotation.x = Math.PI/2;
             }
 
@@ -755,7 +755,7 @@ function ForestGenerator() {
                 wrappedTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
             }
 
-            newTree.scale.x = newTree.scale.y = newTree.scale.z = _r.random(0.8, 1.8);
+            wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z = _r.random(0.8, 1.8);
 
            
             // Some clumps of vegetation around the base of the trees.
@@ -767,7 +767,8 @@ function ForestGenerator() {
                 wrappedTree.position.z = i*zInterval + _r.random(- zInterval/2, zInterval/2);    
             } else {
                 //add the last trees to the bush ridge at the back of the scene
-                wrappedTree.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
+                //wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z =  wrappedTree.scale.x*1.3;
+                wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z1);
             }
             
 
