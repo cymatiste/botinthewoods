@@ -28,12 +28,12 @@ function DeciduousTrees(nightMode) {
     function _pickRadius() {
         var sizeRange = Math.random();
 
-        if (sizeRange < 0.2) {
-            return _r.random(0.1, 0.3);
-        } else if (sizeRange < 0.5) {
+        if (sizeRange < 0.1) {
+            return _r.random(0.1, 0.4);
+        } else if (sizeRange < 0.7) {
             return _r.random(0.4, 0.9);
         } else if (sizeRange < 0.95) {
-            return _r.random(1, 1.4);
+            return _r.random(0.9, 1.5);
         } else {
             return _r.random(1.5, 2.8);
         }
@@ -46,12 +46,12 @@ function DeciduousTrees(nightMode) {
      */
     function _pickDecay(){
         var decayRange = Math.random();
-        if (decayRange < 0.15){
-            return _r.random(0, 0.035);
+        if (decayRange < 0.3){
+            return _r.random(0, 0.02);
         } else if (decayRange < 0.8){
-            return _r.random(0.035, 0.055);
+            return _r.random(0.02, 0.05);
         } else {
-            return _r.random(0.055, 0.07);
+            return _r.random(0.05, 0.07);
         }
     }
 
@@ -412,7 +412,7 @@ function DeciduousTrees(nightMode) {
         var options = {
             BRANCH_R_MAX: maxRad,
             BRANCH_R_MIN: maxRad * _r.random(0.03),
-            BRANCH_L: _r.random(2, 8), 
+            BRANCH_L: Math.max(maxRad*10,_r.random(2, 8)), 
             BRANCH_P: _r.random(0.72, 0.77),
             CHANCE_DECAY: _pickDecay(),
             LENGTH_MULT: _r.random(0.85, 0.95),

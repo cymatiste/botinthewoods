@@ -48,6 +48,9 @@ function ForestGenerator() {
 
     var SKY_COL, GROUND_COL, GROUND_COLS, VEG_COLS, STONE_COLS;
 
+    var _RIDGE_Z1 = 350;
+    var _RIDGE_Z2 = 700;
+
     _initColors();
 
     var _noise = perlin.generatePerlinNoise(1000, 1000);
@@ -524,9 +527,9 @@ function ForestGenerator() {
             
         }
         // Add a big ridge at the back of the scene
-        for (i = 0; i < 50; i++) {
-            var newBush = _bush(_r.random(bushHeight*40,bushHeight*40),bushWidth*5,bushColors,leafSize*4, leafWidth);
-            newBush.position.z = _r.random(300, 600);
+        for (i = 0; i < NUM_TREES; i++) {
+            var newBush = _bush(_r.random(bushHeight*50,bushHeight*50),bushWidth*8,bushColors,leafSize*4, leafWidth);
+            newBush.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
             newBush.position.x = _r.randomSign(_r.random(0,300));
             _forest.add(newBush);
             
@@ -723,7 +726,7 @@ function ForestGenerator() {
         var zInterval = _r.random(300,400)/NUM_TREES;
        
         // Trees
-        for (i = 0; i < NUM_TREES; i++) {
+        for (i = 0; i < NUM_TREES*1.5; i++) {
             // Good to get an idea of how complicated a thing we are building so we know how anxious to 
             // get about how long it is taking to generate.
             console.log("tree " + i);
@@ -732,36 +735,41 @@ function ForestGenerator() {
             var newTree = treetype.getTree(treetype.options);
 
 
+            var wrappedTree = new THREE.Object3D();
+            // If a tree falls in the forest;
+            wrappedTree.add(newTree);
+             if(Math.random()<0.05){
+                wrappedTree.rotation.x = Math.PI/2;
+            }
+
             if (i % 3 == 0) {
                 // One third of the trees we want relatively close to the center         
                 // The last part of the calculation is to avoid running into trees with the camera    
-                newTree.position.x = _r.randomSign(_r.random(0, 50) + (i < 20 ? _r.random(2,3) : 0));
+                wrappedTree.position.x = _r.randomSign(_r.random(0, 50) + (i < 20 ? _r.random(2,3) : 0));
                 //newTree.rotation.x = Math.PI;
                 //newTree.position.y = 10;
 
             } else {
                 // and the other half can spread further out
                 //newTree.position.x = _r.randomSign(20 + i/2 + _r.random(-20,20));
-                newTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
+                wrappedTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
             }
 
-            var wrappedTree = new THREE.Object3D();
-            // If a tree falls in the forest;
-            wrappedTree.add(newTree);
-             if(Math.random()<0.01){
-                wrappedTree.rotation.x = Math.PI/2;
-            }
-            
-
-            newTree.scale.x = newTree.scale.y = newTree.scale.z = _r.random(0.8, 1.7);
+            newTree.scale.x = newTree.scale.y = newTree.scale.z = _r.random(0.8, 1.8);
 
            
             // Some clumps of vegetation around the base of the trees.
             _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, groundLeafSize, 0, _r.random(treetype.options.BRANCH_R_MAX, treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
             _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, _pickLeafSize(), 0, _r.random(treetype.options.BRANCH_R_MAX, treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
 
-            // put all the trees behind the first one so we can walk through them
-            wrappedTree.position.z = i*zInterval + _r.random(- zInterval/2, zInterval/2);
+            if(i < NUM_TREES){
+                // scatter these throughout the field
+                wrappedTree.position.z = i*zInterval + _r.random(- zInterval/2, zInterval/2);    
+            } else {
+                //add the last trees to the bush ridge at the back of the scene
+                wrappedTree.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
+            }
+            
 
             _forest.add(wrappedTree);
         }
