@@ -738,9 +738,13 @@ function ForestGenerator() {
             var wrappedTree = new THREE.Object3D();
             // If a tree falls in the forest;
             wrappedTree.add(newTree);
-             if(Math.random()<0.1){
+            var atreefalls = Math.random();
+            if(atreefalls < 0.05){
                 wrappedTree.rotation.x = Math.PI/2;
+            } else if (atreefalls < 0.1){
+                wrappedTree.rotation.z = Math.PI/2;
             }
+            wrappedTree.rotation.y = Math.random()*Math.PI*2;
 
             if (i % 3 == 0) {
                 // One third of the trees we want relatively close to the center         
