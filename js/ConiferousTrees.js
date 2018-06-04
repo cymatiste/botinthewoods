@@ -102,6 +102,11 @@ function ConiferousTrees(nightMode) {
                 structure.push(newBranch);
                 _numBranches++;
             }
+            if(structure.length == 0){
+                structure.push([]);
+                structure.push([]);
+                structure.push([]);
+            }
   
         }
         return structure;
