@@ -89,22 +89,21 @@ function DeciduousTrees(nightMode) {
         var depth = startingDepth || 0;
 
         if (depth < _options.MAX_DEPTH) {
-            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P, _options.CHANCE_DECAY * depth));
+            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
 
-            while (structure.length < _options.MAX_BRANCHES_PER_NODE && Math.random() < branchChance) {
-
-                if (_numBranches > _options.MAX_BRANCHES_TOTAL) {
-                    break;
-                }
+            while (_numBranches==0 || (structure.length < _options.MAX_BRANCHES_PER_NODE && Math.random() < branchChance)) {
 
                 var newBranch = _randomTreeData([], depth + 1);
                 structure.push(newBranch);
                 _numBranches++;
             }
 
-            structure.push([]);
-            structure.push([]);
-            structure.push([]);
+            if(structure.length==0){
+                structure.push([]);
+                structure.push([]);
+                structure.push([]);
+            }
+            
         }
         return structure;
     }

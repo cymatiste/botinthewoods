@@ -83,32 +83,22 @@ function ConiferousTrees(nightMode) {
      * 
      * @return {Array}                      
      */
-    function _randomTreeData(startingStructure, startingDepth, maxDepth) {
-
-        var structure = startingStructure || [];
-        var depth = startingDepth || 0;
-        var max_d = maxDepth || _options.MAX_DEPTH; 
-
+    function _randomTreeData(structure, depth, max_d) {
         if (depth < max_d) {
-            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P, _options.CHANCE_DECAY * depth));
+            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
 
-            while (structure.length < _options.MAX_BRANCHES_PER_NODE && Math.random() < branchChance) {
+            while (_numBranches==0 || (structure.length < _options.MAX_BRANCHES_PER_NODE && Math.random() < branchChance)) {
 
                 if (_numBranches > _options.MAX_BRANCHES_TOTAL) {
-                    break;
+                    //break;
                 }
 
                 var newBranch = _randomTreeData([], depth + 1, max_d);
                 structure.push(newBranch);
                 _numBranches++;
             }
-            if(structure.length == 0){
-                structure.push([]);
-                structure.push([]);
-                structure.push([]);
-            }
-  
         }
+
         return structure;
     }
 
@@ -420,9 +410,9 @@ function ConiferousTrees(nightMode) {
         _setParameters(options);
         
         var data = [];
-        while (data.length == 0) {
-            data = _randomTreeData();
-        }
+        data = _randomTreeData([],0,_options.MAX_DEPTH); 
+        
+        
         console.log(_numBranches + " branches");
 
         return _treeWithRoots(data, _options.BRANCH_L, _depthOfArray(data), 0, _depthOfArray(data), _options.BRANCH_R_MAX);

@@ -44,7 +44,7 @@ function ForestGenerator() {
 
     var NUM_FRAMES = 100;
     
-    var NUM_TREES = _r.randomInt(100, 250);
+    var NUM_TREES = _r.randomInt(80, 200);
 
     var SKY_COL, GROUND_COL, GROUND_COLS, VEG_COLS, STONE_COLS;
 
