@@ -101,6 +101,10 @@ function DeciduousTrees(nightMode) {
                 structure.push(newBranch);
                 _numBranches++;
             }
+
+            structure.push([]);
+            structure.push([]);
+            structure.push([]);
         }
         return structure;
     }

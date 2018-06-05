@@ -48,8 +48,8 @@ function ForestGenerator() {
 
     var SKY_COL, GROUND_COL, GROUND_COLS, VEG_COLS, STONE_COLS;
 
-    var _RIDGE_Z1 = 500;
-    var _RIDGE_Z2 = 700;
+    var _RIDGE_Z1 = 600;
+    var _RIDGE_Z2 = 800;
 
     _initColors();
 
@@ -515,6 +515,11 @@ function ForestGenerator() {
         var leafWidth = _r.random(0.7,1);
         var i;
 
+        var backBushCols = [];
+        for(var i=0; i<bushColors.length; i++){
+            backBushCols.push(colorHelper.brightenByAmt(bushColors[i],_r.random(-10,10)));
+        }
+
         console.log("{}{} "+numBushes);
         
         for (i = 0; i < numBushes; i++) {
@@ -527,8 +532,8 @@ function ForestGenerator() {
             
         }
         // Add a big ridge at the back of the scene
-        for (i = 0; i < NUM_TREES; i++) {
-            var newBush = _bush(_r.random(bushHeight*50,bushHeight*50),bushWidth*8,bushColors,leafSize*4, leafWidth);
+        for (i = 0; i < NUM_TREES*0.6; i++) {
+            var newBush = _bush(_r.random(bushHeight*50,bushHeight*80),bushWidth*8,backBushCols,leafSize*4, leafWidth);
             newBush.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
             newBush.position.x = _r.randomSign(_r.random(0,300));
             _forest.add(newBush);
@@ -726,7 +731,7 @@ function ForestGenerator() {
         var zInterval = _r.random(300,400)/NUM_TREES;
        
         // Trees
-        for (i = 0; i < NUM_TREES*1.5; i++) {
+        for (i = 0; i < NUM_TREES*2; i++) {
             // Good to get an idea of how complicated a thing we are building so we know how anxious to 
             // get about how long it is taking to generate.
             console.log("tree " + i);
@@ -759,24 +764,31 @@ function ForestGenerator() {
                 wrappedTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
             }
 
-            wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z = _r.random(0.8, 1.8);
-
-           
-            // Some clumps of vegetation around the base of the trees.
-            _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, groundLeafSize, 0, _r.random(treetype.options.BRANCH_R_MAX, treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
-            _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, _pickLeafSize(), 0, _r.random(treetype.options.BRANCH_R_MAX, treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
+            
 
             if(i < NUM_TREES){
                 // scatter these throughout the field
-                wrappedTree.position.z = i*zInterval + _r.random(- zInterval/2, zInterval/2);    
+                wrappedTree.position.z = i*zInterval + _r.random(- zInterval/2, zInterval/2);  
+
+                // Some clumps of vegetation around the base of the trees.
+                 _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, groundLeafSize, 0, _r.random(treetype.options.BRANCH_R_MAX,     treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
+                 _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, _pickLeafSize(), 0, _r.random(treetype.options.BRANCH_R_MAX,        treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
+                 wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z = _r.random(0.8, 1.8);
+
             } else {
                 //add the last trees to the bush ridge at the back of the scene
-                //wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z =  wrappedTree.scale.x*1.3;
-                wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z1);
+                // don't bother with the leaves, we can't see well that far back.
+                wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z1*0.99);
+
+                // let's test grouping these all closer.
+                wrappedTree.position.x = _r.randomSign((i-NUM_TREES)*2.2);
+
+                //wrappedTree.scale.y = 0.8;
+                //_forest.add(wrappedTree);   
             }
             
-
             _forest.add(wrappedTree);
+           
         }
 
         // Ground cover
