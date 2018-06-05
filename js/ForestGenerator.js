@@ -44,7 +44,8 @@ function ForestGenerator() {
 
     var NUM_FRAMES = 100;
     
-    var NUM_TREES = _r.randomInt(80, 200);
+    var NUM_TREES = _r.randomInt(50, 200);
+    var _trees = [];
 
     var SKY_COL, GROUND_COL, GROUND_COLS, VEG_COLS, STONE_COLS;
 
@@ -737,12 +738,19 @@ function ForestGenerator() {
             console.log("tree " + i);
             
             var treetype = _decid; //_conif;
-            var newTree = treetype.getTree(treetype.options);
 
+            var newTree, wrappedTree;
 
-            var wrappedTree = new THREE.Object3D();
+            if(i < NUM_TREES){
+                newTree = treetype.getTree(treetype.options);
+                 wrappedTree = new THREE.Object3D();
+                 wrappedTree.add(newTree);
+            } else {
+                wrappedTree = _trees[i-NUM_TREES].clone(true);
+            }
+             _trees.push(wrappedTree);
             // If a tree falls in the forest;
-            wrappedTree.add(newTree);
+            
             var atreefalls = Math.random();
             if(atreefalls < 0.05){
                 wrappedTree.rotation.x = Math.PI/2;
@@ -773,19 +781,18 @@ function ForestGenerator() {
                 // Some clumps of vegetation around the base of the trees.
                  _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, groundLeafSize, 0, _r.random(treetype.options.BRANCH_R_MAX,     treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
                  _makeLeavesAround(newTree, 8 + _r.randomInt(24), VEG_COLS, _pickLeafSize(), 0, _r.random(treetype.options.BRANCH_R_MAX,        treetype.options.BRANCH_R_MAX*2*newTree.scale.x), GROUNDLEAF_WIDTH);
-                 wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z = _r.random(0.8, 1.8);
-
+                 
             } else {
                 //add the last trees to the bush ridge at the back of the scene
-                // don't bother with the leaves, we can't see well that far back.
+                // don't bother with the ground leaves, we can't see well that far back.
                 wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z1*0.99);
 
                 // let's test grouping these all closer.
                 wrappedTree.position.x = _r.randomSign((i-NUM_TREES)*2.2);
 
-                //wrappedTree.scale.y = 0.8;
-                //_forest.add(wrappedTree);   
             }
+
+            wrappedTree.scale.x = wrappedTree.scale.y = wrappedTree.scale.z = _r.random(0.8, 1.8);
             
             _forest.add(wrappedTree);
            
