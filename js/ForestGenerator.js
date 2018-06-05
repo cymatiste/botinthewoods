@@ -48,8 +48,8 @@ function ForestGenerator() {
 
     var SKY_COL, GROUND_COL, GROUND_COLS, VEG_COLS, STONE_COLS;
 
-    var _RIDGE_Z1 = 600;
-    var _RIDGE_Z2 = 800;
+    var _RIDGE_Z1 = 550;
+    var _RIDGE_Z2 = 700;
 
     _initColors();
 
