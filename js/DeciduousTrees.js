@@ -99,9 +99,10 @@ function DeciduousTrees(nightMode) {
             }
 
             if(structure.length==0){
-                structure.push([]);
-                structure.push([]);
-                structure.push([]);
+                var tipBranches = _r.randomInt(2,3);
+                for(var i=0; i<tipBranches.length; i++){
+                    structure.push([]);    
+                }
             }
             
         }
@@ -202,6 +203,9 @@ function DeciduousTrees(nightMode) {
 
         // It's possible for certain sets of parameters to make branches longer than our max, so, rein it in!
         var referenceLength = Math.min(length, _options.BRANCH_L);
+        if(distanceFromTip==1){
+            referenceLength = referenceLength/2; 
+        }
 
         var baseRadius = function(distFromTip, distFromRoot) {
             var fromBottom = minRad + ((fullTreeDepth - distFromRoot) / fullTreeDepth) * (maxRad - minRad);
@@ -212,7 +216,7 @@ function DeciduousTrees(nightMode) {
         var radiusBottom = baseRadius(distanceFromTip, distanceFromRoot);
         var radiusTop = baseRadius(Math.max(0, distanceFromTip - 1), distanceFromRoot + 1);
 
-        var cylGeom = new THREE.CylinderGeometry(radiusTop, radiusBottom, length, 8);
+        var cylGeom = new THREE.CylinderGeometry(radiusTop, radiusBottom, referenceLength, 8);
         var sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
         var hex;
 
@@ -239,19 +243,19 @@ function DeciduousTrees(nightMode) {
         });
 
         var cylinder = new THREE.Mesh(cylGeom, material);
-        cylinder.position.y = length / 2;
+        cylinder.position.y = referenceLength / 2;
 
         var sphere = new THREE.Mesh(sphGeom, material);
 
         var tip = new THREE.Object3D();
-        tip.position.y = length;
+        tip.position.y = referenceLength;
         tip.add(sphere);
 
         var branch = new THREE.Object3D();
         branch.add(cylinder);
         branch.add(tip);
         branch.tip = tip;
-        branch.length = length;
+        branch.length = referenceLength;
 
         if (distanceFromTip == 1) {
             _makeLeavesAround(branch.tip, _r.randomInt(_options.LEAF_DENSITY*2, _options.LEAF_DENSITY*3), _options.LEAF_COLS, _options.LEAF_SIZE, 0, 0, _options.LEAF_W);

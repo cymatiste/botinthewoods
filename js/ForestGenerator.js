@@ -729,7 +729,7 @@ function ForestGenerator() {
         var i;
         var numTrees = _r.randomInt(NUM_TREES*0.5, NUM_TREES*1.5);
         var groundLeafSize = _pickLeafSize();
-        var zInterval = _r.random(300,400)/NUM_TREES;
+        var zInterval = _r.random(400,500)/NUM_TREES;
        
         // Trees
         for (i = 0; i < NUM_TREES*2; i++) {
@@ -769,7 +769,7 @@ function ForestGenerator() {
             } else {
                 // and the other half can spread further out
                 //newTree.position.x = _r.randomSign(20 + i/2 + _r.random(-20,20));
-                wrappedTree.position.x = _r.randomSign(_r.random(10+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
+                wrappedTree.position.x = _r.randomSign(_r.random(15+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
             }
 
             
