@@ -98,7 +98,7 @@ function DeciduousTrees(nightMode) {
                 _numBranches++;
             }
 
-            if(structure.length==0){
+            if(structure == []){
                 var tipBranches = _r.randomInt(2,3);
                 for(var i=0; i<tipBranches.length; i++){
                     structure.push([]);    

@@ -5,7 +5,7 @@ var fs = require('fs'),
 
 var T = new Twit(config);
 
-var _firstRun = true;
+var _firstRun = false;
 var _threading = false;
 
 var _json, _status;
@@ -24,6 +24,7 @@ function _tweetAForest(){
     }
 
     var gifName = _json.gifNames.shift();
+    _json.tweeted.push(gifName);
     var filePath = path.join(__dirname,'/images/',gifName+'.gif');
     
     if(_json.quotes.length > 0){
@@ -123,4 +124,4 @@ function _tweetEveryThisManyMinutes(mins){
     } 
 }
 
-_tweetEveryThisManyMinutes(120);
+_tweetEveryThisManyMinutes(180);

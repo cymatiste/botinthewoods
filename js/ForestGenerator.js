@@ -769,7 +769,7 @@ function ForestGenerator() {
             } else {
                 // and the other half can spread further out
                 //newTree.position.x = _r.randomSign(20 + i/2 + _r.random(-20,20));
-                wrappedTree.position.x = _r.randomSign(_r.random(15+i/3,60 + i) + (i < 20 ? _r.random(2,3) : 0));
+                wrappedTree.position.x = _r.randomSign((i-NUM_TREES)*2.2 + (i < 20 ? _r.random(2,3) : 0));
             }
 
             

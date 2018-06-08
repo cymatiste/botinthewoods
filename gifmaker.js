@@ -17,7 +17,7 @@ function _keepGenerating(){
 function _makeForest(filename){
     console.log("generating "+filename);
     var gen = new ForestGenerator();
-    _recordAsTweetable(gen.generateSceneGIF(100, filename, Math.floor(50 + Math.random()*50)));
+    _recordAsTweetable(gen.generateSceneGIF(100, filename));
 }
 
 function _recordAsTweetable(filename){
