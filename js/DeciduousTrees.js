@@ -46,7 +46,7 @@ function DeciduousTrees(nightMode) {
      */
     function _pickDecay(){
         var decayRange = Math.random();
-        if (decayRange < 0.3){
+        if (decayRange < 0.2){
             return _r.random(0, 0.02);
         } else if (decayRange < 0.8){
             return _r.random(0.02, 0.05);
@@ -432,8 +432,8 @@ function DeciduousTrees(nightMode) {
             LEAF_DENSITY: _r.randomInt(24),
             LEAF_W: _r.random(0.7,1),
             MAX_DEPTH: 12, 
-            MAX_BRANCHES_TOTAL: 3333, 
-            MAX_BRANCHES_PER_NODE:  _r.randomInt(2, 5)
+            MAX_BRANCHES_TOTAL: 999, 
+            MAX_BRANCHES_PER_NODE:  _r.randomInt(3, 4)
         };
 
         return options;

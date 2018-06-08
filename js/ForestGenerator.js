@@ -730,6 +730,22 @@ function ForestGenerator() {
         var numTrees = _r.randomInt(NUM_TREES*0.5, NUM_TREES*1.5);
         var groundLeafSize = _pickLeafSize();
         var zInterval = _r.random(400,500)/NUM_TREES;
+        var xInterval = _r.random(100,150)/NUM_TREES;
+
+        //Ground
+        var planeGeom = new THREE.BoxGeometry( 100, 1, 200, 1, 1, 1 );
+        var planeMat = new THREE.MeshBasicMaterial( {color: colorHelper.parseHex(GROUND_COL)} );
+        var planeBox = new THREE.Mesh( planeGeom, planeMat );
+        //plane.rotation.x = Math.PI/4;
+        planeBox.position.y = 0;
+        planeBox.position.z = 40;
+        _forest.add( planeBox );
+
+        var xPositions = [];
+        for (i = 0; i < NUM_TREES*2; i++) {
+            xPositions.push((i%NUM_TREES)*xInterval);
+        }
+        xPositions = _r.shuffle(xPositions);
        
         // Trees
         for (i = 0; i < NUM_TREES*2; i++) {
@@ -759,20 +775,7 @@ function ForestGenerator() {
             }
             wrappedTree.rotation.y = Math.random()*Math.PI*2;
 
-            if (i % 3 == 0) {
-                // One third of the trees we want relatively close to the center         
-                // The last part of the calculation is to avoid running into trees with the camera    
-                wrappedTree.position.x = _r.randomSign(_r.random(0, 50) + (i < 20 ? _r.random(2,3) : 0));
-                //newTree.rotation.x = Math.PI;
-                //newTree.position.y = 10;
-
-            } else {
-                // and the other half can spread further out
-                //newTree.position.x = _r.randomSign(20 + i/2 + _r.random(-20,20));
-                wrappedTree.position.x = _r.randomSign((i-NUM_TREES)*2.2 + (i < 20 ? _r.random(2,3) : 0));
-            }
-
-            
+            wrappedTree.position.x = _r.randomSign(xPositions[i] + (i < 20 ? _r.random(2,3) : 0));          
 
             if(i < NUM_TREES){
                 // scatter these throughout the field
@@ -785,10 +788,10 @@ function ForestGenerator() {
             } else {
                 //add the last trees to the bush ridge at the back of the scene
                 // don't bother with the ground leaves, we can't see well that far back.
-                wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z1*0.99);
+                wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z2);
 
                 // let's test grouping these all closer.
-                wrappedTree.position.x = _r.randomSign((i-NUM_TREES)*2.2);
+                wrappedTree.position.x =  _r.randomSign(xPositions[i] + (i < 20 ? _r.random(2,3) : 0));          
 
             }
 
