@@ -1,7 +1,7 @@
 {
   "name": "rttreebot",
   "version": "1.0.0",
-  "description": "Generates visualizations of your retweet trees",
+  "description": "Generates random forests and animates a brief stroll through them",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,12 +19,19 @@
   "homepage": "https://github.com/simrisek/rttree#readme",
   "dependencies": {
     "fs": "0.0.1-security",
+    "get-tweets": "^4.0.0",
     "gifencoder": "^1.1.0",
+    "gifsicle": "^3.0.4",
+    "imagemin": "^5.3.1",
+    "imagemin-giflossy": "^5.1.10",
+    "lune": "^0.4.0",
+    "npm": "^6.4.1",
     "omggif": "^1.0.9",
     "path": "^0.12.7",
     "perlin-noise": "0.0.1",
     "pngjs": "^3.3.3",
     "three-software-renderer": "^1.2.0",
-    "twit": "^2.2.9"
+    "twit": "^2.2.11",
+    "twitter-tokens": "^1.0.3"
   }
 }

@@ -5,10 +5,10 @@ var fs = require('fs'),
 
 var T = new Twit(config);
 
-var _firstRun = false;
+var _firstRun = true;
 var _threading = false;
 
-var _json, _status;
+var _tweetables, _tweeteds, _status;
 
 /**
  * Do it.
@@ -16,22 +16,23 @@ var _json, _status;
  */
 function _tweetAForest(){
 
-    _json = JSON.parse(fs.readFileSync('tweetables.json', 'utf8'));
+    _tweetables = JSON.parse(fs.readFileSync('tweetables.json', 'utf8'));
+    _tweeteds = JSON.parse(fs.readFileSync('tweeteds.json', 'utf8'));
     
-    if(_json.gifNames.length == 0){
+    if(_tweetables.gifNames.length == 0){
         console.log("...no GIFs yet, try again...");
         return;
     }
 
-    var gifName = _json.gifNames.shift();
-    _json.tweeted.push(gifName);
+    var gifName = _tweetables.gifNames.shift();
+    _tweeteds.tweeted.push(gifName);
     var filePath = path.join(__dirname,'/images/',gifName+'.gif');
     
-    if(_json.quotes.length > 0){
-        _status = _json.quotes.shift();
+    if(_tweetables.quotes.length > 0){
+        _status = _tweetables.quotes.shift();
     } else {
         _status = "";
-        _json.replyTo = "";
+        _tweetables.replyTo = "";
     }
    
 
@@ -42,7 +43,7 @@ function _tweetAForest(){
         } else {
             console.log(data);
 
-            var replyId = _json.replyTo;
+            var replyId = _tweetables.replyTo;
             var params;
 
             if(_threading && replyId !== null && replyId.length > 0){
@@ -68,20 +69,30 @@ function _tweetAForest(){
 
                 } else {
                     console.log('Tweeted: ' + params.status+", "+data);
-                    if(_threading && _json.quotes.length > 0){
-                		_json.replyTo = data.id_str;
+                    if(_threading && _tweetables.quotes.length > 0){
+                		_tweetables.replyTo = data.id_str;
                 	} else {
-                		_json.replyTo = "";
+                		_tweetables.replyTo = "";
                 	}
 
-                    var toWrite = JSON.stringify(_json);
-                    fs.writeFile('tweetables.json', toWrite, 'utf8', function(err, data){
+                    var tweetablesToWrite = JSON.stringify(_tweetables);
+                    var tweetedsToWrite = JSON.stringify(_tweeteds);
+                    fs.writeFile('tweetables.json', tweetablesToWrite, 'utf8', function(err, data){
                         if (err){
                             console.log(err);
                         } else {
                             console.log("tweetables updated at "+ getDateTime());
+
+                            fs.writeFile('tweeteds.json', tweetedsToWrite, 'utf8', function(err, data){
+                                if (err){
+                                    console.log(err);
+                                } else {
+                                    console.log("tweeteds updated at "+ getDateTime());
+                                }      
+                            });
                         }      
                     });
+                    
                 }
             });
         }
@@ -124,4 +135,11 @@ function _tweetEveryThisManyMinutes(mins){
     } 
 }
 
-_tweetEveryThisManyMinutes(180);
+process.argv.forEach((val, index) => {
+  if(val=="true"||val=="false"){
+    _firstRun = eval(val);
+    console.log("_firstRun: "+_firstRun);
+  }
+});
+
+_tweetEveryThisManyMinutes(220);

@@ -1,22 +1,22 @@
 
 
-function ConiferousTrees(nightMode) {
+function ConiferousTrees(options) {
 
     var _this = this;
     var THREE = require('three');
     var Randoms = require('./Randoms.js');
     var Colors = require('./Colors.js');
+    var Meshes = require('./Meshes.js');
 
-    var colorHelper = new Colors();
+    var _c = new Colors();
     var _r = new Randoms();
 
-    var NIGHT_MODE = nightMode;
-
-    this.options = _initOptions();
+    this.options = _initOptions(options);
     var _options = this.options;
 
-    
+    var _m = new Meshes(_options);
 
+    var _rainbow = _options.RAINBOW;
 
     var _numBranches = 0;
 
@@ -84,21 +84,15 @@ function ConiferousTrees(nightMode) {
      * @return {Array}                      
      */
     function _randomTreeData(structure, depth, max_d) {
-        if (depth < max_d) {
-            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
-
-            while (_numBranches==0 || (structure.length < _options.MAX_BRANCHES_PER_NODE && Math.random() < branchChance)) {
-
-                if (_numBranches > _options.MAX_BRANCHES_TOTAL) {
-                    //break;
+        for(var i=0; i<max_d; i++){
+            var substruct = [];
+            for(var j=0; j< _options.MAX_BRANCHES_PER_NODE; j++){
+                if(Math.random()<_options.BRANCH_P){
+                    substruct.push([]);
                 }
-
-                var newBranch = _randomTreeData([], depth + 1, max_d);
-                structure.push(newBranch);
-                _numBranches++;
             }
+            structure.push(substruct);
         }
-
         return structure;
     }
 
@@ -131,38 +125,11 @@ function ConiferousTrees(nightMode) {
 
         
     function _buildLeaf(leafCol, leafSize, leafWidth){
-        var leaf = _circleMesh(leafCol, leafSize);
+        var leaf = _m.diamondMesh(leafCol, leafSize);
         leaf.scale.x = leafWidth;
         return leaf;
     }
 
-    function _circleMesh(col, radius) {
-
-        var geometry = new THREE.CircleGeometry(radius, 8);
-        var material = new THREE.MeshBasicMaterial({
-            color: colorHelper.parseHex(col)
-        });
-
-        return new THREE.Mesh(geometry, material);
-    }
-
-    function _sphereMesh(col, radius){
-        var sphGeom = new THREE.SphereGeometry(radius, 2, 2);
-        var hex;
-
-        for (i = 0; i < sphGeom.faces.length; i += 2) {
-            hex = colorHelper.parseHex(col);
-            sphGeom.faces[i].color.setHex(hex);
-            sphGeom.faces[i + 1].color.setHex(hex);
-        }
-
-        var material = new THREE.MeshBasicMaterial({
-            vertexColors: THREE.FaceColors,
-            overdraw: 0.5
-        });
-
-        return new THREE.Mesh(sphGeom, material);
-    }
 
  
     /**
@@ -189,7 +156,7 @@ function ConiferousTrees(nightMode) {
      * 
      * @return {THREE.Object3D}             -- a 3d object holding the branch segment
      */
-    function _buildBranch(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth, minRad, maxRad) {
+    function _buildBranch(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth, minRad, maxRad, overridecolor) {
 
         var i;
         var length = baseLength * _r.random(1, 1.4);
@@ -217,16 +184,18 @@ function ConiferousTrees(nightMode) {
         var propBtm = (fullTreeDepth - distanceFromRoot) / fullTreeDepth;
         var propTop = 1 - propBtm;
 
-        var branchCol = colorHelper.mixHexCols(_options.COLOR_BTM, _options.COLOR_TOP, propBtm, propTop);
+        var branchCol = _rainbow ? _c.randomHex() : _c.mixHexCols(_options.COLOR_BTM, _options.COLOR_TOP, propBtm, propTop);
+        // TESTING ONLY:
+        //var branchCol = overridecolor;
 
         for (i = 0; i < cylGeom.faces.length; i += 2) {
-            hex = colorHelper.parseHex(branchCol);
+            hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
             cylGeom.faces[i].color.setHex(hex);
             cylGeom.faces[i + 1].color.setHex(hex);
         }
 
         for (i = 0; i < sphGeom.faces.length; i += 2) {
-            hex = colorHelper.parseHex(branchCol);
+            hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
             sphGeom.faces[i].color.setHex(hex);
             sphGeom.faces[i + 1].color.setHex(hex);
         }
@@ -252,7 +221,7 @@ function ConiferousTrees(nightMode) {
         branch.length = length;
 
         if (distanceFromTip == 1) {
-            //_makeLeavesAround(branch.tip, _r.randomInt(_options.LEAF_DENSITY*2, _options.LEAF_DENSITY*3), _options.LEAF_COLS, _options.LEAF_SIZE, 0, 0, _options.LEAF_W);
+            _makeLeavesAround(branch.tip, _options.LEAF_DENSITY, _options.LEAF_COLS, _options.LEAF_SIZE, 0, 0, _options.LEAF_W);
         }
 
         return (branch);
@@ -307,57 +276,92 @@ function ConiferousTrees(nightMode) {
      */
     function _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad, corePiece) {
 
-        
         var baseTwist = _r.random(Math.PI*2);
         var mainTrunk = _depthOfArray(treeData) == fullTreeDepth;
 
         var minBranchRad = Math.min(_options.BRANCH_R_MIN, maxBranchRad*0.5);
-        var root = _buildBranch(branchLength, depth, height, fullTreeDepth, minBranchRad, maxBranchRad);
+        var testcolor = (depth==0) ? "#FF0000": ((depth==1) ? "#0000FF" : "#00FF00");
+        var root = _buildBranch(0.1, fullTreeDepth, height, fullTreeDepth, minBranchRad, maxBranchRad, testcolor);
+        var workingRoot = root;
 
-        var minBend = _de2ra(corePiece ? _options.ANGLE_MIN : -_options.ANGLE_MIN);
-        var maxBend = _de2ra(corePiece ? _options.ANGLE_MAX : -_options.ANGLE_MAX);
-
-        // pick the branch with the greatest depth; that's the trunk.
-        var trunkIndex;
-        var greatestDepth = 0;
-        for (var i = 0; i < treeData.length; i++) {
-            var branchDepth = _depthOfArray(treeData[i]);
-            if(branchDepth > greatestDepth){
-                greatestDepth = branchDepth;
-                trunkIndex = i;
-            }
+        if(depth == 1){
+            //root.tip.rotation.x = (depth==0 ? _de2ra(145) : _de2ra(-115));
+            root.tip.rotation.x =  _de2ra(125);
+        } else if (depth > 1){
+            root.tip.rotation.x =  _de2ra(65);
         }
 
-        for (var i = 0; i < treeData.length; i++) {
+        //var minBend = _de2ra(corePiece ? _options.ANGLE_MIN/6 : _options.ANGLE_MIN);
+        //var maxBend = _de2ra(corePiece ? _options.ANGLE_MAX/6 : _options.ANGLE_MAX);
 
-            //var newBranchL = (corePiece) ? branchLength * _options.LENGTH_MULT : branchLength*_options.LENGTH_MULT*0.9;
-            var newBranchL = branchLength * _options.LENGTH_MULT;
 
-            var newBranch; 
+        var minBend = _de2ra(corePiece ? 180 + _options.ANGLE_MIN/2 : _options.ANGLE_MIN/2);
+        var maxBend = _de2ra(corePiece ? 180 + _options.ANGLE_MAX/2 : _options.ANGLE_MAX/2);
 
-            if(i==trunkIndex){
-                newBranch = _buildTree(treeData[i], newBranchL, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRad, corePiece);
-                newBranch.rotation.x = root.rotation.x + (corePiece ? 0 : -0.3);
+        var newBranchL = branchLength * _options.LENGTH_MULT;
 
-                // + _r.random(0,0.1);
-                //newBranch.rotation.z = root.rotation.x + _r.random(0,0.1);
-            } else {
-                newBranch = _buildTree(treeData[i], newBranchL, _depthOfArray(treeData[i]), height + 1, fullTreeDepth, maxBranchRad*0.5, false);
-
-                newBranch.rotation.x = _r.random(minBend, maxBend);
-                //newBranch.rotation.z = _r.random(minBend, maxBend); 
-            }
-
-            var branchNode = new THREE.Object3D();
-            branchNode.add(newBranch);
-            branchNode.rotation.y = baseTwist + i*Math.PI*2/Math.max(1,treeData.length-1);
+        console.log("     d     "+depth+",     ftd "+fullTreeDepth);
+        //console.log("     bl    "+branchLength);
+        //console.log("     r     "+maxBranchRad);
+        //console.log(workingRoot.tip);
         
-            // Position this subtree somewhere along the parent branch if such exists.
-            //newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
+        var workingDepth = (depth<=1 ? fullTreeDepth : Math.min(4,fullTreeDepth));
+        for (var i = 0; i < workingDepth; i++) {
 
-            root.tip.add(branchNode);
+            console.log("-------------trunkpiece "+i);
+
+            if (i > 0 && depth>0){
+                testcolor = "#FFFF00";
+            }
+            var trunkBranch = _buildBranch(branchLength, treeData.length-i, i, workingDepth, minBranchRad*((treeData.length -i)/treeData.length), maxBranchRad*((treeData.length -i)/treeData.length), testcolor);
+            trunkBranch.rotation.x = depth==0 ? _r.random(-0.1,0.1) : (depth > 1 && i > 1)? -_r.random(-minBend/10,-maxBend/10) :  _r.random(-minBend/10,-maxBend/10);
+            //trunkBranch.position.x = workingRoot.tip.position.x;
+            //trunkBranch.position.y = workingRoot.tip.position.y;
+            //trunkBranch.rotation.x = root.rotation.x + (corePiece ? 0 : -0.3);
+
+            
+            //branchNode.position.x = workingRoot.tip.position.x;
+            //branchNode.position.y = workingRoot.tip.position.y;
+            workingRoot.tip.add(trunkBranch);
+
+            baseTwist = _r.random(Math.PI*2);
+
+            if(i>0 && depth < 2){
+                for (var j = 0; j < treeData[i].length; j++) {
+
+                    if(Math.random()>1/Math.log(depth+3)){
+                        continue;
+                    }
+                    console.log("---------=== branch "+j);
+                    newBranchL = branchLength*((treeData.length -i)/treeData.length)/3;
+
+                    //newBranchL*(fullTreeDepth-i)
+                    var newBranch = _buildTree(treeData, newBranchL, depth+1, i, fullTreeDepth-1, maxBranchRad*((treeData.length -i)/treeData.length)/3, false);
+                    //var newBranch = _buildBranch(newBranchL, 1, i, fullTreeDepth, minBranchRad*((treeData.length -i)/treeData.length), maxBranchRad*((treeData.length -i)/treeData.length));
+                    //newBranch.rotation.x = _de2ra(90+(treeData.length-i)*3);
+                    //newBranch.position.x = branchNode.position.x;
+                    //newBranch.position.y = branchNode.position.y;
+                    //newBranch.rotation.z = -_r.random(minBend, maxBend);
+                    var branchNode = new THREE.Object3D();
+                    branchNode.rotation.y = baseTwist + j*Math.PI*2/(treeData[i].length);
+
+                    newBranch.position.y = _r.random(-branchLength/3,branchLength/3);
+                    branchNode.add(newBranch);
+                    workingRoot.tip.add(branchNode);
+
+                    //console.log("     --------* "+newBranchL+",  r "+branchNode.rotation.y);
+                    
+                    _numBranches++;
+
+                }    
+            }           
+            
+
+            workingRoot = trunkBranch;
+
         }
 
+        
         return root;
 
     }
@@ -368,12 +372,13 @@ function ConiferousTrees(nightMode) {
      * @params as per _buildTree
      */
     function _treeWithRoots(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad) {
+
         
-        var body = _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad, true);
+        var body = _buildTree(treeData, branchLength, 0, height, fullTreeDepth, maxBranchRad, true);
         
         var numRoots = _r.randomInt(3,10);  
         var startRot = _r.random(Math.PI*2);
-        var rootColInt = colorHelper.parseHex(_options.COLOR_BTM);
+        var rootColInt = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(_options.COLOR_BTM);
 
         //console.log(numRoots+" roots\n");
         for(var i=0; i<numRoots; i++){
@@ -413,9 +418,9 @@ function ConiferousTrees(nightMode) {
         data = _randomTreeData([],0,_options.MAX_DEPTH); 
         
         
-        console.log(_numBranches + " branches");
+        //console.trace(data);
 
-        return _treeWithRoots(data, _options.BRANCH_L, _depthOfArray(data), 0, _depthOfArray(data), _options.BRANCH_R_MAX);
+        return _treeWithRoots(data, _options.BRANCH_L,  data.length, 0, data.length, _options.BRANCH_R_MAX);
     };
 
     function _setParameters(options){
@@ -423,42 +428,53 @@ function ConiferousTrees(nightMode) {
     }
 
 
-    function _initOptions(){
-        var maxRad = _pickRadius();
+    function _initOptions(opts){
+        var maxRad = 5*_pickRadius();
 
         // The bottom of the tree is a random dark colour and the top is a variation on same
-        //var bottom_color = NIGHT_MODE ? colorHelper.randomDark() : colorHelper.brightenByAmt(colorHelper.randomDark(), _r.random(30,80));
         
-        var bottom_color = colorHelper.randomHex();
+        var bottom_color = _c.randomHex();
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
-        var leafBaseColor = NIGHT_MODE ? colorHelper.brightenByAmt(colorHelper.randomHex(), -60) : colorHelper.variationsOn(colorHelper.randomHex(), 80);
+        var leafBaseColor = opts.NIGHT_MODE ? _c.brightenByAmt(_c.randomHex(), -60) : _c.variationsOn(_c.randomHex(), 80);
         var leafColors = [];
         for (i = 0; i < 8; i++){
-            leafColors.push(colorHelper.variationsOn(leafBaseColor, 30));
+            leafColors.push(_c.variationsOn(leafBaseColor, 30));
         }
 
         var options = {
+            RAINBOW: false,
+            NIGHT_MODE: false,
             BRANCH_R_MAX: maxRad,
             BRANCH_R_MIN: maxRad * _r.random(0.03),
-            BRANCH_L: _r.random(2, 8), 
+            TRUNK_R_MAX: _r.random(5,25),
+            TRUNK_R_MIN: _r.random(2),
+            BRANCH_L: _r.random(3, 7), 
             BRANCH_P: _r.random(0.85, 0.95),
             CHANCE_DECAY: _pickDecay(),
             LENGTH_MULT: _r.random(0.85, 0.95),
             ANGLE_MIN: _r.random(100, 110), 
             ANGLE_MAX: _r.random(120, 135), 
             COLOR_BTM: bottom_color, 
-            COLOR_TOP: colorHelper.variationsOn(bottom_color, 180), 
+            COLOR_TOP: _c.variationsOn(bottom_color, 180), 
             LEAF_COLS: leafColors, 
             LEAF_SIZE: _pickLeafSize(),
             LEAF_DENSITY: _r.randomInt(24),
             LEAF_W: _r.random(0.1,0.2),
-            MAX_DEPTH: 20, 
-            MAX_BRANCHES_TOTAL: 3333, 
-            MAX_BRANCHES_PER_NODE:  _r.randomInt(5, 6),
+            MAX_DEPTH: _r.random(8,20), 
+            MAX_BRANCHES_TOTAL: 9999, 
+            MAX_BRANCHES_PER_NODE:  _r.randomInt(3, 6),
             LEAF_DENSITY: _r.randomInt(24)
         };
+
+        for(var opt in opts ){
+            if(options[opt] !== undefined){
+                options[opt] = opts[opt];
+            }   
+        }
+
+        console.log("decay "+options.CHANCE_DECAY+"\nmax depth "+options.MAX_DEPTH+"\nbranches per node "+options.MAX_BRANCHES_PER_NODE);
 
         return options;
     };

@@ -11,9 +11,11 @@ function Names() {
             _json.corpus = _json.used;
             _json.used = [];
         }
-        var word = _json.corpus.shift();
-        _json.used.push(word);
-        nameString = "forest-of-" + word;
+        var word1 = _json.corpus.shift();
+        var word2 = _json.corpus.shift();
+        var word3 = _json.corpus.shift();
+        _json.used.push(word1,word2,word3);
+        nameString = word1+word2+word3;
         
         var toWrite = JSON.stringify(_json);
         fs.writeFile('corpus.json', toWrite, 'utf8', function(err, data){
