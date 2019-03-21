@@ -12,30 +12,30 @@ var numFrames = 100;
 var forestOptions = {
         RAINBOW: false,
         NUM_TREES: _r.randomInt(30,50),
-        TREE_TYPE: "coniferous",
+        TREE_TYPE: "deciduous",
         GRASS_DENSITY: 0,
-        //NIGHT_MODE: true,
+        NIGHT_MODE: false,
         EFFECT: false
     };
 
     var treeOptions = {
-        BRANCH_R_MAX: _r.random(0.6,1.4),
+        BRANCH_R_MAX: _r.random(0.8,2.4),
         BRANCH_R_MIN: 0.06,
-        BRANCH_L: 5, 
-        BRANCH_P: _r.random(0.64, 0.72),
+        BRANCH_L: _r.random(5,15), 
+        //BRANCH_P: _r.random(0.64, 0.72),
         //CHANCE_DECAY: _pickDecay(),
-        //LENGTH_MULT: _r.random(0.5, 0.6),
+        LENGTH_MULT: _r.random(0.85, 0.95),
         // ANGLE_MIN: _r.random(15, 45), 
         // ANGLE_MAX: _r.random(60, 120), 
-        RAINBOW: false,
-        COLOR_TOP: colorHelper.randomHex(), 
-        COLOR_BTM: colorHelper.brightenByAmt(colorHelper.randomHex(),-100), 
+        RAINBOW: true,
+        //COLOR_TOP: colorHelper.randomHex(), 
+        //COLOR_BTM: colorHelper.brightenByAmt(colorHelper.randomHex(),-100), 
         //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"], 
         //LEAF_COLS: ["#2A141D","#1B0005","#2A2B05","#161102","#231313","#0F0F1B","#181D11","#4E430F"], 
         // LEAF_SIZE: _pickLeafSize(),
         LEAF_DENSITY: _r.randomInt(10,20),
-        // LEAF_W: _r.random(0.7,1),
-        MAX_DEPTH: 8, 
+        LEAF_W: _r.random(0.7,1.2),
+        MAX_DEPTH: 11, 
         // MAX_BRANCHES_TOTAL: 999, 
         MAX_BRANCHES_PER_NODE:  2
     };

@@ -89,7 +89,7 @@ function DeciduousTrees(options) {
         var depth = startingDepth || 0;
 
         if (depth < _options.MAX_DEPTH) {
-            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
+            var branchChance = (depth == _options.MAX_DEPTH-1) ? _options.BRANCH_P : (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
 
             while (_numBranches==0 || (structure.length < _options.MAX_BRANCHES_PER_NODE && _numBranches<_options.MAX_BRANCHES_TOTAL && Math.random() < branchChance)) {
 
@@ -197,7 +197,9 @@ function DeciduousTrees(options) {
 
         var branchCol = _c.mixHexCols(_options.COLOR_BTM, _options.COLOR_TOP, propBtm, propTop);
 
-        hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
+        //hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
+        hex = _c.parseHex(branchCol);
+
         for (i = 0; i < cylGeom.faces.length; i += 2) {
             //hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
             cylGeom.faces[i].color.setHex(hex);
@@ -319,6 +321,20 @@ function DeciduousTrees(options) {
      */
     function _treeWithRoots(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad) {
         
+
+        if(_rainbow){
+            _options.COLOR_TOP = _c.randomHex();
+            _options.COLOR_BTM = _c.brightenByAmt(_options.COLOR_TOP,-125); 
+
+            var leafBaseColor = _c.randomHex();
+            _options.LEAF_COLS = [];
+            for (i = 0; i < 3; i++){
+                _options.LEAF_COLS.push(_c.variationsOn(leafBaseColor, 30));
+            }
+        }
+        
+
+
         var body = _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad);
         
         var numRoots = _r.randomInt(3,10);  
@@ -400,7 +416,7 @@ function DeciduousTrees(options) {
             BRANCH_L: Math.max(maxRad*10,_r.random(4, 8)), 
             BRANCH_P: _r.random(0.72, 0.77),
             CHANCE_DECAY: _pickDecay(),
-            LENGTH_MULT: _r.random(0.85, 0.95),
+            LENGTH_MULT: _r.random(0.6, 0.95),
             ANGLE_MIN: _r.random(15, 45), 
             ANGLE_MAX: _r.random(60, 120), 
             COLOR_TOP: top_color,

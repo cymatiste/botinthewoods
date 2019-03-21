@@ -58,10 +58,12 @@ function ForestGenerator(forestOptions, treeOptions) {
     var _RIDGE_Z1 = 700;
     var _RIDGE_Z2 = 800;
 
-    _initColors();
+    
 
     var _decid = new DeciduousTrees(_treeOptions);
     var _conif = new ConiferousTrees(_treeOptions);
+
+    _initColors();
     //var _moon = new Moon();
 
     var _noise = perlin.generatePerlinNoise(1000, 1000);
@@ -141,8 +143,8 @@ function ForestGenerator(forestOptions, treeOptions) {
         var i;
 
         // The sky and ground are a pastel blue and a muddy green, randomly permuted
-        SKY_COL = NIGHT_MODE ? _c.variationsOn("#4d6876", 120) : _c.variationsOn("#bdeff1", 150);
-        GROUND_COL = NIGHT_MODE ? _c.variationsOn("#40523c", 80) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
+        SKY_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#222222", 20) : _c.variationsOn("#4d6876", 120)) : (_decid.options.RAINBOW? _c.variationsOn("#F0F0F0", 50) : _c.variationsOn("#bdeff1", 150));
+        GROUND_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#111111", 30) : _c.variationsOn("#40523c", 80)) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
         
         // There are leaves on the ground too.  They match the ground, which varies slightly.
         // And flowers!  Which could be any colour.
@@ -586,13 +588,18 @@ function ForestGenerator(forestOptions, treeOptions) {
             
         }
         // Add a big ridge at the back of the scene
+        if(_decid.options.RAINBOW){
+            // unless it's a rainbow render, then, don't bother, too much background detail, ow my eyes.
+            //return;
+        }
+
+        var numBackBushes = Math.max(25,NUM_TREES*0.6);
         for (i = 0; i < NUM_TREES*0.6; i++) {
-            var newBush = _bush(_r.random(bushHeight*50,bushHeight*80),bushWidth*8,backBushCols,leafSize*4, leafWidth);
+            var newBush = _bush(_r.random(bushHeight*50,bushHeight*80),bushWidth*8,backBushCols,leafSize*4, leafWidth*4);
             newBush.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
             newBush.position.x = _r.randomSign(_r.random(0,300));
-            newBush.position.y = 1;
+            newBush.position.y = -10;
             _forest.add(newBush);
-            
         }
     }
 
@@ -831,7 +838,7 @@ function ForestGenerator(forestOptions, treeOptions) {
             }
             wrappedTree.rotation.y = Math.random()*Math.PI*2;
 
-            wrappedTree.position.x = _r.randomSign(xPositions[i] + (i < 20 ? _r.random(2,3) : 0));          
+            wrappedTree.position.x = _r.randomSign(xPositions[i]/2 + ((i < 20 && xPositions[i] < 4) ? _r.random(3,5) : 0));          
 
             if(i < NUM_TREES){
                 // scatter these throughout the field
@@ -847,7 +854,7 @@ function ForestGenerator(forestOptions, treeOptions) {
                 wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z2);
 
                 // let's test grouping these all closer.
-                wrappedTree.position.x =  _r.randomSign(xPositions[i] + (i < 20 ? _r.random(2,3) : 0));          
+                wrappedTree.position.x =  _r.randomSign(xPositions[i] + ((i < 20 && xPositions[i] < 4)? _r.random(3,5) : 0));          
 
             }
 
@@ -871,7 +878,7 @@ function ForestGenerator(forestOptions, treeOptions) {
 
     function _grassBlade(){
 
-        let grassHeight = _r.randomInt(10,14);
+        let grassHeight = _r.randomInt(5,8);
         let grassWidth = 0.25;
         let grassCol = _rainbow ? _c.randomHex() : _c.brightenByAmt(_r.randomFrom(GROUND_COLS),-10);
         let bend = _r.random(0,0.1);
@@ -993,6 +1000,7 @@ function ForestGenerator(forestOptions, treeOptions) {
                     blade.position.x = clumpPos.x + _r.randomSign(_r.random(0,clusterSize));
                     blade.position.y = clumpPos.y + _r.randomSign(_r.random(0,clusterSize));
                     blade.position.z = clumpPos.z + _r.randomSign(_r.random(0,clusterSize));
+                    blade.scale.x = blade.scale.y = blade.scale.z = 0.3;
                     _forest.add(blade);
                 }
                 
