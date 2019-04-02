@@ -781,7 +781,7 @@ function ForestGenerator(forestOptions, treeOptions) {
         var i;
         var numTrees = _r.randomInt(NUM_TREES*0.5, NUM_TREES*1.5);
         var groundLeafSize = _pickLeafSize();
-        var farEdge = _r.random(400,500);
+        var farEdge = _r.random(600,900);
         var zInterval = farEdge/NUM_TREES;
         var xInterval = _r.random(150,250)/NUM_TREES;
 
