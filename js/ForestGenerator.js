@@ -90,12 +90,14 @@ function ForestGenerator(forestOptions, treeOptions) {
 
     camera = new THREE.PerspectiveCamera(50, sceneWidth / sceneHeight, 1, 1500);
     camera.position.x = 0;
-    camera.position.y = 2;
+    camera.position.y = 3;
     camera.position.z = -60;
 
     var aLittleHigherPos = scene.position;
-    aLittleHigherPos.y = 3;
+    aLittleHigherPos.y = 6;
     camera.lookAt(aLittleHigherPos);
+
+
 
     renderer = new SoftwareRenderer({
         alpha: true,
@@ -593,7 +595,7 @@ function ForestGenerator(forestOptions, treeOptions) {
             //return;
         }
 
-        var numBackBushes = Math.max(25,NUM_TREES*0.6);
+        var numBackBushes = Math.max(60,NUM_TREES*0.6);
         for (i = 0; i < NUM_TREES*0.6; i++) {
             var newBush = _bush(_r.random(bushHeight*50,bushHeight*80),bushWidth*8,backBushCols,leafSize*4, leafWidth*4);
             newBush.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
@@ -1080,8 +1082,8 @@ function ForestGenerator(forestOptions, treeOptions) {
         scene.remove(_forest);
 
         _forest = new THREE.Object3D();
-        _forest.position.y = -10;
-        _forest.position.z = -_r.random(20,40);
+        _forest.position.y = -20;
+        //_forest.position.z = -_r.random(20,40);
 
         _buildForest();
         _buildHills();
@@ -1100,7 +1102,8 @@ function ForestGenerator(forestOptions, treeOptions) {
         }
 
        scene.add(_forest);   
-       _forest.position.z = -_r.random(40,80);
+       _forest.position.z = _r.random(-20,80);
+       //_forest.position.z = -_r.random(40,80);
     }
 
 

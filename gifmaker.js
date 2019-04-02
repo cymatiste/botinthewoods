@@ -34,8 +34,8 @@ function _makeForest(filename){
         //GRASS_DENSITY: 0 //_r.randomFrom([0,0,0,50])
     }
 
-    var branchMaxRad = _r.random(0.6,2.5);
-    var maxDepth = _r.randomInt(9,11);
+    var branchMaxRad = _r.random(0.6,1.8);
+    var maxDepth = _r.randomInt(8,11);
     var treeOptions = {
         BRANCH_R_MAX: branchMaxRad,
         BRANCH_R_MIN: 0.06,
@@ -46,7 +46,7 @@ function _makeForest(filename){
         CHANCE_DECAY: _r.random(0.01,0.05),
         //CHANCE_DECAY: _pickDecay(),
         LENGTH_MULT: _r.random(0.8, 0.97),
-         ANGLE_MIN: _r.random(15, 30), 
+        ANGLE_MIN: _r.random(15, 30), 
         ANGLE_MAX: _r.random(60, 90), 
         RAINBOW: false,
        // COLOR_TOP: _c.randomHex(), 
@@ -58,7 +58,7 @@ function _makeForest(filename){
         // LEAF_W: _r.random(0.7,1),
         MAX_DEPTH: maxDepth, 
         // MAX_BRANCHES_TOTAL: 999, 
-        MAX_BRANCHES_PER_NODE:  (maxDepth < 8 ? 3 : 2)
+        MAX_BRANCHES_PER_NODE:  3 //(maxDepth < 9 ? 3 : 2)
     };
 
     var gen = new ForestGenerator(forestOptions,treeOptions);

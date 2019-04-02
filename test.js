@@ -14,14 +14,14 @@ var forestOptions = {
         NUM_TREES: _r.randomInt(30,50),
         TREE_TYPE: "deciduous",
         GRASS_DENSITY: 0,
-        NIGHT_MODE: false,
+        NIGHT_MODE: true,
         EFFECT: false
     };
 
     var treeOptions = {
         BRANCH_R_MAX: _r.random(0.8,2.4),
         BRANCH_R_MIN: 0.06,
-        BRANCH_L: _r.random(5,15), 
+        BRANCH_L: _r.random(8,15), 
         //BRANCH_P: _r.random(0.64, 0.72),
         //CHANCE_DECAY: _pickDecay(),
         LENGTH_MULT: _r.random(0.85, 0.95),
