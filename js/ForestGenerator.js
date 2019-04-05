@@ -145,9 +145,12 @@ function ForestGenerator(forestOptions, treeOptions) {
         var i;
 
         // The sky and ground are a pastel blue and a muddy green, randomly permuted
-        SKY_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#222222", 20) : _c.variationsOn("#4d6876", 120)) : (_decid.options.RAINBOW? _c.variationsOn("#F0F0F0", 50) : _c.variationsOn("#bdeff1", 150));
-        GROUND_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#111111", 30) : _c.variationsOn("#40523c", 80)) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
-        
+        //SKY_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#222222", 20) : _c.variationsOn("#4d6876", 120)) : (_decid.options.RAINBOW? _c.variationsOn("#F0F0F0", 50) : _c.variationsOn("#bdeff1", 150));
+        //GROUND_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#111111", 30) : _c.variationsOn("#40523c", 80)) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
+        SKY_COL = NIGHT_MODE ? _c.variationsOn("#4d6876", 120) : _c.variationsOn("#bdeff1", 150);
+        GROUND_COL = NIGHT_MODE ? _c.variationsOn("#40523c", 80) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
+       
+
         // There are leaves on the ground too.  They match the ground, which varies slightly.
         // And flowers!  Which could be any colour.
         GROUND_COLS = [];
@@ -786,23 +789,13 @@ function ForestGenerator(forestOptions, treeOptions) {
         var xInterval = _r.random(150,250)/NUM_TREES;
 
         //Ground
-        var planeGeom = new THREE.SphereGeometry( 300, 32, 32 );
+        var planeGeom = new THREE.SphereGeometry( 500, 32, 32 );
         var planeMat = new THREE.MeshBasicMaterial( {color: _c.parseHex(GROUND_COL)} );
         var planeSphere = new THREE.Mesh( planeGeom, planeMat );
         planeSphere.position.y = -1;
         planeSphere.position.z = 300;
-        planeSphere.scale.y = 0.001;
+        planeSphere.scale.y = 0.0001;
         _forest.add( planeSphere );
-        /*
-        var planeGeom = new THREE.BoxGeometry( 100, 1, 200, 1, 1, 1 );
-        var planeMat = new THREE.MeshBasicMaterial( {color: _c.parseHex(GROUND_COL)} );
-
-        var planeBox = new THREE.Mesh( planeGeom, planeMat );
-        //plane.rotation.x = Math.PI/4;
-        planeBox.position.y = 5;
-        planeBox.position.z = 5;
-        _forest.add( planeBox );
-        */
 
         var xPositions = [];
         for (i = 0; i < NUM_TREES*2; i++) {
@@ -840,7 +833,7 @@ function ForestGenerator(forestOptions, treeOptions) {
             }
             wrappedTree.rotation.y = Math.random()*Math.PI*2;
 
-            wrappedTree.position.x = _r.randomSign(xPositions[i]/2 + ((i < 20 && xPositions[i] < 4) ? _r.random(3,5) : 0));          
+            wrappedTree.position.x = _r.randomSign(xPositions[i]/2 + ((i < 20) ? _r.random(5,8) : 0));          
 
             if(i < NUM_TREES){
                 // scatter these throughout the field
@@ -856,7 +849,7 @@ function ForestGenerator(forestOptions, treeOptions) {
                 wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z2);
 
                 // let's test grouping these all closer.
-                wrappedTree.position.x =  _r.randomSign(xPositions[i] + ((i < 20 && xPositions[i] < 4)? _r.random(3,5) : 0));          
+                wrappedTree.position.x =  _r.randomSign(xPositions[i] + ((i < 12)? _r.random(3,5) : 0));          
 
             }
 
@@ -904,16 +897,15 @@ function ForestGenerator(forestOptions, treeOptions) {
 
         /**
      * HASTILY STOLEN FROM BUILDBRANCH
-     * Make a cylindrical mesh and ball "joint" representing one branch segment of a tree.
      * ---------------------------------------------------------------------------------------------------
-     * @param  {Number} baseLength          -- how long are branches at base? Will vary based on this.
-     * @param  {int} distanceFromTip        -- how many nodes away from the branch tip is this node?
+     * @param  {Number} baseLength          -- how long are segments at base? Will vary based on this.
+     * @param  {int} distanceFromTip        -- how many nodes away from the blade tip is this node?
      * @param  {int} distanceFromRoot       -- how many nodes is this node away from the ground?
      * @param  {int} fullTreeDepth          -- how many nodes has the longest path from root to tip?
-     * @param  {Number} minRad              -- minimum branch radius
-     * @param  {Number} maxRad              -- maximum branch radius
+     * @param  {Number} minRad              -- minimum segment radius
+     * @param  {Number} maxRad              -- maximum segment radius
      * 
-     * @return {THREE.Object3D}             -- a 3d object holding the branch segment
+     * @return {THREE.Object3D}             -- a 3d object holding the segment
      */
     function _grassSegment(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth, minRad, maxRad, branchCol) {
 

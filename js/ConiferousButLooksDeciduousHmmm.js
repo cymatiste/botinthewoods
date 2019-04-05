@@ -220,7 +220,7 @@ function ConiferousTrees(options) {
 
         if (distanceFromTip <2) {
             console.log("LEAVES");
-            _makeLeavesAround(branch.tip, _r.randomInt(_options.LEAF_DENSITY*2, _options.LEAF_DENSITY*3), _options.LEAF_COLS, _options.LEAF_SIZE, 0, 0, _options.LEAF_W);
+            _makeLeavesAround(branch.tip, _r.randomInt(_options.LEAF_DENSITY*2, _options.LEAF_DENSITY*3), _options.LEAF_COLS, _options.LEAF_SIZE, 0, 0, _options.LEAF_SIZE/2);
         }
 
         return (branch);

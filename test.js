@@ -14,7 +14,7 @@ var forestOptions = {
         NUM_TREES: _r.randomInt(30,50),
         TREE_TYPE: "deciduous",
         GRASS_DENSITY: 0,
-        NIGHT_MODE: true,
+        //NIGHT_MODE: true,
         EFFECT: false
     };
 
@@ -35,9 +35,9 @@ var forestOptions = {
         // LEAF_SIZE: _pickLeafSize(),
         LEAF_DENSITY: _r.randomInt(10,20),
         LEAF_W: _r.random(0.7,1.2),
-        MAX_DEPTH: 11, 
+        MAX_DEPTH: 13, 
         // MAX_BRANCHES_TOTAL: 999, 
-        MAX_BRANCHES_PER_NODE:  2
+        MAX_BRANCHES_PER_NODE:  3
     };
 
 function _newForest(numFrames){    
