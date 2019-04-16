@@ -25,8 +25,6 @@ function ForestGenerator(forestOptions, treeOptions) {
   var Ferns = require("./Ferns.js");
   var SoftwareRenderer = require("three-software-renderer");
 
-  config = require(path.join(__dirname, "../config.js"));
-
   var _c = new Colors();
   var _r = new Randoms();
 
