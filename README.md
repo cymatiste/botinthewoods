@@ -30,12 +30,12 @@ module.exports = config;
 ```
 { gifNames: [] }
 ```
-- cmd > `node gifmaker.js`
+- cmd > `node bin/gifmaker.js`
 
  (Inside this file you can set the number of frames to output.  I might eventually expose a bunch more options in here and make them command line parameters as well.)
 
 **To tweet GIFs you've already created:**
-- cmd > `node tweeter.js`
+- cmd > `node bin/tweeter.js`
 
 You can run *gifmaker* and *tweeter* simultaneously in different consoles to keep the ball rolling.
 
