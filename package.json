@@ -2,22 +2,22 @@
   "name": "botinthewoods",
   "version": "0.1.0",
   "description": "Generates random forests and animates a brief stroll through them",
+  "homepage": "https://github.com/simrisek/botinthewoods#readme",
+  "author": "Sarah Imrisek",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simrisek/botinthewoods.git"
+  },
+  "bugs": {
+    "url": "https://github.com/simrisek/botinthewoods/issues"
+  },
   "scripts": {
     "gifmaker": "node bin/gifmaker.js",
     "tweeter": "node bin/tweeter.js",
     "test": "node bin/test.js",
     "start": "npm run gifmaker & npm run tweeter"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/simrisek/botinthewoods.git"
-  },
-  "author": "Sarah Imrisek",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/simrisek/botinthewoods/issues"
-  },
-  "homepage": "https://github.com/simrisek/botinthewoods#readme",
   "dependencies": {
     "fs": "0.0.1-security",
     "get-tweets": "^4.0.0",
