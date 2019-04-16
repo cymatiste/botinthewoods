@@ -1,9 +1,12 @@
+# botinthewoods
+
+[![@botinthewoods](https://img.shields.io/twitter/follow/botinthewoods.svg?label=botinthewoods&style=social)](https://twitter.com/botinthewoods)
+
+## This is a work in progress!
 
 Generate and tweet an animated GIF of a little forest walk-through!
 
 God bless all the people who made npm and the node modules I used to throw this together.
-
-## This is a work in progress!
 
 I haven't put any time yet into making it friendly for others to use.  With any luck this will get refactored as I continue to play with it to make it more flexible for adaptation to other purposes.
 
