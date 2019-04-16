@@ -58,10 +58,12 @@ function ForestGenerator(forestOptions, treeOptions) {
     var _RIDGE_Z1 = 700;
     var _RIDGE_Z2 = 800;
 
-    _initColors();
+    
 
     var _decid = new DeciduousTrees(_treeOptions);
     var _conif = new ConiferousTrees(_treeOptions);
+
+    _initColors();
     //var _moon = new Moon();
 
     var _noise = perlin.generatePerlinNoise(1000, 1000);
@@ -88,12 +90,14 @@ function ForestGenerator(forestOptions, treeOptions) {
 
     camera = new THREE.PerspectiveCamera(50, sceneWidth / sceneHeight, 1, 1500);
     camera.position.x = 0;
-    camera.position.y = 2;
+    camera.position.y = 3;
     camera.position.z = -60;
 
     var aLittleHigherPos = scene.position;
-    aLittleHigherPos.y = 3;
+    aLittleHigherPos.y = 6;
     camera.lookAt(aLittleHigherPos);
+
+
 
     renderer = new SoftwareRenderer({
         alpha: true,
@@ -141,9 +145,12 @@ function ForestGenerator(forestOptions, treeOptions) {
         var i;
 
         // The sky and ground are a pastel blue and a muddy green, randomly permuted
+        //SKY_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#222222", 20) : _c.variationsOn("#4d6876", 120)) : (_decid.options.RAINBOW? _c.variationsOn("#F0F0F0", 50) : _c.variationsOn("#bdeff1", 150));
+        //GROUND_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#111111", 30) : _c.variationsOn("#40523c", 80)) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
         SKY_COL = NIGHT_MODE ? _c.variationsOn("#4d6876", 120) : _c.variationsOn("#bdeff1", 150);
         GROUND_COL = NIGHT_MODE ? _c.variationsOn("#40523c", 80) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
-        
+       
+
         // There are leaves on the ground too.  They match the ground, which varies slightly.
         // And flowers!  Which could be any colour.
         GROUND_COLS = [];
@@ -586,13 +593,18 @@ function ForestGenerator(forestOptions, treeOptions) {
             
         }
         // Add a big ridge at the back of the scene
+        if(_decid.options.RAINBOW){
+            // unless it's a rainbow render, then, don't bother, too much background detail, ow my eyes.
+            //return;
+        }
+
+        var numBackBushes = Math.max(60,NUM_TREES*0.6);
         for (i = 0; i < NUM_TREES*0.6; i++) {
-            var newBush = _bush(_r.random(bushHeight*50,bushHeight*80),bushWidth*8,backBushCols,leafSize*4, leafWidth);
+            var newBush = _bush(_r.random(bushHeight*50,bushHeight*80),bushWidth*8,backBushCols,leafSize*4, leafWidth*4);
             newBush.position.z = _r.random(_RIDGE_Z1, _RIDGE_Z2);
             newBush.position.x = _r.randomSign(_r.random(0,300));
-            newBush.position.y = 1;
+            newBush.position.y = -10;
             _forest.add(newBush);
-            
         }
     }
 
@@ -772,28 +784,18 @@ function ForestGenerator(forestOptions, treeOptions) {
         var i;
         var numTrees = _r.randomInt(NUM_TREES*0.5, NUM_TREES*1.5);
         var groundLeafSize = _pickLeafSize();
-        var farEdge = _r.random(400,500);
+        var farEdge = _r.random(600,900);
         var zInterval = farEdge/NUM_TREES;
         var xInterval = _r.random(150,250)/NUM_TREES;
 
         //Ground
-        var planeGeom = new THREE.SphereGeometry( 300, 32, 32 );
+        var planeGeom = new THREE.SphereGeometry( 500, 32, 32 );
         var planeMat = new THREE.MeshBasicMaterial( {color: _c.parseHex(GROUND_COL)} );
         var planeSphere = new THREE.Mesh( planeGeom, planeMat );
         planeSphere.position.y = -1;
         planeSphere.position.z = 300;
-        planeSphere.scale.y = 0.001;
+        planeSphere.scale.y = 0.0001;
         _forest.add( planeSphere );
-        /*
-        var planeGeom = new THREE.BoxGeometry( 100, 1, 200, 1, 1, 1 );
-        var planeMat = new THREE.MeshBasicMaterial( {color: _c.parseHex(GROUND_COL)} );
-
-        var planeBox = new THREE.Mesh( planeGeom, planeMat );
-        //plane.rotation.x = Math.PI/4;
-        planeBox.position.y = 5;
-        planeBox.position.z = 5;
-        _forest.add( planeBox );
-        */
 
         var xPositions = [];
         for (i = 0; i < NUM_TREES*2; i++) {
@@ -831,7 +833,7 @@ function ForestGenerator(forestOptions, treeOptions) {
             }
             wrappedTree.rotation.y = Math.random()*Math.PI*2;
 
-            wrappedTree.position.x = _r.randomSign(xPositions[i] + (i < 20 ? _r.random(2,3) : 0));          
+            wrappedTree.position.x = _r.randomSign(xPositions[i]/2 + ((i < 20) ? _r.random(5,8) : 0));          
 
             if(i < NUM_TREES){
                 // scatter these throughout the field
@@ -847,7 +849,7 @@ function ForestGenerator(forestOptions, treeOptions) {
                 wrappedTree.position.z = _r.random(_RIDGE_Z1*0.8, _RIDGE_Z2);
 
                 // let's test grouping these all closer.
-                wrappedTree.position.x =  _r.randomSign(xPositions[i] + (i < 20 ? _r.random(2,3) : 0));          
+                wrappedTree.position.x =  _r.randomSign(xPositions[i] + ((i < 12)? _r.random(3,5) : 0));          
 
             }
 
@@ -871,7 +873,7 @@ function ForestGenerator(forestOptions, treeOptions) {
 
     function _grassBlade(){
 
-        let grassHeight = _r.randomInt(10,14);
+        let grassHeight = _r.randomInt(5,8);
         let grassWidth = 0.25;
         let grassCol = _rainbow ? _c.randomHex() : _c.brightenByAmt(_r.randomFrom(GROUND_COLS),-10);
         let bend = _r.random(0,0.1);
@@ -895,16 +897,15 @@ function ForestGenerator(forestOptions, treeOptions) {
 
         /**
      * HASTILY STOLEN FROM BUILDBRANCH
-     * Make a cylindrical mesh and ball "joint" representing one branch segment of a tree.
      * ---------------------------------------------------------------------------------------------------
-     * @param  {Number} baseLength          -- how long are branches at base? Will vary based on this.
-     * @param  {int} distanceFromTip        -- how many nodes away from the branch tip is this node?
+     * @param  {Number} baseLength          -- how long are segments at base? Will vary based on this.
+     * @param  {int} distanceFromTip        -- how many nodes away from the blade tip is this node?
      * @param  {int} distanceFromRoot       -- how many nodes is this node away from the ground?
      * @param  {int} fullTreeDepth          -- how many nodes has the longest path from root to tip?
-     * @param  {Number} minRad              -- minimum branch radius
-     * @param  {Number} maxRad              -- maximum branch radius
+     * @param  {Number} minRad              -- minimum segment radius
+     * @param  {Number} maxRad              -- maximum segment radius
      * 
-     * @return {THREE.Object3D}             -- a 3d object holding the branch segment
+     * @return {THREE.Object3D}             -- a 3d object holding the segment
      */
     function _grassSegment(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth, minRad, maxRad, branchCol) {
 
@@ -993,6 +994,7 @@ function ForestGenerator(forestOptions, treeOptions) {
                     blade.position.x = clumpPos.x + _r.randomSign(_r.random(0,clusterSize));
                     blade.position.y = clumpPos.y + _r.randomSign(_r.random(0,clusterSize));
                     blade.position.z = clumpPos.z + _r.randomSign(_r.random(0,clusterSize));
+                    blade.scale.x = blade.scale.y = blade.scale.z = 0.3;
                     _forest.add(blade);
                 }
                 
@@ -1072,8 +1074,8 @@ function ForestGenerator(forestOptions, treeOptions) {
         scene.remove(_forest);
 
         _forest = new THREE.Object3D();
-        _forest.position.y = -10;
-        _forest.position.z = -_r.random(20,40);
+        _forest.position.y = -20;
+        //_forest.position.z = -_r.random(20,40);
 
         _buildForest();
         _buildHills();
@@ -1092,7 +1094,8 @@ function ForestGenerator(forestOptions, treeOptions) {
         }
 
        scene.add(_forest);   
-       _forest.position.z = -_r.random(40,80);
+       _forest.position.z = _r.random(-20,80);
+       //_forest.position.z = -_r.random(40,80);
     }
 
 

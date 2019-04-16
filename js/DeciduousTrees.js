@@ -20,6 +20,8 @@ function DeciduousTrees(options) {
 
     var _numBranches = 0;
 
+    var LEAF_BASE_COLOR;
+
     /**
      * What radius should we use for building the base of the trees?
      * --------------------------------------------------------------
@@ -63,9 +65,9 @@ function DeciduousTrees(options) {
     function _pickLeafSize() {
         var sizeRange = Math.random();
         if (sizeRange < 0.33) {
-            return _r.random(0.15, 0.4);
+            return _r.random(0.3, 0.5);
         } else if (sizeRange < 0.7) {
-            return _r.random(0.4, 0.8);
+            return _r.random(0.5, 0.8);
         } else if (sizeRange < 0.9) {
             return _r.random(0.8, 1);
         } else {
@@ -89,7 +91,7 @@ function DeciduousTrees(options) {
         var depth = startingDepth || 0;
 
         if (depth < _options.MAX_DEPTH) {
-            var branchChance = (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
+            var branchChance = (depth == _options.MAX_DEPTH-1) ? _options.BRANCH_P : (_options.BRANCH_P - Math.min(_options.BRANCH_P*0.8, _options.CHANCE_DECAY * depth));
 
             while (_numBranches==0 || (structure.length < _options.MAX_BRANCHES_PER_NODE && _numBranches<_options.MAX_BRANCHES_TOTAL && Math.random() < branchChance)) {
 
@@ -197,7 +199,9 @@ function DeciduousTrees(options) {
 
         var branchCol = _c.mixHexCols(_options.COLOR_BTM, _options.COLOR_TOP, propBtm, propTop);
 
-        hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
+        //hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
+        hex = _c.parseHex(branchCol);
+
         for (i = 0; i < cylGeom.faces.length; i += 2) {
             //hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
             cylGeom.faces[i].color.setHex(hex);
@@ -230,8 +234,8 @@ function DeciduousTrees(options) {
         branch.tip = tip;
         branch.length = referenceLength;
 
-        if (distanceFromTip <=2) {
-            _makeLeavesAround(branch.tip, _r.randomInt(_options.LEAF_DENSITY*2, _options.LEAF_DENSITY*3), _options.LEAF_COLS, _options.LEAF_SIZE, 0, 0, _options.LEAF_W);
+        if (distanceFromTip <2) {
+            _makeLeavesAround(branch.tip, _r.randomInt(_options.LEAF_DENSITY*2, _options.LEAF_DENSITY*3), _options.LEAF_COLS, 2*_options.LEAF_SIZE, 0, 0, 2*_options.LEAF_SIZE);
         }
 
         return (branch);
@@ -257,17 +261,19 @@ function DeciduousTrees(options) {
 
             var newLeaf = _buildLeaf(leaf_col, leafRadius, leafWidth);
 
-            var circleSize = 1.2;
+            var circleSize = _r.random(1.2,2.2);
+
+            newLeaf.rotation.x = _r.random(-Math.PI/2,Math.PI);
+            newLeaf.rotation.y = _r.random(-Math.PI/2,Math.PI);
+            newLeaf.rotation.z = _r.random(-Math.PI/2,Math.PI);
+
 
             newLeaf.position.y += _r.random(-0.5, 2)*circleSize + yAdjust;
             newLeaf.position.x += _r.randomSign(_r.random(0.75)*circleSize + rAdjust);
             newLeaf.position.z += _r.randomSign(_r.random(0.75)*circleSize + rAdjust);
 
 
-            newLeaf.rotation.x = _r.random(-Math.PI/2,Math.PI);
-            newLeaf.rotation.y = _r.random(-Math.PI/2,Math.PI);
-            newLeaf.rotation.z = _r.random(-Math.PI/2,Math.PI);
-
+            
             obj3d.rotation.y += Math.PI*2/numLeaves;
 
             obj3d.add(newLeaf);
@@ -319,6 +325,22 @@ function DeciduousTrees(options) {
      */
     function _treeWithRoots(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad) {
         
+
+        if(_rainbow){
+            //_options.COLOR_TOP = _c.randomHex();
+            _options.COLOR_TOP = _c.variationsOn(_options.COLOR_TOP,50);
+            _options.COLOR_BTM = _c.brightenByAmt(_options.COLOR_TOP,-100); 
+
+            var leafBaseColor = _c.variationsOn(LEAF_BASE_COLOR, 50);
+            //var leafBaseColor = _c.randomHex();
+            _options.LEAF_COLS = [];
+            for (i = 0; i < 3; i++){
+                _options.LEAF_COLS.push(_c.variationsOn(leafBaseColor, 50));
+            }
+        }
+        
+
+
         var body = _buildTree(treeData, branchLength, depth, height, fullTreeDepth, maxBranchRad);
         
         var numRoots = _r.randomInt(3,10);  
@@ -386,10 +408,10 @@ function DeciduousTrees(options) {
 
         // Leaves on the trees could be any color of the rainbow!
         // We keep the number of leaf colors down so we don't run out of colors.
-        var leafBaseColor = nightMode ? _c.brightenByAmt(_c.randomHex(), -60) : _c.variationsOn(_c.randomHex(), 80);
+        LEAF_BASE_COLOR = nightMode ? _c.brightenByAmt(_c.randomHex(), -60) : _c.variationsOn(_c.randomHex(), 80);
         var leafColors = [];
         for (i = 0; i < 8; i++){
-            leafColors.push(_c.variationsOn(leafBaseColor, 30));
+            leafColors.push(_c.variationsOn(LEAF_BASE_COLOR, 30));
         }
 
         var options = {
@@ -400,11 +422,11 @@ function DeciduousTrees(options) {
             BRANCH_L: Math.max(maxRad*10,_r.random(4, 8)), 
             BRANCH_P: _r.random(0.72, 0.77),
             CHANCE_DECAY: _pickDecay(),
-            LENGTH_MULT: _r.random(0.85, 0.95),
+            LENGTH_MULT: _r.random(0.6, 0.95),
             ANGLE_MIN: _r.random(15, 45), 
             ANGLE_MAX: _r.random(60, 120), 
             COLOR_TOP: top_color,
-            COLOR_BTM: _c.brightenByAmt(top_color, -180),
+            COLOR_BTM: _c.brightenByAmt(top_color, -80),
             LEAF_COLS: leafColors, 
             LEAF_SIZE: _pickLeafSize(),
             LEAF_DENSITY: _r.randomInt(24),
