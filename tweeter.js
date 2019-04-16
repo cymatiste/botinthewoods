@@ -16,7 +16,7 @@ var _tweetables, _tweeteds, _status;
  */
 function _tweetAForest(){
 
-    _tweetables = JSON.parse(fs.readFileSync('tweetables.json', 'utf8'));
+    _tweetables = JSON.parse(fs.readFileSync('data/tweetables.json', 'utf8'));
     _tweeteds = JSON.parse(fs.readFileSync('tweeteds.json', 'utf8'));
     
     if(_tweetables.gifNames.length == 0){
@@ -77,7 +77,7 @@ function _tweetAForest(){
 
                     var tweetablesToWrite = JSON.stringify(_tweetables);
                     var tweetedsToWrite = JSON.stringify(_tweeteds);
-                    fs.writeFile('tweetables.json', tweetablesToWrite, 'utf8', function(err, data){
+                    fs.writeFile('data/tweetables.json', tweetablesToWrite, 'utf8', function(err, data){
                         if (err){
                             console.log(err);
                         } else {

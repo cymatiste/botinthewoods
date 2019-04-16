@@ -26,7 +26,7 @@ module.exports = config;
 ```
 
 **To generate forest GIFs:**
-- add a file 'tweetables.json' in the project folder with content:
+- add a file 'data/tweetables.json' in the project folder with content:
 ```
 { gifNames: [] }
 ```
@@ -39,7 +39,7 @@ module.exports = config;
 
 You can run *gifmaker* and *tweeter* simultaneously in different consoles to keep the ball rolling.
 
-All the actual work is done in js/ForestGenerator.js, with some help with the heavy lifting from js/Colors.js.  Again, this might get broken up further eventually into useful subfiles.
+All the actual work is done in src/ForestGenerator.js, with some help with the heavy lifting from src/Colors.js.  Again, this might get broken up further eventually into useful subfiles.
 
 
 If you get "Javascript heap out of memory" errors, these instructions might help:

@@ -3,7 +3,7 @@ function Names() {
     var fs = require('fs'),
     path = require('path');
 
-    var _json =  JSON.parse(fs.readFileSync('corpus.json', 'utf8'));
+    var _json =  JSON.parse(fs.readFileSync('data/corpus.json', 'utf8'));
     
     this.getName = function(){
         var nameString = "";
@@ -18,7 +18,7 @@ function Names() {
         nameString = word1+word2+word3;
         
         var toWrite = JSON.stringify(_json);
-        fs.writeFile('corpus.json', toWrite, 'utf8', function(err, data){
+        fs.writeFile('data/corpus.json', toWrite, 'utf8', function(err, data){
             if (err){
                 console.log(err);
             } else {

@@ -1,9 +1,9 @@
 const fs = require('fs'),
     path = require('path'),
-    Names = require(path.join(__dirname, 'js/Names.js')),
-    Randoms = require(path.join(__dirname, 'js/Randoms.js')),
-    Colors = require(path.join(__dirname, 'js/Colors.js')),
-    ForestGenerator = require(path.join(__dirname, 'js/ForestGenerator.js')),
+    Names = require(path.join(__dirname, 'src/Names.js')),
+    Randoms = require(path.join(__dirname, 'src/Randoms.js')),
+    Colors = require(path.join(__dirname, 'src/Colors.js')),
+    ForestGenerator = require(path.join(__dirname, 'src/ForestGenerator.js')),
     imagemin = require('imagemin'),
     imageminGiflossy = require('imagemin-giflossy');
 
@@ -84,11 +84,11 @@ function _optimize(filename,paletteSize) {
 }
 
 function _recordAsTweetable(filename){
-    var json = JSON.parse(fs.readFileSync('tweetables.json', 'utf8'));
+    var json = JSON.parse(fs.readFileSync('data/tweetables.json', 'utf8'));
     json.gifNames.push(filename);
     var toWrite = JSON.stringify(json);
     console.log("adding --------->  "+filename);
-    fs.writeFile('tweetables.json', toWrite, 'utf8', _fileWriteCallback);
+    fs.writeFile('data/tweetables.json', toWrite, 'utf8', _fileWriteCallback);
 }
 
 function _fileWriteCallback(err, data){

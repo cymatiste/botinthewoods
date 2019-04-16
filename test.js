@@ -1,8 +1,8 @@
 var fs = require('fs'),
     path = require('path'),
-    Colors = require(path.join(__dirname, 'js/Colors.js'));
-    Randoms = require(path.join(__dirname, 'js/Randoms.js'));
-    ForestGenerator = require(path.join(__dirname, 'js/ForestGenerator.js'));
+    Colors = require(path.join(__dirname, 'src/Colors.js'));
+    Randoms = require(path.join(__dirname, 'src/Randoms.js'));
+    ForestGenerator = require(path.join(__dirname, 'src/ForestGenerator.js'));
     const {execFile} = require('child_process');
 	const gifsicle = require('gifsicle');
 
