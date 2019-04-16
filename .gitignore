@@ -1,2 +1,13 @@
-/config.js
-/images
+.*
+!.git*
+!.circleci
+
+node_modules
+coverage
+build
+docs
+
+config.js
+images
+
+*.log*
