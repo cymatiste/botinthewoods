@@ -5,6 +5,7 @@ node_modules
 coverage
 build
 docs
+lib
 
 data
 config.js

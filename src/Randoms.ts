@@ -1,20 +1,19 @@
-function Randoms() {
+export default class Randoms {
   //### Make random more readable #########################################3
 
-  var _this = this;
   /**
    * with one parameter: return an integer between 0 and a (excluding a)
    * with two parameters: Return an integer between a and b (excluding b)
    */
-  this.randomInt = function(a, b) {
-    return Math.floor(_this.random(a, b));
-  };
+  randomInt(a, b?) {
+    return Math.floor(this.random(a, b));
+  }
 
   /**
    * with one parameter: return a decimal number between 0 and a
    * with two parameters: return a decimal number between a and b
    */
-  this.random = function(a, b) {
+  random(a, b?) {
     var bottom, top;
     if (b == null) {
       bottom = 0;
@@ -24,23 +23,23 @@ function Randoms() {
       top = b;
     }
     return bottom + Math.random() * (top - bottom);
-  };
+  }
 
   /**
    * Return a random element in the array
    */
-  this.randomFrom = function(array) {
+  randomFrom(array) {
     return array[Math.floor(Math.random() * array.length)];
-  };
+  }
 
   /**
    * Return the number randomly positive or negative
    */
-  this.randomSign = function(num) {
+  randomSign(num) {
     return num * (Math.random() > 0.5 ? 1 : -1);
-  };
+  }
 
-  this.shuffle = function(array) {
+  shuffle(array) {
     var i = 0,
       j = 0,
       temp = null;
@@ -53,7 +52,5 @@ function Randoms() {
     }
 
     return array;
-  };
+  }
 }
-
-module.exports = Randoms;

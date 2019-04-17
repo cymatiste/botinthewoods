@@ -1,38 +1,40 @@
-function ConiferousTrees(options) {
-  var _this = this;
-  var THREE = require("three");
-  var Randoms = require("./Randoms.js");
-  var Colors = require("./Colors.js");
-  var Meshes = require("./Meshes.js");
+import Randoms from "./Randoms";
+import Colors from "./Colors";
+import Meshes from "./Meshes";
+import THREE from "three";
 
-  var _c = new Colors();
-  var _r = new Randoms();
+export default class ConiferousTrees {
+  options;
+  rainbow;
+  m;
 
-  this.options = _initOptions(options);
-  var _options = this.options;
+  numBranches = 0;
 
-  var _m = new Meshes(_options);
+  c = new Colors();
+  r = new Randoms();
 
-  var _rainbow = _options.RAINBOW;
-
-  var _numBranches = 0;
+  constructor(options) {
+    this.options = this.initOptions(options);
+    this.m = new Meshes(this.options);
+    this.rainbow = this.options.RAINBOW;
+  }
 
   /**
    * What radius should we use for building the base of the trees?
    * --------------------------------------------------------------
    * @return {Number}
    */
-  function _pickRadius() {
-    var sizeRange = Math.random();
+  pickRadius() {
+    const sizeRange = Math.random();
 
     if (sizeRange < 0.2) {
-      return _r.random(0.1, 0.3);
+      return this.r.random(0.1, 0.3);
     } else if (sizeRange < 0.5) {
-      return _r.random(0.4, 0.9);
+      return this.r.random(0.4, 0.9);
     } else if (sizeRange < 0.95) {
-      return _r.random(1, 1.4);
+      return this.r.random(1, 1.4);
     } else {
-      return _r.random(1.5, 2.8);
+      return this.r.random(1.5, 2.8);
     }
   }
 
@@ -41,14 +43,14 @@ function ConiferousTrees(options) {
    * ----------------------------------------------------
    * @return {Number} 0-1
    */
-  function _pickDecay() {
-    var decayRange = Math.random();
+  pickDecay() {
+    const decayRange = Math.random();
     if (decayRange < 0.3) {
-      return _r.random(0.01, 0.03);
+      return this.r.random(0.01, 0.03);
     } else if (decayRange < 0.9) {
-      return _r.random(0.03, 0.06);
+      return this.r.random(0.03, 0.06);
     } else {
-      return _r.random(0.06, 0.07);
+      return this.r.random(0.06, 0.07);
     }
   }
 
@@ -57,16 +59,16 @@ function ConiferousTrees(options) {
    * ---------------------------------------------------------
    * @return {Number}
    */
-  function _pickLeafSize() {
-    var sizeRange = Math.random();
+  pickLeafSize() {
+    const sizeRange = Math.random();
     if (sizeRange < 0.33) {
-      return _r.random(0.15, 0.4);
+      return this.r.random(0.15, 0.4);
     } else if (sizeRange < 0.7) {
-      return _r.random(0.4, 0.8);
+      return this.r.random(0.4, 0.8);
     } else if (sizeRange < 0.9) {
-      return _r.random(0.8, 1);
+      return this.r.random(0.8, 1);
     } else {
-      return _r.random(1, 1.4);
+      return this.r.random(1, 1.4);
     }
   }
 
@@ -78,11 +80,11 @@ function ConiferousTrees(options) {
    *
    * @return {Array}
    */
-  function _randomTreeData(structure, depth, max_d) {
-    for (var i = 0; i < max_d; i++) {
-      var substruct = [];
-      for (var j = 0; j < _options.MAX_BRANCHES_PER_NODE; j++) {
-        if (Math.random() < _options.BRANCH_P) {
+  randomTreeData(structure, depth, max_d) {
+    for (let i = 0; i < max_d; i++) {
+      const substruct: any[] = [];
+      for (let j = 0; j < this.options.MAX_BRANCHES_PER_NODE; j++) {
+        if (Math.random() < this.options.BRANCH_P) {
           substruct.push([]);
         }
       }
@@ -98,16 +100,15 @@ function ConiferousTrees(options) {
    *
    * @return {int}        -- deepest level of nesting present
    */
-  function _depthOfArray(arr) {
-    var i;
-    var deepest = 0;
-    var subdepths = [];
+  depthOfArray(arr) {
+    let deepest = 0;
+    const subdepths: any[] = [];
 
-    for (i = 0; i < arr.length; i++) {
-      subdepths.push(_depthOfArray(arr[i]));
+    for (let i = 0; i < arr.length; i++) {
+      subdepths.push(this.depthOfArray(arr[i]));
     }
 
-    for (i = 0; i < subdepths.length; i++) {
+    for (let i = 0; i < subdepths.length; i++) {
       if (subdepths[i] > deepest) {
         deepest = subdepths[i];
       }
@@ -116,8 +117,8 @@ function ConiferousTrees(options) {
     return deepest + 1;
   }
 
-  function _buildLeaf(leafCol, leafSize, leafWidth) {
-    var leaf = _m.circleMesh(leafCol, leafSize);
+  buildLeaf(leafCol, leafSize, leafWidth) {
+    const leaf = this.m.circleMesh(leafCol, leafSize);
     leaf.scale.x = leafWidth;
     return leaf;
   }
@@ -129,7 +130,7 @@ function ConiferousTrees(options) {
    *
    * @return {Number}        -- the equivalent number in radians
    */
-  function _de2ra(degree) {
+  de2ra(degree) {
     return degree * (Math.PI / 180);
   }
 
@@ -146,7 +147,7 @@ function ConiferousTrees(options) {
    *
    * @return {THREE.Object3D}             -- a 3d object holding the branch segment
    */
-  function _buildBranch(
+  buildBranch(
     baseLength,
     distanceFromTip,
     distanceFromRoot,
@@ -154,17 +155,17 @@ function ConiferousTrees(options) {
     minRad,
     maxRad
   ) {
-    var i;
-    var length = baseLength * _r.random(1, 1.4);
+    let length = baseLength * this.r.random(1, 1.4);
 
     // It's possible for certain sets of parameters to make branches longer than our max, so, rein it in!
-    var referenceLength = Math.min(length, _options.BRANCH_L);
+    const referenceLength = Math.min(length, this.options.BRANCH_L);
 
-    var baseRadius = function(distFromTip, distFromRoot) {
-      var fromBottom =
+    const baseRadius = function(distFromTip, distFromRoot) {
+      const fromBottom =
         minRad +
         ((fullTreeDepth - distFromRoot) / fullTreeDepth) * (maxRad - minRad);
-      var fromTop = minRad + (distFromTip / fullTreeDepth) * (maxRad - minRad);
+      const fromTop =
+        minRad + (distFromTip / fullTreeDepth) * (maxRad - minRad);
       return fromTop;
     };
 
@@ -172,55 +173,64 @@ function ConiferousTrees(options) {
       length *= 2;
     }
 
-    var radiusBottom = baseRadius(distanceFromTip, distanceFromRoot);
-    var radiusTop = baseRadius(
+    const radiusBottom = baseRadius(distanceFromTip, distanceFromRoot);
+    const radiusTop = baseRadius(
       Math.max(0, distanceFromTip - 1),
       distanceFromRoot + 1
     );
 
-    var cylGeom = new THREE.CylinderGeometry(
+    const cylGeom = new THREE.CylinderGeometry(
       radiusTop,
       radiusBottom,
       length,
       8
     );
-    var sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
-    var hex;
+    const sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
+    let hex;
 
-    var propBtm = (fullTreeDepth - distanceFromRoot) / fullTreeDepth;
-    var propTop = 1 - propBtm;
+    const propBtm = (fullTreeDepth - distanceFromRoot) / fullTreeDepth;
+    const propTop = 1 - propBtm;
 
-    var branchCol = _rainbow
-      ? _c.randomHex()
-      : _c.mixHexCols(_options.COLOR_BTM, _options.COLOR_TOP, propBtm, propTop);
+    const branchCol = this.rainbow
+      ? this.c.randomHex()
+      : this.c.mixHexCols(
+          this.options.COLOR_BTM,
+          this.options.COLOR_TOP,
+          propBtm,
+          propTop
+        );
 
-    for (i = 0; i < cylGeom.faces.length; i += 2) {
-      hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
+    for (let i = 0; i < cylGeom.faces.length; i += 2) {
+      hex = this.rainbow
+        ? this.c.parseHex(this.c.randomHex())
+        : this.c.parseHex(branchCol);
       cylGeom.faces[i].color.setHex(hex);
       cylGeom.faces[i + 1].color.setHex(hex);
     }
 
-    for (i = 0; i < sphGeom.faces.length; i += 2) {
-      hex = _rainbow ? _c.parseHex(_c.randomHex()) : _c.parseHex(branchCol);
+    for (let i = 0; i < sphGeom.faces.length; i += 2) {
+      hex = this.rainbow
+        ? this.c.parseHex(this.c.randomHex())
+        : this.c.parseHex(branchCol);
       sphGeom.faces[i].color.setHex(hex);
       sphGeom.faces[i + 1].color.setHex(hex);
     }
 
-    var material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshBasicMaterial({
       vertexColors: THREE.FaceColors,
       overdraw: 0.5
     });
 
-    var cylinder = new THREE.Mesh(cylGeom, material);
+    const cylinder = new THREE.Mesh(cylGeom, material);
     cylinder.position.y = length / 2;
 
-    var sphere = new THREE.Mesh(sphGeom, material);
+    const sphere = new THREE.Mesh(sphGeom, material);
 
-    var tip = new THREE.Object3D();
+    const tip = new THREE.Object3D();
     tip.position.y = length;
     tip.add(sphere);
 
-    var branch = new THREE.Object3D();
+    const branch = new THREE.Object3D();
     branch.add(cylinder);
     branch.add(tip);
     branch.tip = tip;
@@ -228,14 +238,17 @@ function ConiferousTrees(options) {
 
     if (distanceFromTip < 2) {
       console.log("LEAVES");
-      _makeLeavesAround(
+      this.makeLeavesAround(
         branch.tip,
-        _r.randomInt(_options.LEAF_DENSITY * 2, _options.LEAF_DENSITY * 3),
-        _options.LEAF_COLS,
-        _options.LEAF_SIZE,
+        this.r.randomInt(
+          this.options.LEAF_DENSITY * 2,
+          this.options.LEAF_DENSITY * 3
+        ),
+        this.options.LEAF_COLS,
+        this.options.LEAF_SIZE,
         0,
         0,
-        _options.LEAF_SIZE / 2
+        this.options.LEAF_SIZE / 2
       );
     }
 
@@ -254,7 +267,7 @@ function ConiferousTrees(options) {
    *
    * @return {void}                   -- The leaves will be added as children of the obj.
    */
-  function _makeLeavesAround(
+  makeLeavesAround(
     obj3d,
     numLeaves,
     colors,
@@ -263,22 +276,25 @@ function ConiferousTrees(options) {
     rAdjust,
     leafWidth
   ) {
-    var baseTwist = _r.random(Math.PI * 2);
-    for (i = 0; i < numLeaves; i++) {
-      var sheath = new THREE.Object3D();
-      var leaf_col = _r.randomFrom(colors);
+    const baseTwist = this.r.random(Math.PI * 2);
+    for (let i = 0; i < numLeaves; i++) {
+      const sheath = new THREE.Object3D();
+      const leaf_col = this.r.randomFrom(colors);
 
-      var newLeaf = _buildLeaf(leaf_col, leafRadius, leafWidth);
+      const newLeaf = this.buildLeaf(leaf_col, leafRadius, leafWidth);
       newLeaf.position.y = leafRadius / 2;
 
       //newLeaf.rotation.x = -Math.PI/2;
 
-      newLeaf.rotation.x = _r.random(-_options.ANGLE_MAX, -_options.ANGLE_MIN);
+      newLeaf.rotation.x = this.r.random(
+        -this.options.ANGLE_MAX,
+        -this.options.ANGLE_MIN
+      );
       sheath.add(newLeaf);
       sheath.rotation.y = baseTwist + (i * Math.PI * 2) / numLeaves;
-      sheath.position.y -= _r.random(0, _options.BRANCH_L / 2);
+      sheath.position.y -= this.r.random(0, this.options.BRANCH_L / 2);
 
-      //obj3d.position.y -= _options.BRANCH_L;
+      //obj3d.position.y -= this.options.BRANCH_L;
       obj3d.add(sheath);
     }
   }
@@ -295,7 +311,7 @@ function ConiferousTrees(options) {
    *
    * @return {THREE.Object3D}                 -- the 3D tree!
    */
-  function _buildTree(
+  buildTree(
     treeData,
     branchLength,
     depth,
@@ -304,11 +320,14 @@ function ConiferousTrees(options) {
     maxBranchRad,
     corePiece
   ) {
-    var baseTwist = _r.random(Math.PI * 2);
-    var mainTrunk = _depthOfArray(treeData) == fullTreeDepth;
+    let baseTwist = this.r.random(Math.PI * 2);
+    const mainTrunk = this.depthOfArray(treeData) == fullTreeDepth;
 
-    var minBranchRad = Math.min(_options.BRANCH_R_MIN, maxBranchRad * 0.5);
-    var root = _buildBranch(
+    const minBranchRad = Math.min(
+      this.options.BRANCH_R_MIN,
+      maxBranchRad * 0.5
+    );
+    const root = this.buildBranch(
       0.1,
       fullTreeDepth,
       height,
@@ -316,34 +335,34 @@ function ConiferousTrees(options) {
       minBranchRad,
       maxBranchRad
     );
-    var workingRoot = root;
+    let workingRoot = root;
 
-    //var minBend = _de2ra(corePiece ? _options.ANGLE_MIN/6 : _options.ANGLE_MIN);
-    //var maxBend = _de2ra(corePiece ? _options.ANGLE_MAX/6 : _options.ANGLE_MAX);
+    //const minBend = this.de2ra(corePiece ? this.options.ANGLE_MIN/6 : this.options.ANGLE_MIN);
+    //const maxBend = this.de2ra(corePiece ? this.options.ANGLE_MAX/6 : this.options.ANGLE_MAX);
 
-    var minBend = _de2ra(
-      corePiece ? -_options.ANGLE_MIN / 12 : _options.ANGLE_MIN / 2
+    const minBend = this.de2ra(
+      corePiece ? -this.options.ANGLE_MIN / 12 : this.options.ANGLE_MIN / 2
     );
-    var maxBend = _de2ra(
-      corePiece ? -_options.ANGLE_MAX / 12 : _options.ANGLE_MAX / 2
+    const maxBend = this.de2ra(
+      corePiece ? -this.options.ANGLE_MAX / 12 : this.options.ANGLE_MAX / 2
     );
 
-    var newBranchL = branchLength * _options.LENGTH_MULT;
+    let newBranchL = branchLength * this.options.LENGTH_MULT;
 
     console.log("     d     " + depth + ",     ftd " + fullTreeDepth);
     //console.log("     bl    "+branchLength);
     //console.log("     r     "+maxBranchRad);
     //console.log(workingRoot.tip);
 
-    var bendDir = 1; //_r.randomFrom([1,-1]);
-    var curlQuotient = _r.randomInt(5, 9);
+    const bendDir = 1; //this.r.randomFrom([1,-1]);
+    const curlQuotient = this.r.randomInt(5, 9);
 
-    for (var i = 0; i < fullTreeDepth; i++) {
+    for (let i = 0; i < fullTreeDepth; i++) {
       console.log(
         "-------------branch " + i + ", " + minBend + ",  " + maxBend
       );
 
-      var trunkBranch = _buildBranch(
+      const trunkBranch = this.buildBranch(
         branchLength,
         fullTreeDepth - i,
         i,
@@ -352,7 +371,7 @@ function ConiferousTrees(options) {
         maxBranchRad * ((fullTreeDepth - i) / fullTreeDepth)
       );
       trunkBranch.rotation.x =
-        _r.random(minBend / curlQuotient, maxBend / curlQuotient) * bendDir;
+        this.r.random(minBend / curlQuotient, maxBend / curlQuotient) * bendDir;
       //trunkBranch.position.x = workingRoot.tip.position.x;
       //trunkBranch.position.y = workingRoot.tip.position.y;
       //trunkBranch.rotation.x = root.rotation.x + (corePiece ? 0 : -0.3);
@@ -361,13 +380,13 @@ function ConiferousTrees(options) {
       //branchNode.position.y = workingRoot.tip.position.y;
       workingRoot.tip.add(trunkBranch);
 
-      baseTwist = _r.random(Math.PI * 2);
+      baseTwist = this.r.random(Math.PI * 2);
 
       if (i > 0 && depth < 2) {
-        for (var j = 0; j < treeData[i].length; j++) {
+        for (let j = 0; j < treeData[i].length; j++) {
           if (
             Math.random() > 1 / Math.log(depth + 3) &&
-            Math.random() < _options.BRANCH_P
+            Math.random() < this.options.BRANCH_P
           ) {
             continue;
           }
@@ -375,7 +394,7 @@ function ConiferousTrees(options) {
           newBranchL = branchLength * ((treeData.length - i) / treeData.length);
 
           //newBranchL*(fullTreeDepth-i)
-          var newBranch = _buildTree(
+          const newBranch = this.buildTree(
             treeData,
             newBranchL * 0.75,
             depth + 1,
@@ -384,21 +403,21 @@ function ConiferousTrees(options) {
             (maxBranchRad * ((treeData.length - i) / treeData.length)) / 2,
             false
           );
-          //var newBranch = _buildBranch(newBranchL, 1, i, fullTreeDepth, minBranchRad*((treeData.length -i)/treeData.length), maxBranchRad*((treeData.length -i)/treeData.length));
-          //newBranch.rotation.x = _de2ra(90+(treeData.length-i)*3);
+          //const newBranch = this.buildBranch(newBranchL, 1, i, fullTreeDepth, minBranchRad*((treeData.length -i)/treeData.length), maxBranchRad*((treeData.length -i)/treeData.length));
+          //newBranch.rotation.x = this.de2ra(90+(treeData.length-i)*3);
           //newBranch.position.x = branchNode.position.x;
           //newBranch.position.y = branchNode.position.y;
-          //newBranch.rotation.z = -_r.random(minBend, maxBend);
-          var branchNode = new THREE.Object3D();
+          //newBranch.rotation.z = -this.r.random(minBend, maxBend);
+          const branchNode = new THREE.Object3D();
           branchNode.rotation.y =
             baseTwist + (j * Math.PI * 2) / treeData[i].length;
-          newBranch.position.y = _r.random(-branchLength / 3, 0);
+          newBranch.position.y = this.r.random(-branchLength / 3, 0);
           branchNode.add(newBranch);
           workingRoot.tip.add(branchNode);
 
           //console.log("     --------* "+newBranchL+",  r "+branchNode.rotation.y);
 
-          _numBranches++;
+          this.numBranches++;
         }
       }
 
@@ -411,9 +430,9 @@ function ConiferousTrees(options) {
   /**
    * Add roots to the tree
    * --------------------------
-   * @params as per _buildTree
+   * @params as per this.buildTree
    */
-  function _treeWithRoots(
+  treeWithRoots(
     treeData,
     branchLength,
     depth,
@@ -421,7 +440,7 @@ function ConiferousTrees(options) {
     fullTreeDepth,
     maxBranchRad
   ) {
-    var body = _buildTree(
+    const body = this.buildTree(
       treeData,
       branchLength,
       0,
@@ -431,29 +450,29 @@ function ConiferousTrees(options) {
       true
     );
 
-    var numRoots = _r.randomInt(3, 10);
-    var startRot = _r.random(Math.PI * 2);
-    var rootColInt = _rainbow
-      ? _c.parseHex(_c.randomHex())
-      : _c.parseHex(_options.COLOR_BTM);
+    const numRoots = this.r.randomInt(3, 10);
+    const startRot = this.r.random(Math.PI * 2);
+    const rootColInt = this.rainbow
+      ? this.c.parseHex(this.c.randomHex())
+      : this.c.parseHex(this.options.COLOR_BTM);
 
     //console.log(numRoots+" roots\n");
-    for (var i = 0; i < numRoots; i++) {
-      var rootRad = _r.random(maxBranchRad * 0.3, maxBranchRad * 0.7);
-      var rootLength = _r.random(branchLength * 0.02, branchLength * 0.1);
+    for (let i = 0; i < numRoots; i++) {
+      const rootRad = this.r.random(maxBranchRad * 0.3, maxBranchRad * 0.7);
+      const rootLength = this.r.random(branchLength * 0.02, branchLength * 0.1);
 
-      var cylGeom = new THREE.CylinderGeometry(rootRad, 0.01, rootLength, 8);
-      for (var f = 0; f < cylGeom.faces.length; f++) {
+      const cylGeom = new THREE.CylinderGeometry(rootRad, 0.01, rootLength, 8);
+      for (let f = 0; f < cylGeom.faces.length; f++) {
         cylGeom.faces[f].color.setHex(rootColInt);
       }
 
-      var cylMat = new THREE.MeshBasicMaterial({
+      const cylMat = new THREE.MeshBasicMaterial({
         vertexColors: THREE.FaceColors,
         overdraw: 0.5
       });
 
-      var cone = new THREE.Mesh(cylGeom, cylMat);
-      var newRoot = new THREE.Object3D();
+      const cone = new THREE.Mesh(cylGeom, cylMat);
+      const newRoot = new THREE.Object3D();
       cone.rotation.x = -Math.PI / 2.4;
       cone.position.z = rootLength / 2 + (maxBranchRad / 2) * 0.9;
 
@@ -465,72 +484,70 @@ function ConiferousTrees(options) {
     return body;
   }
 
-  this.getTree = function(options) {
-    _numBranches = 0;
-    _setParameters(options);
+  getTree(options) {
+    this.numBranches = 0;
+    this.setParameters(options);
 
-    var data = [];
-    data = _randomTreeData([], 0, _options.MAX_DEPTH);
+    const data = this.randomTreeData([], 0, this.options.MAX_DEPTH);
 
     //console.trace(data);
 
-    return _treeWithRoots(
+    return this.treeWithRoots(
       data,
-      _options.BRANCH_L,
+      this.options.BRANCH_L,
       data.length,
       0,
       data.length,
-      _options.BRANCH_R_MAX
+      this.options.BRANCH_R_MAX
     );
-  };
-
-  function _setParameters(options) {
-    _o = this.options = options;
   }
 
-  function _initOptions(opts) {
-    var maxRad = 5 * _pickRadius();
+  setParameters(options) {
+    this.options = options;
+  }
+
+  initOptions(opts) {
+    const maxRad = 5 * this.pickRadius();
 
     // The bottom of the tree is a random dark colour and the top is a variation on same
 
-    var bottom_color = _c.randomHex();
+    const bottom_color = this.c.randomHex();
 
     // Leaves on the trees could be any color of the rainbow!
     // We keep the number of leaf colors down so we don't run out of colors.
-    var leafBaseColor = opts.NIGHT_MODE
-      ? _c.brightenByAmt(_c.randomHex(), -60)
-      : _c.variationsOn(_c.randomHex(), 80);
-    var leafColors = [];
-    for (i = 0; i < 8; i++) {
-      leafColors.push(_c.variationsOn(leafBaseColor, 30));
+    const leafBaseColor = opts.NIGHT_MODE
+      ? this.c.brightenByAmt(this.c.randomHex(), -60)
+      : this.c.variationsOn(this.c.randomHex(), 80);
+    const leafColors: any[] = [];
+    for (let i = 0; i < 8; i++) {
+      leafColors.push(this.c.variationsOn(leafBaseColor, 30));
     }
 
-    var options = {
+    const options = {
       RAINBOW: false,
       NIGHT_MODE: false,
       BRANCH_R_MAX: maxRad,
-      BRANCH_R_MIN: maxRad * _r.random(0.03),
-      TRUNK_R_MAX: _r.random(5, 25),
-      TRUNK_R_MIN: _r.random(2),
-      BRANCH_L: _r.random(3, 7),
-      BRANCH_P: _r.random(0.85, 0.95),
-      CHANCE_DECAY: _pickDecay(),
-      LENGTH_MULT: _r.random(0.85, 0.95),
-      ANGLE_MIN: _r.random(100, 110),
-      ANGLE_MAX: _r.random(120, 135),
+      BRANCH_R_MIN: maxRad * this.r.random(0.03),
+      TRUNK_R_MAX: this.r.random(5, 25),
+      TRUNK_R_MIN: this.r.random(2),
+      BRANCH_L: this.r.random(3, 7),
+      BRANCH_P: this.r.random(0.85, 0.95),
+      CHANCE_DECAY: this.pickDecay(),
+      LENGTH_MULT: this.r.random(0.85, 0.95),
+      ANGLE_MIN: this.r.random(100, 110),
+      ANGLE_MAX: this.r.random(120, 135),
       COLOR_BTM: bottom_color,
-      COLOR_TOP: _c.variationsOn(bottom_color, 180),
+      COLOR_TOP: this.c.variationsOn(bottom_color, 180),
       LEAF_COLS: leafColors,
-      LEAF_SIZE: _pickLeafSize(),
-      LEAF_DENSITY: _r.randomInt(24),
-      LEAF_W: _r.random(0.1, 0.2),
-      MAX_DEPTH: _r.random(8, 20),
+      LEAF_SIZE: this.pickLeafSize(),
+      LEAF_DENSITY: this.r.randomInt(24),
+      LEAF_W: this.r.random(0.1, 0.2),
+      MAX_DEPTH: this.r.random(8, 20),
       MAX_BRANCHES_TOTAL: 9999,
-      MAX_BRANCHES_PER_NODE: _r.randomInt(3, 6),
-      LEAF_DENSITY: _r.randomInt(24)
+      MAX_BRANCHES_PER_NODE: this.r.randomInt(3, 6)
     };
 
-    for (var opt in opts) {
+    for (const opt in opts) {
       if (options[opt] !== undefined) {
         options[opt] = opts[opt];
       }
@@ -548,5 +565,3 @@ function ConiferousTrees(options) {
     return options;
   }
 }
-
-module.exports = ConiferousTrees;

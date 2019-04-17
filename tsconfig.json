@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "./lib",
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "listEmittedFiles": true,
+    "listFiles": true,
+
+    "isolatedModules": false,
+    "allowJs": true,
+    "noImplicitAny": false
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "bin",
+    "lib"
+  ]
+}
