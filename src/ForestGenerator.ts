@@ -8,7 +8,7 @@ import * as SoftwareRenderer from "three-software-renderer";
 import Colors from "./Colors";
 import Randoms from "./Randoms";
 import DeciduousTrees from "./DeciduousTrees";
-import ConiferousTrees from "./ConiferousButLooksDeciduousHmmm";
+import ConiferousTrees from "./ConiferousTrees";
 // import Moon from './Moon'
 
 export default class ForestGenerator {

@@ -119,6 +119,8 @@ export default class ConiferousTrees {
 
   buildLeaf(leafCol, leafSize, leafWidth) {
     const leaf = this.m.circleMesh(leafCol, leafSize);
+    // TODO This came from the original ConiferousTrees
+    // const leaf = this.m.diamondMesh(leafCol, leafSize);
     leaf.scale.x = leafWidth;
     return leaf;
   }
@@ -154,6 +156,8 @@ export default class ConiferousTrees {
     fullTreeDepth,
     minRad,
     maxRad
+    // TODO This came from the original ConiferousTrees
+    // overridecolor
   ) {
     let length = baseLength * this.r.random(1, 1.4);
 
@@ -252,6 +256,19 @@ export default class ConiferousTrees {
       );
     }
 
+    // TODO This came from the original ConiferousTrees
+    // if (distanceFromTip == 1) {
+    //   this.makeLeavesAround(
+    //     branch.tip,
+    //     this.options.LEAF_DENSITY,
+    //     this.options.LEAF_COLS,
+    //     this.options.LEAF_SIZE,
+    //     0,
+    //     0,
+    //     this.options.LEAF_W
+    //   );
+    // }
+
     return branch;
   }
 
@@ -327,6 +344,10 @@ export default class ConiferousTrees {
       this.options.BRANCH_R_MIN,
       maxBranchRad * 0.5
     );
+
+    // TODO This came from the original ConiferousTrees
+    // let testcolor = depth == 0 ? "#FF0000" : depth == 1 ? "#0000FF" : "#00FF00";
+
     const root = this.buildBranch(
       0.1,
       fullTreeDepth,
@@ -334,8 +355,18 @@ export default class ConiferousTrees {
       fullTreeDepth,
       minBranchRad,
       maxBranchRad
+      // TODO This came from the original ConiferousTrees
+      // testcolor
     );
     let workingRoot = root;
+
+    // TODO This came from the original ConiferousTrees
+    //if (depth == 1) {
+    //  //root.tip.rotation.x = (depth==0 ? this.de2ra(145) : this.de2ra(-115));
+    //  root.tip.rotation.x = this.de2ra(125);
+    //} else if (depth > 1) {
+    //  root.tip.rotation.x = this.de2ra(65);
+    //}
 
     //const minBend = this.de2ra(corePiece ? this.options.ANGLE_MIN/6 : this.options.ANGLE_MIN);
     //const maxBend = this.de2ra(corePiece ? this.options.ANGLE_MAX/6 : this.options.ANGLE_MAX);
@@ -346,6 +377,14 @@ export default class ConiferousTrees {
     const maxBend = this.de2ra(
       corePiece ? -this.options.ANGLE_MAX / 12 : this.options.ANGLE_MAX / 2
     );
+
+    // TODO This came from the original ConiferousTrees
+    // const minBend = this.de2ra(
+    //   corePiece ? 180 + this.options.ANGLE_MIN / 2 : this.options.ANGLE_MIN / 2
+    // );
+    // const maxBend = this.de2ra(
+    //   corePiece ? 180 + this.options.ANGLE_MAX / 2 : this.options.ANGLE_MAX / 2
+    // );
 
     let newBranchL = branchLength * this.options.LENGTH_MULT;
 
@@ -372,6 +411,32 @@ export default class ConiferousTrees {
       );
       trunkBranch.rotation.x =
         this.r.random(minBend / curlQuotient, maxBend / curlQuotient) * bendDir;
+
+      // TODO This came from the original ConiferousTrees
+      // const workingDepth =
+      //   depth <= 1 ? fullTreeDepth : Math.min(4, fullTreeDepth);
+      // for (let i = 0; i < workingDepth; i++) {
+      //   console.log("-------------trunkpiece " + i);
+
+      //   if (i > 0 && depth > 0) {
+      //     testcolor = "#FFFF00";
+      //   }
+      //   const trunkBranch = this.buildBranch(
+      //     branchLength,
+      //     treeData.length - i,
+      //     i,
+      //     workingDepth,
+      //     minBranchRad * ((treeData.length - i) / treeData.length),
+      //     maxBranchRad * ((treeData.length - i) / treeData.length),
+      //     testcolor
+      //   );
+      //   trunkBranch.rotation.x =
+      //     depth == 0
+      //       ? this.r.random(-0.1, 0.1)
+      //       : depth > 1 && i > 1
+      //       ? -this.r.random(-minBend / 10, -maxBend / 10)
+      //       : this.r.random(-minBend / 10, -maxBend / 10);
+
       //trunkBranch.position.x = workingRoot.tip.position.x;
       //trunkBranch.position.y = workingRoot.tip.position.y;
       //trunkBranch.rotation.x = root.rotation.x + (corePiece ? 0 : -0.3);
@@ -391,7 +456,13 @@ export default class ConiferousTrees {
             continue;
           }
 
-          newBranchL = branchLength * ((treeData.length - i) / treeData.length);
+          // TODO This came from the original ConiferousTrees
+          // if (Math.random() > 1 / Math.log(depth + 3)) {
+          //   continue;
+          // }
+          // console.log("---------=== branch " + j);
+
+          // newBranchL = branchLength * ((treeData.length - i) / treeData.length);
 
           //newBranchL*(fullTreeDepth-i)
           const newBranch = this.buildTree(
@@ -412,7 +483,14 @@ export default class ConiferousTrees {
           branchNode.rotation.y =
             baseTwist + (j * Math.PI * 2) / treeData[i].length;
           newBranch.position.y = this.r.random(-branchLength / 3, 0);
-          branchNode.add(newBranch);
+
+          // TODO This came from the original ConiferousTrees
+          // newBranch.position.y = this.r.random(
+          //   -branchLength / 3,
+          //   branchLength / 3
+          // );
+          // branchNode.add(newBranch);
+
           workingRoot.tip.add(branchNode);
 
           //console.log("     --------* "+newBranchL+",  r "+branchNode.rotation.y);
