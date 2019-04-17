@@ -1,9 +1,12 @@
+# botinthewoods
+
+[![@botinthewoods](https://img.shields.io/twitter/follow/botinthewoods.svg?label=botinthewoods&style=social)](https://twitter.com/botinthewoods)
+
+## This is a work in progress!
 
 Generate and tweet an animated GIF of a little forest walk-through!
 
 God bless all the people who made npm and the node modules I used to throw this together.
-
-## This is a work in progress!
 
 I haven't put any time yet into making it friendly for others to use.  With any luck this will get refactored as I continue to play with it to make it more flexible for adaptation to other purposes.
 
@@ -26,20 +29,20 @@ module.exports = config;
 ```
 
 **To generate forest GIFs:**
-- add a file 'tweetables.json' in the project folder with content:
+- add a file 'data/tweetables.json' in the project folder with content:
 ```
 { gifNames: [] }
 ```
-- cmd > `node gifmaker.js`
+- cmd > `node bin/gifmaker.js`
 
  (Inside this file you can set the number of frames to output.  I might eventually expose a bunch more options in here and make them command line parameters as well.)
 
 **To tweet GIFs you've already created:**
-- cmd > `node tweeter.js`
+- cmd > `node bin/tweeter.js`
 
 You can run *gifmaker* and *tweeter* simultaneously in different consoles to keep the ball rolling.
 
-All the actual work is done in js/ForestGenerator.js, with some help with the heavy lifting from js/Colors.js.  Again, this might get broken up further eventually into useful subfiles.
+All the actual work is done in src/ForestGenerator.js, with some help with the heavy lifting from src/Colors.js.  Again, this might get broken up further eventually into useful subfiles.
 
 
 If you get "Javascript heap out of memory" errors, these instructions might help:
