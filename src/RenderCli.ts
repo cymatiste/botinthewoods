@@ -9,9 +9,10 @@ import Colors from "./Colors";
 import ForestGenerator from "./ForestGenerator";
 
 let filename;
-const namer = new Names();
+
 const r = new Randoms();
 const c = new Colors();
+const namer = new Names();
 
 function keepGenerating() {
   // Make the GIF

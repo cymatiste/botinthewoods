@@ -31,5 +31,3 @@ export default class Names {
     return nameString;
   }
 }
-
-module.exports = Names;

@@ -13,9 +13,9 @@
     "url": "https://github.com/simrisek/botinthewoods/issues"
   },
   "scripts": {
-    "render": "node bin/render.js",
+    "render": "node --max-old-space-size=8179 bin/render.js ",
     "tweeter": "node bin/tweeter.js",
-    "test": "node bin/test.js",
+    "test": "node --max-old-space-size=8179 bin/test.js",
     "clean": "rimraf lib",
     "build": "npm run clean && tsc --build",
     "lint": "prettier --write bin/**/*.js src/**/*.js",
