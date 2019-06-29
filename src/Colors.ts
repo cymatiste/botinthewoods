@@ -40,12 +40,12 @@ export default class Colors {
     "f"
   ];
 
-  variationsOn(color, variability) {
+  variationsOn(color: string, variability) {
     let col = color;
-
-    if (!this.isHex(color)) {
+    //console.log("color: "+col+", variability: "+variability);
+    if (!this.isHex(col)) {
       throw new Error(
-        "this version of the code doesn't support web color names anymore.  Please hexify it for now; sorry!"
+        ": this version of the code doesn't support web color names anymore.  Please hexify it for now; sorry!"
       );
     } else {
       const rgbCol = this.hexToRgb(col);
@@ -289,7 +289,7 @@ export default class Colors {
     }
   }
 
-  hexToInt(hex) {
+  hexToInt(hex: string) {
     let int = 0;
     for (let i = 1; i < hex.length; i++) {
       const char = hex.charAt(i);
@@ -472,5 +472,41 @@ export default class Colors {
   componentToHex(c) {
     const hex = c.toString(16);
     return hex.length === 1 ? "0" + hex : hex;
+  }
+
+  /**
+   * Returns the pico 8 color palette in hex
+   */
+  pico8HexColors() {
+    const colors: string[] = [
+      "#1D2B53",
+      "#7E2553",
+      "#008751",
+      "#AB5236",
+      "#5F574F",
+      "#C2C3C7",
+      "#FFF1E8",
+      "#FF004D",
+      "#FFA300",
+      "#FFEC27",
+      "#00E436",
+      "#29ADFF",
+      "#83769C",
+      "#FF77A8",
+      "#FFCCAA",
+      "#000000"
+    ];
+    return colors;
+  }
+
+  /**
+   * Returns the pico 8 color palette in hex
+   */
+  pico8Ints() {
+    const hexCols = this.pico8HexColors();
+    const parsed: number[] = [];
+    for (let i = 0; i < hexCols.length; i++) {
+      parsed.push(this.hexToInt(hexCols[i]));
+    }
   }
 }

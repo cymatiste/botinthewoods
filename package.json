@@ -15,7 +15,7 @@
   "scripts": {
     "render": "node --max-old-space-size=8179 bin/render.js ",
     "tweeter": "node bin/tweeter.js",
-    "test": "node --max-old-space-size=8179 bin/test.js",
+    "test": "node --max-old-space-size=11111 bin/test.js",
     "clean": "rimraf lib",
     "build": "npm run clean && tsc --build",
     "lint": "prettier --write bin/**/*.js src/**/*.js",

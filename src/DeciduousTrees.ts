@@ -4,8 +4,8 @@ import Colors from "./Colors";
 import Meshes from "./Meshes";
 
 export default class DeciduousTrees {
-  m;
-  rainbow;
+  m: Meshes;
+  rainbow: boolean;
   options;
   LEAF_BASE_COLOR;
 
@@ -26,7 +26,7 @@ export default class DeciduousTrees {
    * @return {Number}
    */
   pickRadius() {
-    const sizeRange = Math.random();
+    const sizeRange: Number = Math.random();
 
     if (sizeRange < 0.1) {
       return this.r.random(0.1, 0.4);
@@ -45,7 +45,7 @@ export default class DeciduousTrees {
    * @return {Number} 0-1
    */
   pickDecay() {
-    const decayRange = Math.random();
+    const decayRange: Number = Math.random();
     if (decayRange < 0.2) {
       return this.r.random(0, 0.02);
     } else if (decayRange < 0.8) {
@@ -61,7 +61,7 @@ export default class DeciduousTrees {
    * @return {Number}
    */
   pickLeafSize() {
-    const sizeRange = Math.random();
+    const sizeRange: Number = Math.random();
     if (sizeRange < 0.33) {
       return this.r.random(0.3, 0.5);
     } else if (sizeRange < 0.7) {
@@ -85,16 +85,16 @@ export default class DeciduousTrees {
     const structure = startingStructure || [];
     const depth = startingDepth || 0;
 
+    //Math.round(this.options.MAX_DEPTH * this.r.random(0.3,0.6));
+
     if (depth < this.options.MAX_DEPTH) {
       const branchChance =
         depth == this.options.MAX_DEPTH - 1
           ? this.options.BRANCH_P
           : this.options.BRANCH_P -
-            Math.min(
-              this.options.BRANCH_P * 0.8,
-              this.options.CHANCE_DECAY * depth
-            );
+            this.options.BRANCH_P * (this.options.CHANCE_DECAY * depth);
 
+      let branchesAtThisNode = 0;
       while (
         this.numBranches == 0 ||
         (structure.length < this.options.MAX_BRANCHES_PER_NODE &&
@@ -103,8 +103,11 @@ export default class DeciduousTrees {
       ) {
         const newBranch = this.randomTreeData([], depth + 1);
         structure.push(newBranch);
+        branchesAtThisNode++;
         this.numBranches++;
       }
+
+      //console.log("depth "+depth+" at branchChance "+branchChance+" --->  "+branchesAtThisNode);
 
       if (structure == []) {
         const tipBranches = this.r.randomInt(2, 3);
@@ -207,7 +210,7 @@ export default class DeciduousTrees {
       referenceLength,
       8
     );
-    const sphGeom = new THREE.SphereGeometry(radiusTop, 2, 2);
+    const sphGeom = new THREE.SphereGeometry(radiusBottom, 4, 4);
     let hex;
 
     const propBtm = (fullTreeDepth - distanceFromRoot) / fullTreeDepth;
@@ -345,7 +348,7 @@ export default class DeciduousTrees {
     );
     // Don't start fanning out too low in the tree.
     if (height < 2) {
-      fanRads = fanRads / 4;
+      //fanRads = fanRads / 2;
     }
 
     const root = this.buildBranch(
@@ -366,11 +369,19 @@ export default class DeciduousTrees {
         fullTreeDepth,
         maxBranchRad
       );
-      const fanMod = depth / fullTreeDepth;
-      newBranch.rotation.x =
-        root.rotation.x + this.r.random(-fanRads, fanRads) * fanMod;
-      newBranch.rotation.z =
-        root.rotation.z + this.r.random(-fanRads, fanRads) * fanMod;
+      const fanMod = height / fullTreeDepth;
+      const xrot = this.r.randomSign(this.r.random(fanRads / 2, fanRads)); // * fanMod;
+      const zrot = this.r.randomSign(this.r.random(fanRads / 2, fanRads)); // * fanMod;
+      newBranch.rotation.x = root.rotation.x + xrot * fanMod;
+
+      newBranch.rotation.z = root.rotation.z + zrot * fanMod;
+
+      if (height < fullTreeDepth / 5) {
+        // add mushrooms
+        //for (let m = 0; m < ){
+        //
+        //}
+      }
 
       // Position this subtree somewhere along the parent branch if such exists.
       //newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
@@ -379,6 +390,12 @@ export default class DeciduousTrees {
     }
 
     return root;
+  }
+
+  mushroom(col, size, width) {
+    const mush = this.m.circleMesh(col, size);
+    mush.scale.y = width;
+    return mush;
   }
 
   /**
@@ -402,8 +419,8 @@ export default class DeciduousTrees {
         -100
       );
 
-      const leafBaseColor = this.c.variationsOn(this.LEAF_BASE_COLOR, 50);
-      //const leafBaseColor = this.c.randomHex();
+      //const leafBaseColor = this.c.variationsOn(this.LEAF_BASE_COLOR, 50);
+      const leafBaseColor = this.c.randomHex();
       this.options.LEAF_COLS = [];
       for (let i = 0; i < 3; i++) {
         this.options.LEAF_COLS.push(this.c.variationsOn(leafBaseColor, 50));
@@ -502,6 +519,7 @@ export default class DeciduousTrees {
 
     const options = {
       RAINBOW: false,
+      COLOR_INTENSE: false,
       NIGHT_MODE: nightMode,
       BRANCH_R_MAX: maxRad,
       BRANCH_R_MIN: maxRad * this.r.random(0.03),
@@ -512,7 +530,7 @@ export default class DeciduousTrees {
       ANGLE_MIN: this.r.random(15, 45),
       ANGLE_MAX: this.r.random(60, 120),
       COLOR_TOP: top_color,
-      COLOR_BTM: this.c.brightenByAmt(top_color, -80),
+      COLOR_BTM: this.c.brightenByAmt(top_color, -110),
       LEAF_COLS: leafColors,
       LEAF_SIZE: this.pickLeafSize(),
       LEAF_DENSITY: this.r.randomInt(24),

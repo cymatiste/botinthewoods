@@ -34,8 +34,8 @@ function makeForest(filename) {
     //TREE_TYPE: r.randomFrom(["deciduous","deciduous","coniferous"]),
     NUM_TREES: numTrees,
     //NUM_TREES: 5,
-    GRASS_DENSITY:
-      numTrees > 45 ? 0 : r.randomFrom([0, 0, 0, 0, 0, 25, 50, 75, 100])
+    GRASS_DENSITY: r.randomInt(30, 130)
+    //numTrees > 45 ? 0 : r.randomFrom([0, 0, 0, 0, 0, 25, 50, 75, 100])
     //GRASS_DENSITY: 0 //r.randomFrom([0,0,0,50])
   };
 

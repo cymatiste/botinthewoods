@@ -29,7 +29,7 @@ export default class ForestGenerator {
 
   forest;
   filename;
-  palette = [];
+  palette: string[] = [];
 
   rainbow;
 
@@ -191,6 +191,13 @@ export default class ForestGenerator {
   makePaletteFromScene(pal) {
     // these are the pixels we're going to work with
     const firstsnap = this.renderer.render(this.scene, this.camera);
+    const picoPalette = this.c.pico8HexColors();
+
+    if (this.forestOptions.PICO8) {
+      //for(let i=picoPalette.length; i<256; i++) {
+      //  pal.push(this.c.parseHex(this.c.variationsOn(picoPalette[i%16], 15)));
+      //}
+    }
 
     const eightbitbuffer = this.convertRGBAto8bit(firstsnap.data, pal);
 
@@ -613,10 +620,16 @@ export default class ForestGenerator {
     const leafWidth = this.r.random(0.7, 1);
 
     const backBushCols: any[] = [];
-    for (let i = 0; i < bushColors.length; i++) {
+    if (this.rainbow) {
       backBushCols.push(
-        this.c.brightenByAmt(bushColors[i], this.r.random(-10, 10))
+        this.c.brightenByAmt(bushColors[0], this.r.random(-100, -40))
       );
+    } else {
+      for (let i = 0; i < bushColors.length; i++) {
+        backBushCols.push(
+          this.c.brightenByAmt(bushColors[i], this.r.random(-10, 10))
+        );
+      }
     }
 
     console.log("{}{} " + numBushes);
@@ -636,11 +649,6 @@ export default class ForestGenerator {
       newBush.position.y = 1;
 
       this.forest.add(newBush);
-    }
-    // Add a big ridge at the back of the scene
-    if (this.decid.options.RAINBOW) {
-      // unless it's a rainbow render, then, don't bother, too much background detail, ow my eyes.
-      //return;
     }
 
     const numBackBushes = Math.max(60, this.NUM_TREES * 0.6);
@@ -1147,20 +1155,25 @@ export default class ForestGenerator {
    */
   buildHills() {
     const numHills = this.NUM_TREES;
-    const baseScale = this.r.random(1, 2);
+    const baseScale = this.r.random(2, 4);
     for (let i = 0; i < numHills; i++) {
+      const rearHill = i > numHills * 0.9;
       const hillRadius = this.r.randomInt(10, 120);
       const hillColor = this.r.randomFrom(this.GROUND_COLS);
       const hill = this.buildHill(hillRadius, hillColor);
-      hill.scale.y = this.r.random(0.05, 0.15) * baseScale;
 
       let xSpread = 50 + i * 10;
       xSpread = i * 10 + hillRadius;
 
       const zSpread = 600 / numHills;
+
+      hill.scale.y = this.r.random(0.005, 0.2) * baseScale;
+
       hill.position.z = i * zSpread;
       hill.position.x = this.r.random(-xSpread / 2 - 5, xSpread / 2 + 5);
-      hill.position.y = i * 0.22 - hillRadius * hill.scale.y;
+      hill.position.y =
+        i * 0.3 - hillRadius * hill.scale.y + (rearHill ? 3 : 0);
+
       this.forest.add(hill);
     }
   }
@@ -1230,7 +1243,7 @@ export default class ForestGenerator {
     }
 
     this.scene.add(this.forest);
-    this.forest.position.z = this.r.random(-20, 80);
+    this.forest.position.z = this.r.random(-20, 0);
     //this.forest.position.z = -this.r.random(40,80);
   }
 
