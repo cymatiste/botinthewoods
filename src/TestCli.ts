@@ -16,7 +16,7 @@ const forestOptions = {
   PICO8: false,
   NUM_TREES: randoms.randomInt(30, 50),
   TREE_TYPE: "deciduous",
-  GRASS_DENSITY: randoms.randomInt(30, 90),
+  GRASS_DENSITY: 0, //randoms.randomInt(30, 90),
   //NIGHT_MODE: true,
   EFFECT: false
 };
@@ -39,8 +39,8 @@ const treeOptions = {
   //LEAF_SIZE: 2,//_pickLeafSize(),
   LEAF_DENSITY: 30, //randoms.randomInt(10, 20),
   LEAF_W: randoms.random(1, 3),
-  MAX_DEPTH: 15,
-  MAX_BRANCHES_TOTAL: 999,
+  MAX_DEPTH: 13,
+  MAX_BRANCHES_TOTAL: 699,
   MAX_BRANCHES_PER_NODE: 2
 };
 
