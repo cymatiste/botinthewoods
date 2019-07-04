@@ -611,11 +611,11 @@ export default class ForestGenerator {
   buildBushes() {
     const bushHeight = this.r.random(0.4, 1);
     const bushWidth = this.r.randomInt(4, 12);
-    const numBushes = this.r.randomInt(0, this.NUM_TREES);
+    const numBushes = Math.min(30, this.r.randomInt(30, this.NUM_TREES));
     const bushColors = this.bushColors();
     const leafSize = this.r.random(
       this.decid.options.LEAF_SIZE,
-      this.decid.options.LEAF_SIZE
+      this.decid.options.LEAF_SIZE * 2
     );
     const leafWidth = this.r.random(0.7, 1);
 
@@ -858,7 +858,7 @@ export default class ForestGenerator {
     const groundLeafSize = this.pickLeafSize();
     const farEdge = this.r.random(600, 900);
     const zInterval = farEdge / this.NUM_TREES;
-    const xInterval = this.r.random(150, 250) / this.NUM_TREES;
+    const xInterval = this.r.random(200, 350) / this.NUM_TREES;
 
     //Ground
     const planeGeom = new THREE.SphereGeometry(500, 32, 32);
