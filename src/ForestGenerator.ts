@@ -148,12 +148,10 @@ export default class ForestGenerator {
     this.SKY_COL = this.NIGHT_MODE
       ? this.c.variationsOn("#4d6876", 120)
       : this.c.variationsOn("#bdeff1", 150);
+
     this.GROUND_COL = this.NIGHT_MODE
-      ? this.c.variationsOn("#40523c", 80)
-      : this.c.brightenByAmt(
-          this.c.variationsOn("#78836e", 150),
-          this.r.randomInt(-25, -75)
-        );
+      ? this.c.variationsOn("#40523C", 80)
+      : this.c.variationsOn("#20321C", 80);
 
     // There are leaves on the ground too.  They match the ground, which varies slightly.
     // And flowers!  Which could be any colour.
@@ -890,6 +888,22 @@ export default class ForestGenerator {
       let newTree, wrappedTree;
 
       if (i < this.NUM_TREES) {
+        // blend in the bottom of the tree with the ground a little
+        const groundProp = this.r.randomFrom([
+          0.1,
+          0.1,
+          0.11,
+          0.12,
+          0.13,
+          0.15,
+          0.18
+        ]);
+        treetype.options.COLOR_BTM = this.c.mixHexCols(
+          treetype.options.COLOR_BTM,
+          this.GROUND_COL,
+          1 - groundProp,
+          groundProp
+        );
         newTree = treetype.getTree(treetype.options);
         wrappedTree = new THREE.Object3D();
         wrappedTree.add(newTree);
@@ -1167,12 +1181,13 @@ export default class ForestGenerator {
 
       const zSpread = 600 / numHills;
 
-      hill.scale.y = this.r.random(0.005, 0.2) * baseScale;
+      hill.scale.y = this.r.random(0.005, 0.3) * baseScale;
 
       hill.position.z = i * zSpread;
       hill.position.x = this.r.random(-xSpread / 2 - 5, xSpread / 2 + 5);
+      //hill.position.y = i * 0.3 - hillRadius * hill.scale.y + (rearHill ? 3 : 0);
       hill.position.y =
-        i * 0.3 - hillRadius * hill.scale.y + (rearHill ? 3 : 0);
+        i * 0.2 - hillRadius * hill.scale.y + (rearHill ? 3 : 0);
 
       this.forest.add(hill);
     }
@@ -1243,7 +1258,7 @@ export default class ForestGenerator {
     }
 
     this.scene.add(this.forest);
-    this.forest.position.z = this.r.random(-20, 0);
+    this.forest.position.z = this.r.random(-40, -20);
     //this.forest.position.z = -this.r.random(40,80);
   }
 

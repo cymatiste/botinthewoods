@@ -248,6 +248,40 @@ export default class Colors {
    * @param  {int} brightening    -- number of steps (out of 255) to increase brightness
    * @return {string}             -- modified color in same format as original
    */
+  brightenByMult(col, brightening) {
+    let rgbCol;
+
+    if (this.isHex(col)) {
+      rgbCol = this.hexToRgb(col);
+    } else if (
+      col.r !== undefined &&
+      col.g !== undefined &&
+      col.b !== undefined
+    ) {
+      rgbCol = col;
+    } else {
+      console.warn("what kind of a color is " + col + " ?  Can't brighten.");
+      return;
+    }
+
+    rgbCol.r = Math.max(0, Math.min(255, Math.floor(rgbCol.r * brightening)));
+    rgbCol.g = Math.max(0, Math.min(255, Math.floor(rgbCol.g * brightening)));
+    rgbCol.b = Math.max(0, Math.min(255, Math.floor(rgbCol.b * brightening)));
+
+    if (this.isHex(col)) {
+      return this.rgbToHex(rgbCol);
+    } else {
+      console.log("brightenByAmt returning in rgb format");
+      return rgbCol;
+    }
+  }
+
+  /**
+   * Take either a hex or rgba color and brighten it by a specified amount.
+   * @param  {string} col         -- hex or rgba color to brighten
+   * @param  {int} brightening    -- number of steps (out of 255) to increase brightness
+   * @return {string}             -- modified color in same format as original
+   */
   brightenByAmt(col, brightening) {
     let rgbCol;
 

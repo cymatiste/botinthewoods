@@ -414,9 +414,9 @@ export default class DeciduousTrees {
     if (this.rainbow) {
       //this.options.COLOR_TOP = this.c.randomHex();
       this.options.COLOR_TOP = this.c.variationsOn(this.options.COLOR_TOP, 50);
-      this.options.COLOR_BTM = this.c.brightenByAmt(
+      this.options.COLOR_BTM = this.c.brightenByMult(
         this.options.COLOR_TOP,
-        -100
+        0.3
       );
 
       //const leafBaseColor = this.c.variationsOn(this.LEAF_BASE_COLOR, 50);
@@ -477,7 +477,7 @@ export default class DeciduousTrees {
 
   getTree(options) {
     this.numBranches = 0;
-    this.setParameters(options);
+    this.initOptions(options);
 
     let data = [];
     while (data.length == 0) {
@@ -495,7 +495,7 @@ export default class DeciduousTrees {
   }
 
   setParameters(options) {
-    this.options = options;
+    this.options = this.initOptions(options);
   }
 
   initOptions(opts) {
@@ -509,7 +509,7 @@ export default class DeciduousTrees {
     // Leaves on the trees could be any color of the rainbow!
     // We keep the number of leaf colors down so we don't run out of colors.
     this.LEAF_BASE_COLOR = nightMode
-      ? this.c.brightenByAmt(this.c.randomHex(), -60)
+      ? this.c.brightenByMult(this.c.randomHex(), 0.6)
       : this.c.variationsOn(this.c.randomHex(), 80);
 
     let leafColors: any[] = [];
@@ -530,7 +530,7 @@ export default class DeciduousTrees {
       ANGLE_MIN: this.r.random(15, 45),
       ANGLE_MAX: this.r.random(60, 120),
       COLOR_TOP: top_color,
-      COLOR_BTM: this.c.brightenByAmt(top_color, -110),
+      COLOR_BTM: this.c.brightenByMult(top_color, 0.3),
       LEAF_COLS: leafColors,
       LEAF_SIZE: this.pickLeafSize(),
       LEAF_DENSITY: this.r.randomInt(24),

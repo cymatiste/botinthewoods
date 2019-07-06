@@ -589,7 +589,12 @@ export default class ConiferousTrees {
 
     // The bottom of the tree is a random dark colour and the top is a variation on same
 
-    const bottom_color = this.c.randomHex();
+    const bottom_color = this.c.mixHexCols(
+      this.c.brightenByAmt(this.c.randomHex(), -80),
+      "#3e422e",
+      0.6,
+      0.4
+    );
 
     // Leaves on the trees could be any color of the rainbow!
     // We keep the number of leaf colors down so we don't run out of colors.
