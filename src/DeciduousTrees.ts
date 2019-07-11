@@ -84,10 +84,14 @@ export default class DeciduousTrees {
   randomTreeData(startingStructure?, startingDepth?) {
     const structure = startingStructure || [];
     const depth = startingDepth || 0;
+    const maxDepth = this.r.randomInt(
+      this.options.MAX_DEPTH * 0.7,
+      this.options.MAX_DEPTH
+    );
 
     //Math.round(this.options.MAX_DEPTH * this.r.random(0.3,0.6));
 
-    if (depth < this.options.MAX_DEPTH) {
+    if (depth < maxDepth) {
       const branchChance =
         depth == this.options.MAX_DEPTH - 1
           ? this.options.BRANCH_P
@@ -510,11 +514,14 @@ export default class DeciduousTrees {
     // We keep the number of leaf colors down so we don't run out of colors.
     this.LEAF_BASE_COLOR = nightMode
       ? this.c.brightenByMult(this.c.randomHex(), 0.6)
-      : this.c.variationsOn(this.c.randomHex(), 80);
+      : this.c.randomHex();
 
     let leafColors: any[] = [];
+    const colorVariability = this.r.randomInt(15, 45);
     for (let i = 0; i < 8; i++) {
-      leafColors.push(this.c.variationsOn(this.LEAF_BASE_COLOR, 30));
+      leafColors.push(
+        this.c.variationsOn(this.LEAF_BASE_COLOR, colorVariability)
+      );
     }
 
     const options = {
@@ -530,7 +537,13 @@ export default class DeciduousTrees {
       ANGLE_MIN: this.r.random(15, 45),
       ANGLE_MAX: this.r.random(60, 120),
       COLOR_TOP: top_color,
-      COLOR_BTM: this.c.brightenByMult(top_color, 0.3),
+      //COLOR_BTM: this.c.brightenByMult(top_color, 0.3),
+      COLOR_BTM: this.c.mixHexCols(
+        this.c.randomHex(),
+        this.c.brightenByMult(top_color, 0.4),
+        0.6,
+        0.4
+      ),
       LEAF_COLS: leafColors,
       LEAF_SIZE: this.pickLeafSize(),
       LEAF_DENSITY: this.r.randomInt(24),

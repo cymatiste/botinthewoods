@@ -35,8 +35,6 @@ export default class ForestGenerator {
 
   GROUNDLEAF_WIDTH = this.r.random(0.3, 0.8);
 
-  PATH_MODE = Math.random() < 0.25;
-
   NUM_FRAMES = 100;
 
   NUM_TREES;
@@ -54,6 +52,8 @@ export default class ForestGenerator {
 
   decid;
   conif;
+
+  PATH_MODE;
 
   //moon = new Moon();
 
@@ -94,10 +94,20 @@ export default class ForestGenerator {
   tipPositions = [];
 
   constructor(public forestOptions, public treeOptions) {
+    this.forestOptions = forestOptions;
+    this.treeOptions = treeOptions;
     this.NUM_TREES = this.forestOptions.NUM_TREES || this.r.randomInt(50, 200);
     this.NIGHT_MODE = this.forestOptions.NIGHT_MODE || Math.random() < 0.25;
     this.treeOptions.NIGHT_MODE = this.NIGHT_MODE;
     this.rainbow = this.forestOptions.RAINBOW;
+
+    if (this.forestOptions.PATH_MODE != undefined) {
+      this.PATH_MODE = this.forestOptions.PATH_MODE;
+      console.log("as provided, PATH_MODE = " + this.PATH_MODE);
+    } else {
+      this.PATH_MODE = Math.random() < 0.2;
+      console.log("NO data provided, PATH_MODE = " + this.PATH_MODE);
+    }
 
     this.decid = new DeciduousTrees(this.treeOptions);
     this.conif = new ConiferousTrees(this.treeOptions);
@@ -212,13 +222,13 @@ export default class ForestGenerator {
     const stepSize = 0.5;
     const currentPoint = new THREE.Vector3(0, 0, -30);
     const wending = this.r.random(1, 3);
-    const clusterSpread = this.r.random(1, 5);
+    const clusterSpread = this.r.random(1, 6);
 
     for (let i = 0; i < 400 / stepSize; i++) {
       const numStonesInCluster = this.r.random(10, 20);
-      const clusterRadius = this.r.random(1, 3);
-      const minSize = 0.07,
-        maxSize = 0.3;
+      const clusterRadius = this.r.random(1, 5);
+      const minSize = 0.1,
+        maxSize = 0.7;
 
       const cluster = new THREE.Object3D();
       for (let s = 0; s < numStonesInCluster; s++) {
@@ -890,13 +900,17 @@ export default class ForestGenerator {
       if (i < this.NUM_TREES) {
         // blend in the bottom of the tree with the ground a little
         const groundProp = this.r.randomFrom([
-          0.1,
+          0,
+          0,
+          0,
+          0,
+          0.05,
+          0.07,
+          0.08,
+          0.09,
           0.1,
           0.11,
-          0.12,
-          0.13,
-          0.15,
-          0.18
+          0.13
         ]);
         treetype.options.COLOR_BTM = this.c.mixHexCols(
           treetype.options.COLOR_BTM,
@@ -928,7 +942,8 @@ export default class ForestGenerator {
 
       if (i < this.NUM_TREES) {
         // scatter these throughout the field
-        wrappedTree.position.z = i * zInterval - this.r.random(0, zInterval);
+        wrappedTree.position.z =
+          i * zInterval - this.r.random(0, zInterval / 2);
 
         // Some clumps of vegetation around the base of the trees.
         this.makeLeavesAround(
@@ -959,8 +974,8 @@ export default class ForestGenerator {
         //add the last trees to the bush ridge at the back of the scene
         // don't bother with the ground leaves, we can't see well that far back.
         wrappedTree.position.z = this.r.random(
-          this.RIDGE_Z1 * 0.8,
-          this.RIDGE_Z2
+          farEdge * 0.7,
+          this.RIDGE_Z1 * 0.95
         );
 
         // let's test grouping these all closer.
@@ -1239,7 +1254,7 @@ export default class ForestGenerator {
 
     this.forest = new THREE.Object3D();
     this.forest.position.y = -20;
-    //this.forest.position.z = -this.r.random(20,40);
+    this.forest.position.z = -this.r.random(-20, -40);
 
     this.buildForest();
     this.buildHills();

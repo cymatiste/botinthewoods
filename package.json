@@ -23,6 +23,8 @@
     "start": "npm run render & npm run tweeter"
   },
   "dependencies": {
+    "28": "^3.4.0",
+    "100": "0.0.1",
     "@types/node": "^11.13.4",
     "fs": "0.0.1-security",
     "get-tweets": "^4.0.0",

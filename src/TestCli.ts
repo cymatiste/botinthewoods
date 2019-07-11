@@ -18,18 +18,19 @@ const forestOptions = {
   TREE_TYPE: "deciduous",
   GRASS_DENSITY: 0, //randoms.randomInt(30, 90),
   //NIGHT_MODE: true,
+  //PATH_MODE: true,
   EFFECT: false
 };
 
 const treeOptions = {
-  BRANCH_R_MAX: randoms.random(0.8, 3),
+  BRANCH_R_MAX: randoms.random(0.8, 4),
   BRANCH_R_MIN: 0.06,
-  BRANCH_L: randoms.random(8, 15),
-  BRANCH_P: 0.72, //randoms.random(0.64, 0.72),
-  CHANCE_DECAY: 0.005,
+  BRANCH_L: randoms.random(4, 7),
+  BRANCH_P: randoms.random(0.69, 0.77),
+  CHANCE_DECAY: randoms.random(0.001, 0.01),
   LENGTH_MULT: randoms.random(0.85, 0.95),
-  ANGLE_MIN: randoms.random(15, 35),
-  ANGLE_MAX: randoms.random(60, 80),
+  ANGLE_MIN: randoms.random(15, 45),
+  ANGLE_MAX: randoms.random(60, 88),
   RAINBOW: false,
   COLOR_INTENSE: true,
   //COLOR_TOP: colorHelper.randomHex(),
@@ -37,10 +38,10 @@ const treeOptions = {
   //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"],
   //LEAF_COLS: ["#2A141D","#1B0005","#2A2B05","#161102","#231313","#0F0F1B","#181D11","#4E430F"],
   //LEAF_SIZE: 2,//_pickLeafSize(),
-  LEAF_DENSITY: 30, //randoms.randomInt(10, 20),
+  LEAF_DENSITY: randoms.randomInt(10, 40),
   LEAF_W: randoms.random(1, 3),
-  MAX_DEPTH: 13,
-  MAX_BRANCHES_TOTAL: 699,
+  MAX_DEPTH: randoms.randomInt(9, 30),
+  MAX_BRANCHES_TOTAL: 999,
   MAX_BRANCHES_PER_NODE: 2
 };
 
