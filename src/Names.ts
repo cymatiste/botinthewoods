@@ -14,9 +14,10 @@ export default class Names {
     const word1 = this.json.corpus.shift();
     const word2 = this.json.corpus.shift();
     const word3 = this.json.corpus.shift();
+    const word4 = this.json.corpus.shift();
 
-    this.json.used.push(word1, word2, word3);
-    nameString = word1 + word2 + word3;
+    this.json.used.push(word4, word3, word2, word1);
+    nameString = word1 + word2 + word3 + word4;
 
     const toWrite = JSON.stringify(this.json);
 

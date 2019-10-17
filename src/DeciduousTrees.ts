@@ -427,7 +427,7 @@ export default class DeciduousTrees {
       const leafBaseColor = this.c.randomHex();
       this.options.LEAF_COLS = [];
       for (let i = 0; i < 3; i++) {
-        this.options.LEAF_COLS.push(this.c.variationsOn(leafBaseColor, 50));
+        this.options.LEAF_COLS.push(this.c.variationsOn(leafBaseColor, 20));
       }
     }
 
@@ -504,10 +504,13 @@ export default class DeciduousTrees {
 
   initOptions(opts) {
     const maxRad = this.pickRadius();
-    const nightMode = Math.random() > 0.7;
+    const nightMode = Math.random() > 0.6;
 
     // The bottom of the tree is a random dark colour and the top is a variation on same
-    const top_color = this.c.randomHex();
+    let top_color = this.c.randomHex();
+    if (nightMode) {
+      top_color = this.c.brightenByMult(top_color, 0.5);
+    }
     //const bottom_color = nightMode ? this.c.brightenByAmt(this.c.randomDark(), this.r.random(0,15)) : this.c.brightenByAmt(this.c.randomDark(), this.r.random(15,45));
 
     // Leaves on the trees could be any color of the rainbow!
@@ -517,12 +520,25 @@ export default class DeciduousTrees {
       : this.c.randomHex();
 
     let leafColors: any[] = [];
-    const colorVariability = this.r.randomInt(15, 45);
-    for (let i = 0; i < 8; i++) {
+    const colorVariability = opts.COLOR_INTENSE
+      ? this.r.randomInt(20, 40)
+      : this.r.randomInt(10, 25);
+    const numLeafColors = opts.COLOR_INTENSE ? 6 : 3;
+    for (let i = 0; i < numLeafColors; i++) {
       leafColors.push(
         this.c.variationsOn(this.LEAF_BASE_COLOR, colorVariability)
       );
     }
+
+    const btm_color =
+      Math.random() < 0.4
+        ? top_color
+        : this.c.mixHexCols(
+            this.c.randomHex(),
+            this.c.brightenByMult(top_color, 0.4),
+            0.6,
+            0.4
+          );
 
     const options = {
       RAINBOW: false,
@@ -538,12 +554,7 @@ export default class DeciduousTrees {
       ANGLE_MAX: this.r.random(60, 120),
       COLOR_TOP: top_color,
       //COLOR_BTM: this.c.brightenByMult(top_color, 0.3),
-      COLOR_BTM: this.c.mixHexCols(
-        this.c.randomHex(),
-        this.c.brightenByMult(top_color, 0.4),
-        0.6,
-        0.4
-      ),
+      COLOR_BTM: btm_color,
       LEAF_COLS: leafColors,
       LEAF_SIZE: this.pickLeafSize(),
       LEAF_DENSITY: this.r.randomInt(24),

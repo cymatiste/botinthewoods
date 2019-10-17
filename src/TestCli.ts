@@ -22,27 +22,29 @@ const forestOptions = {
   EFFECT: false
 };
 
+const leafDensity = Math.random() < 0.1 ? 0 : randoms.randomInt(1, 30);
+
 const treeOptions = {
-  BRANCH_R_MAX: randoms.random(0.8, 4),
+  BRANCH_R_MAX: randoms.random(1.2, 3),
   BRANCH_R_MIN: 0.06,
-  BRANCH_L: randoms.random(4, 7),
-  BRANCH_P: randoms.random(0.69, 0.77),
-  CHANCE_DECAY: randoms.random(0.001, 0.01),
-  LENGTH_MULT: randoms.random(0.85, 0.95),
-  ANGLE_MIN: randoms.random(15, 45),
-  ANGLE_MAX: randoms.random(60, 88),
+  BRANCH_L: randoms.random(9, 18),
+  BRANCH_P: randoms.random(0.69, 0.79),
+  CHANCE_DECAY: randoms.random(0.001, 0.015),
+  LENGTH_MULT: randoms.random(0.75, 0.95),
+  ANGLE_MIN: randoms.random(15, 49),
+  ANGLE_MAX: randoms.random(50, 110),
   RAINBOW: false,
-  COLOR_INTENSE: true,
+  COLOR_INTENSE: Math.random() < 0.3,
   //COLOR_TOP: colorHelper.randomHex(),
   //COLOR_BTM: colorHelper.brightenByAmt(colorHelper.randomHex(),-130),
   //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"],
   //LEAF_COLS: ["#2A141D","#1B0005","#2A2B05","#161102","#231313","#0F0F1B","#181D11","#4E430F"],
   //LEAF_SIZE: 2,//_pickLeafSize(),
-  LEAF_DENSITY: randoms.randomInt(10, 40),
-  LEAF_W: randoms.random(1, 3),
-  MAX_DEPTH: randoms.randomInt(9, 30),
+  LEAF_DENSITY: leafDensity, //randoms.randomInt(0, 30),
+  //LEAF_W: randoms.random(1, 3),
+  MAX_DEPTH: randoms.randomInt(8, 24),
   MAX_BRANCHES_TOTAL: 999,
-  MAX_BRANCHES_PER_NODE: 2
+  MAX_BRANCHES_PER_NODE: Math.random() < 0.2 ? 3 : 2
 };
 
 function newForest(numFrames) {

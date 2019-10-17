@@ -27,16 +27,22 @@ function keepGenerating() {
 function makeForest(filename) {
   console.log("generating " + filename);
 
-  const numTrees = r.randomInt(30, 70);
+  const rainbowTrees = Math.random() < 0.02;
+  const numTrees = rainbowTrees ? r.randomInt(20, 40) : r.randomInt(30, 70);
   const forestOptions = {
     RAINBOW: false,
     TREE_TYPE: "deciduous",
     //TREE_TYPE: r.randomFrom(["deciduous","deciduous","coniferous"]),
     NUM_TREES: numTrees,
     //NUM_TREES: 5,
-    GRASS_DENSITY: r.randomInt(30, 130)
+    GRASS_DENSITY: r.randomFrom([
+      0,
+      0,
+      r.randomInt(10, 30),
+      r.randomInt(30, 50),
+      r.randomInt(50, 130)
+    ])
     //numTrees > 45 ? 0 : r.randomFrom([0, 0, 0, 0, 0, 25, 50, 75, 100])
-    //GRASS_DENSITY: 0 //r.randomFrom([0,0,0,50])
   };
 
   const branchMaxRad = r.random(0.6, 1.8);
@@ -48,12 +54,12 @@ function makeForest(filename) {
     //BRANCH_L: r.random(5,10),
     //BRANCH_L: Math.max(maxRad*10,r.random(4, 10)),
     BRANCH_P: r.random(0.72, 0.77),
-    CHANCE_DECAY: r.random(0.01, 0.05),
+    CHANCE_DECAY: r.random(0.005, 0.02),
     //CHANCE_DECAY: pickDecay(),
-    LENGTH_MULT: r.random(0.8, 0.95),
-    ANGLE_MIN: r.random(15, 30),
-    ANGLE_MAX: r.random(60, 90),
-    RAINBOW: false,
+    LENGTH_MULT: r.random(0.88, 0.98),
+    ANGLE_MIN: r.random(15, 60),
+    ANGLE_MAX: r.random(90, 120),
+    RAINBOW: rainbowTrees,
     // COLOR_TOP: c.randomHex(),
     //COLOR_BTM: c.brightenByAmt(c.randomHex(),-100),
     //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"],
@@ -63,7 +69,7 @@ function makeForest(filename) {
     // LEAF_W: r.random(0.7,1),
     MAX_DEPTH: maxDepth,
     // MAX_BRANCHES_TOTAL: 999,
-    MAX_BRANCHES_PER_NODE: 3
+    MAX_BRANCHES_PER_NODE: Math.random() < 0.2 ? 3 : 2
   };
 
   const gen = new ForestGenerator(forestOptions, treeOptions);
