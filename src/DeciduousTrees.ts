@@ -364,6 +364,24 @@ export default class DeciduousTrees {
       maxBranchRad
     );
 
+    const bottomThreshold = this.r.randomInt(1, 4);
+    const numClusters = this.r.randomInt(1, 4);
+    //const bottomQuint = height == 0 || (depth < fullTreeDepth/5 && height < fullTreeDepth/5);
+
+    if (this.options.MUSHROOMS && height < bottomThreshold) {
+      console.log(
+        "ADDING MUSHROOMS AT HEIGHT " +
+          height +
+          " AND DEPTH " +
+          depth +
+          " /" +
+          fullTreeDepth
+      );
+      for (let i = 0; i < numClusters; i++) {
+        this.addMushroomsTo(root, maxBranchRad, branchLength);
+      }
+    }
+
     for (let i = 0; i < treeData.length; i++) {
       const newBranch = this.buildTree(
         treeData[i],
@@ -380,13 +398,6 @@ export default class DeciduousTrees {
 
       newBranch.rotation.z = root.rotation.z + zrot * fanMod;
 
-      if (height < fullTreeDepth / 5) {
-        // add mushrooms
-        //for (let m = 0; m < ){
-        //
-        //}
-      }
-
       // Position this subtree somewhere along the parent branch if such exists.
       //newBranch.position.y = (height == 0) ? 0 : -Math.random() * (branchLength / 3);
 
@@ -397,9 +408,46 @@ export default class DeciduousTrees {
   }
 
   mushroom(col, size, width) {
-    const mush = this.m.circleMesh(col, size);
-    mush.scale.y = width;
-    return mush;
+    const cap = this.m.sphereMesh(col, size, 8);
+    cap.scale.y = width;
+    return cap;
+  }
+
+  addMushroomsTo(branch, branchRad, branchLength) {
+    // add mushrooms
+    const numMushrooms = this.r.randomFrom([
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]);
+    const col = this.c.variationsOn(this.options.MUSHROOM_COL, 20);
+    let mushroomRoot = new THREE.Object3D();
+
+    for (let m = 0; m < numMushrooms; m++) {
+      const size = this.r.random(branchRad / 4, branchRad / 2);
+      const mushroom = this.mushroom(col, size, this.r.random(0.2, 0.6));
+      mushroom.position.y = this.r.random(0, branchLength / 2);
+      mushroom.position.x =
+        Math.random() < 0.5 ? -branchRad / 2 : branchRad / 2;
+      mushroom.position.z =
+        Math.random() < 0.5 ? -branchRad / 2 : branchRad / 2;
+      mushroomRoot.add(mushroom);
+    }
+    mushroomRoot.rotation.y = this.r.random(Math.PI * 2);
+    mushroomRoot.position.y = this.r.random(branchLength / 2);
+    branch.add(mushroomRoot);
   }
 
   /**
@@ -561,7 +609,9 @@ export default class DeciduousTrees {
       LEAF_W: this.r.random(0.7, 1),
       MAX_DEPTH: 12,
       MAX_BRANCHES_TOTAL: 999,
-      MAX_BRANCHES_PER_NODE: this.r.randomInt(3, 4)
+      MAX_BRANCHES_PER_NODE: this.r.randomInt(3, 4),
+      MUSHROOMS: Math.random() < 0.5,
+      MUSHROOM_COL: this.c.variationsOn("#777777", 100)
     };
 
     for (const opt in opts) {

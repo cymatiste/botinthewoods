@@ -24,8 +24,9 @@ export default class Meshes {
     return new THREE.Mesh(geometry, material);
   }
 
-  sphereMesh(col, radius) {
-    const sphGeom = new THREE.SphereGeometry(radius, 2, 2);
+  sphereMesh(col, radius, segments) {
+    const segs = segments || 2;
+    const sphGeom = new THREE.SphereGeometry(radius, segs, segs);
     let hex;
 
     for (let i = 0; i < sphGeom.faces.length; i += 2) {
