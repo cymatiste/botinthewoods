@@ -370,12 +370,7 @@ export default class DeciduousTrees {
 
     if (this.options.MUSHROOMS && height < bottomThreshold) {
       console.log(
-        "ADDING MUSHROOMS AT HEIGHT " +
-          height +
-          " AND DEPTH " +
-          depth +
-          " /" +
-          fullTreeDepth
+        "ADDING MUSHROOMS AT HEIGHT " + height + " /" + fullTreeDepth
       );
       for (let i = 0; i < numClusters; i++) {
         this.addMushroomsTo(root, maxBranchRad, branchLength);

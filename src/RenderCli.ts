@@ -69,7 +69,8 @@ function makeForest(filename) {
     // LEAF_W: r.random(0.7,1),
     MAX_DEPTH: maxDepth,
     // MAX_BRANCHES_TOTAL: 999,
-    MAX_BRANCHES_PER_NODE: Math.random() < 0.2 ? 3 : 2
+    MAX_BRANCHES_PER_NODE: Math.random() < 0.2 ? 3 : 2,
+    MUSHROOMS: true
   };
 
   const gen = new ForestGenerator(forestOptions, treeOptions);
