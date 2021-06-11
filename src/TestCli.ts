@@ -5,47 +5,56 @@ import { execFile } from "child_process";
 import gifsicle from "gifsicle";
 
 import Colors from "./Colors";
-import Randoms from "./Randoms";
+import randoms from "./Randoms";
 import ForestGenerator from "./ForestGenerator";
 
 let numFrames = 100;
-const randoms = new Randoms();
+const r = new randoms();
 const colorHelper = new Colors();
 const forestOptions = {
   RAINBOW: false,
   PICO8: false,
-  NUM_TREES: randoms.randomInt(30, 50),
+  NUM_TREES: r.randomInt(25, 45),
   TREE_TYPE: "deciduous",
-  GRASS_DENSITY: 0, //randoms.randomInt(30, 90),
   //NIGHT_MODE: true,
   //PATH_MODE: true,
-  EFFECT: false
+  EFFECT: false,
+  MIRROR: Math.random() < 0.02,
+  GRASS_DENSITY: r.randomFrom([0, 0, 0, 20, 50, 100, 200])
 };
 
-const leafDensity = Math.random() < 0.1 ? 0 : randoms.randomInt(1, 30);
+const leafDensity = Math.random() < 0.1 ? 0 : r.randomInt(1, 30);
 
+const branchMaxRad = r.random(0.6, 5);
+const maxDepth = r.randomInt(4, 24);
 const treeOptions = {
-  //BRANCH_R_MAX: randoms.random(1.2, 3),
+  BRANCH_R_MAX: branchMaxRad,
   //BRANCH_R_MIN: 0.06,
-  //BRANCH_L: randoms.random(9, 18),
-  //BRANCH_P: randoms.random(0.69, 0.79),
-  //CHANCE_DECAY: randoms.random(0.001, 0.015),
-  //LENGTH_MULT: randoms.random(0.75, 0.95),
-  //ANGLE_MIN: randoms.random(15, 49),
-  //ANGLE_MAX: randoms.random(50, 110),
-  //RAINBOW: false,
-  //COLOR_INTENSE: Math.random() < 0.3,
-  //COLOR_TOP: colorHelper.randomHex(),
-  //COLOR_BTM: colorHelper.brightenByAmt(colorHelper.randomHex(),-130),
+  BRANCH_R_MIN: 0.1,
+  BRANCH_L: r.random(8, 24),
+  //BRANCH_L: Math.max(maxRad*10,r.random(4, 10)),
+  BRANCH_P: r.random(0.65, 0.95),
+  //CHANCE_DECAY: r.random(0.003, 0.025),
+  CHANCE_DECAY: r.random(0.001, 0.02),
+  LENGTH_MULT: r.random(0.88, 0.98),
+  ANGLE_MIN: r.random(15, 50),
+  ANGLE_MAX: r.random(70, 120),
+  RAINBOW: false, //Math.random() > 0.9,
+
+  //COLOR_TOP: "#AA88FF",
+  //COLOR_BTM: "#221122",
+
+  // COLOR_TOP: c.randomHex(),
+  //COLOR_BTM: c.brightenByAmt(c.randomHex(),-100),
   //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"],
   //LEAF_COLS: ["#2A141D","#1B0005","#2A2B05","#161102","#231313","#0F0F1B","#181D11","#4E430F"],
-  //LEAF_SIZE: 2,//_pickLeafSize(),
-  //LEAF_DENSITY: leafDensity, //randoms.randomInt(0, 30),
-  //LEAF_W: randoms.random(1, 3),
-  MAX_DEPTH: randoms.randomInt(8, 24),
-  //MAX_BRANCHES_TOTAL: 999,
-  //MAX_BRANCHES_PER_NODE: Math.random() < 0.2 ? 3 : 2,
-  MUSHROOMS: true
+  //LEAF_SIZE: branchMaxRad*0.6,
+  //LEAF_DENSITY: r.randomInt(15,35),
+  // LEAF_W: r.random(0.7,1),
+  MAX_DEPTH: maxDepth,
+  // MAX_BRANCHES_TOTAL: 999,
+  MAX_BRANCHES_PER_NODE: Math.random() < 0.1 ? 3 : 2,
+  MUSHROOMS: Math.random() < 0.4
 };
 
 function newForest(numFrames) {

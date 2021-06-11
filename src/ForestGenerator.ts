@@ -39,6 +39,7 @@ export default class ForestGenerator {
 
   NUM_TREES;
   trees: any[] = [];
+  rocks: any[] = [];
 
   SKY_COL;
   GROUND_COL;
@@ -97,7 +98,7 @@ export default class ForestGenerator {
     this.forestOptions = forestOptions;
     this.treeOptions = treeOptions;
     this.NUM_TREES = this.forestOptions.NUM_TREES || this.r.randomInt(50, 200);
-    this.NIGHT_MODE = this.forestOptions.NIGHT_MODE || Math.random() < 0.25;
+    this.NIGHT_MODE = this.forestOptions.NIGHT_MODE || Math.random() < 0.5;
     this.treeOptions.NIGHT_MODE = this.NIGHT_MODE;
     this.rainbow = this.forestOptions.RAINBOW;
 
@@ -153,14 +154,19 @@ export default class ForestGenerator {
    */
   initColors() {
     // The sky and ground are a pastel blue and a muddy green, randomly permuted
-    //SKY_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#222222", 20) : _c.variationsOn("#4d6876", 120)) : (_decid.options.RAINBOW? _c.variationsOn("#F0F0F0", 50) : _c.variationsOn("#bdeff1", 150));
-    //GROUND_COL = NIGHT_MODE ? (_decid.options.RAINBOW? _c.variationsOn("#111111", 30) : _c.variationsOn("#40523c", 80)) : _c.brightenByAmt(_c.variationsOn("#78836e", 150),_r.randomInt(-25,-75));
+
     this.SKY_COL = this.NIGHT_MODE
-      ? this.c.variationsOn("#4d6876", 120)
+      ? this.c.variationsOn(
+          this.treeOptions.RAINBOW ? "#222222" : "#4d6876",
+          this.treeOptions.RAINBOW ? 50 : 120
+        )
       : this.c.variationsOn("#bdeff1", 150);
 
     this.GROUND_COL = this.NIGHT_MODE
-      ? this.c.variationsOn("#40523C", 80)
+      ? this.c.variationsOn(
+          this.treeOptions.RAINBOW ? "#111111" : "#40523C",
+          this.treeOptions.RAINBOW ? 40 : 80
+        )
       : this.c.variationsOn("#20321C", 80);
 
     // There are leaves on the ground too.  They match the ground, which varies slightly.
@@ -364,7 +370,9 @@ export default class ForestGenerator {
 
     // We're going to add some stripes for a very primitive gradient where the sky meets the ground.
     let skyColInt = this.c.parseHex(this.SKY_COL);
-    let grndColInt = this.c.parseHex(this.GROUND_COL);
+    let grndColInt = this.forestOptions.MIRROR
+      ? skyColInt
+      : this.c.parseHex(this.GROUND_COL);
     let blend0 = this.c.parseHex(
       this.c.mixHexCols(this.SKY_COL, this.GROUND_COL, 0.9, 0.1)
     );
@@ -374,9 +382,11 @@ export default class ForestGenerator {
     let blend2 = this.c.parseHex(
       this.c.mixHexCols(this.SKY_COL, this.GROUND_COL, 0.5, 0.5)
     );
-    let blend3 = this.c.parseHex(
-      this.c.mixHexCols(this.SKY_COL, this.GROUND_COL, 0.3, 0.7)
-    );
+    let blend3 = this.forestOptions.MIRROR
+      ? blend1
+      : this.c.parseHex(
+          this.c.mixHexCols(this.SKY_COL, this.GROUND_COL, 0.3, 0.7)
+        );
 
     for (let i = 0; i < rgbaBuffer.length; i += 4) {
       let color =
@@ -384,6 +394,7 @@ export default class ForestGenerator {
 
       // stripes
       // big fat ones: i%65000
+      /*
       if (this.rainbow && i % this.r.random(0, 9999) == 0) {
         skyColInt = this.c.parseHex(this.c.randomHex());
         grndColInt = this.c.parseHex(this.c.randomHex());
@@ -391,7 +402,7 @@ export default class ForestGenerator {
         blend1 = this.c.parseHex(this.c.randomHex());
         blend2 = this.c.parseHex(this.c.randomHex());
         blend3 = this.c.parseHex(this.c.randomHex());
-      }
+      }*/
 
       // buffer.length/skyline = the line on the image where the ground begins.
       const skyline = 1.75;
@@ -483,8 +494,9 @@ export default class ForestGenerator {
     return leaf;
   }
 
-  circleMesh(col, radius, opacity?) {
-    const geometry = new THREE.CircleGeometry(radius, 8);
+  circleMesh(col, radius, segments?, opacity?) {
+    let segs = segments == undefined ? 8 : segments;
+    const geometry = new THREE.CircleGeometry(radius, segs);
     const material = new THREE.MeshLambertMaterial({
       color: this.rainbow
         ? this.c.parseHex(this.c.randomHex())
@@ -498,10 +510,12 @@ export default class ForestGenerator {
   }
 
   hemisphereMesh(col, radius) {
+    const widthSegments = this.forestOptions.MIRROR ? 32 : 5;
+    const heightSegments = this.forestOptions.MIRROR ? 32 : 4;
     const sphGeom = new THREE.SphereGeometry(
       radius,
-      5,
-      4,
+      widthSegments,
+      heightSegments,
       0,
       Math.PI * 2,
       0,
@@ -534,7 +548,7 @@ export default class ForestGenerator {
    * @return {THREE.Mesh}     -- the "mountain"
    */
   buildHill(size, col) {
-    const hill = this.circleMesh(col, size);
+    const hill = this.circleMesh(col, size, 32);
     hill.rotation.x = -Math.PI;
 
     return hill;
@@ -598,25 +612,45 @@ export default class ForestGenerator {
     const baseGrey = this.c.greyHex(
       this.NIGHT_MODE ? this.r.randomInt(10, 50) : this.r.randomInt(30, 100)
     );
-    const rockCol = this.c.mixHexCols(this.GROUND_COL, baseGrey, 0.6, 0.4);
+
+    const rockCol = this.forestOptions.MIRROR
+      ? this.GROUND_COL
+      : this.c.mixHexCols(this.GROUND_COL, baseGrey, 0.6, 0.4);
 
     console.log("[) " + numRocks);
     for (let i = 0; i < numRocks; i++) {
       const rockRad = this.r.random(0.1, 3);
       const rock = this.hemisphereMesh(rockCol, rockRad);
+      rock.radius = rockRad;
+      this.rocks.push(rock);
 
       //rock.position.y = -rockRad*0.6;
-      rock.scale.y = this.r.random(0.1, 0.8);
-      rock.scale.x = this.r.random(0.5, 1);
+      rock.scale.y = this.r.random(0.02, 0.4);
+      rock.scale.x = this.forestOptions.MIRROR
+        ? this.r.random(1, 13)
+        : this.r.random(0.5, 1);
+      rock.scale.z = this.forestOptions.MIRROR
+        ? this.r.random(1, 13)
+        : this.r.random(0.5, 1);
       rock.position.z = this.r.random(-30, 200);
       rock.position.x = this.r.randomSign(this.r.random(3, 40 + i));
       rock.rotation.y = this.r.random(0, Math.PI * 2);
 
       this.forest.add(rock);
+
+      if (this.forestOptions.MIRROR) {
+        let mirrorRock = rock.clone(true);
+        mirrorRock.scale.y *= -1;
+        this.forest.add(mirrorRock);
+      }
     }
   }
 
   buildBushes() {
+    if (this.forestOptions.MIRROR && Math.random() > 0.8) {
+      return;
+    }
+
     const bushHeight = this.r.random(0.4, 1);
     const bushWidth = this.r.randomInt(4, 12);
     const numBushes = Math.min(30, this.r.randomInt(30, this.NUM_TREES));
@@ -642,23 +676,6 @@ export default class ForestGenerator {
 
     console.log("{}{} " + numBushes);
 
-    for (let i = 0; i < numBushes; i++) {
-      //console.log("bush "+i);
-      const newBush = this.bush(
-        this.r.random(bushHeight * 0.5, bushHeight * 1.2),
-        bushWidth,
-        bushColors,
-        leafSize
-        // leafWidth TODO this.bush only supports 4 parameters
-      );
-
-      newBush.position.z = this.r.random(-30, 200);
-      newBush.position.x = this.r.randomSign(this.r.random(4, 40 + i));
-      newBush.position.y = 1;
-
-      this.forest.add(newBush);
-    }
-
     const numBackBushes = Math.max(60, this.NUM_TREES * 0.6);
     for (let i = 0; i < this.NUM_TREES * 0.6; i++) {
       const newBush = this.bush(
@@ -674,6 +691,39 @@ export default class ForestGenerator {
       newBush.position.y = -10;
 
       this.forest.add(newBush);
+      if (this.forestOptions.MIRROR) {
+        let mirrorBush = newBush.clone(true);
+        mirrorBush.rotation.x += Math.PI;
+        mirrorBush.position.y = -newBush.position.y;
+        this.forest.add(mirrorBush);
+      }
+    }
+
+    if (this.forestOptions.MIRROR && Math.random() > 0.6) {
+      return;
+    }
+
+    for (let i = 0; i < numBushes; i++) {
+      //console.log("bush "+i);
+      const newBush = this.bush(
+        this.r.random(bushHeight * 0.5, bushHeight * 1.2),
+        bushWidth,
+        bushColors,
+        leafSize
+        // leafWidth TODO this.bush only supports 4 parameters
+      );
+
+      newBush.position.z = this.r.random(-30, 200);
+      newBush.position.x = this.r.randomSign(this.r.random(4, 40 + i));
+      newBush.position.y = 1;
+
+      this.forest.add(newBush);
+      if (this.forestOptions.MIRROR) {
+        let mirrorBush = newBush.clone(true);
+        mirrorBush.scale.y = -newBush.scale.y;
+        mirrorBush.position.y = -newBush.position.y;
+        this.forest.add(mirrorBush);
+      }
     }
   }
 
@@ -693,7 +743,7 @@ export default class ForestGenerator {
 
   flowers() {
     const flowerCols = this.flowerColors();
-    const numFlowers = this.r.randomInt(50, 350);
+    const numFlowers = this.r.randomInt(50, 750);
     const newPath = new THREE.Object3D();
     const petalNum = this.r.randomInt(3, 8);
     const basePetalSize = this.r.random(0.6, 1);
@@ -722,6 +772,12 @@ export default class ForestGenerator {
       //f.position.y = 5;
 
       newPath.add(f);
+      if (this.forestOptions.MIRROR) {
+        const mirrorFlower = f.clone(true);
+        mirrorFlower.rotation.x += Math.PI;
+        mirrorFlower.position.y = -f.position.y;
+        newPath.add(mirrorFlower);
+      }
     }
 
     console.log("@@@, " + numFlowers + " flowers, " + petalNum + " petals");
@@ -847,6 +903,12 @@ export default class ForestGenerator {
         cloud.position.x =
           clumpCenterX + this.r.random(-cloudMaxRad / 4, cloudMaxRad / 4);
         this.forest.add(cloud);
+        if (this.forestOptions.MIRROR) {
+          let mirrorCloud = cloud.clone(true);
+          mirrorCloud.rotation.x += Math.PI;
+          mirrorCloud.position.y = -cloud.position.y;
+          this.forest.add(mirrorCloud);
+        }
       }
     }
   }
@@ -866,18 +928,20 @@ export default class ForestGenerator {
     const groundLeafSize = this.pickLeafSize();
     const farEdge = this.r.random(600, 900);
     const zInterval = farEdge / this.NUM_TREES;
-    const xInterval = this.r.random(200, 350) / this.NUM_TREES;
+    const xInterval = this.r.random(300, 550) / this.NUM_TREES;
 
     //Ground
     const planeGeom = new THREE.SphereGeometry(500, 32, 32);
     const planeMat = new THREE.MeshBasicMaterial({
       color: this.c.parseHex(this.GROUND_COL)
     });
-    const planeSphere = new THREE.Mesh(planeGeom, planeMat);
-    planeSphere.position.y = -1;
-    planeSphere.position.z = 300;
-    planeSphere.scale.y = 0.0001;
-    this.forest.add(planeSphere);
+    if (!this.forestOptions.MIRROR) {
+      const planeSphere = new THREE.Mesh(planeGeom, planeMat);
+      planeSphere.position.y = -1;
+      planeSphere.position.z = 300;
+      planeSphere.scale.y = 0.0001;
+      this.forest.add(planeSphere);
+    }
 
     let xPositions: any[] = [];
     for (let i = 0; i < this.NUM_TREES * 2; i++) {
@@ -918,20 +982,24 @@ export default class ForestGenerator {
           1 - groundProp,
           groundProp
         );
+        if (treetype.options.MUSHROOMS) {
+          treetype.options.MUSHROOMS = Math.random() < 0.2;
+        }
         newTree = treetype.getTree(treetype.options);
         wrappedTree = new THREE.Object3D();
         wrappedTree.add(newTree);
-        wrappedTree.rotation.y = this.r.random(Math.PI * 2);
       } else {
         wrappedTree = this.trees[i - this.NUM_TREES].clone(true);
       }
+
+      wrappedTree.rotation.y = this.r.random(Math.PI * 2);
       this.trees.push(wrappedTree);
       // If a tree falls in the forest;
 
       const atreefalls = Math.random();
-      if (atreefalls < 0.01) {
+      if (atreefalls < 0.01 && !this.forestOptions.MIRROR) {
         wrappedTree.rotation.x = Math.PI / 2;
-      } else if (atreefalls < 0.1) {
+      } else if (atreefalls < 0.02 && !this.forestOptions.MIRROR) {
         wrappedTree.rotation.z = Math.PI / 2;
       }
       wrappedTree.rotation.y = Math.random() * Math.PI * 2;
@@ -945,6 +1013,7 @@ export default class ForestGenerator {
         wrappedTree.position.z =
           i * zInterval - this.r.random(0, zInterval / 2);
 
+        //if(!this.forestOptions.MIRROR){
         // Some clumps of vegetation around the base of the trees.
         this.makeLeavesAround(
           newTree,
@@ -970,6 +1039,7 @@ export default class ForestGenerator {
           ),
           this.GROUNDLEAF_WIDTH
         );
+        //}
       } else {
         //add the last trees to the bush ridge at the back of the scene
         // don't bother with the ground leaves, we can't see well that far back.
@@ -990,32 +1060,44 @@ export default class ForestGenerator {
       );
 
       this.forest.add(wrappedTree);
+
+      if (this.forestOptions.MIRROR) {
+        let mirrorTree = wrappedTree.clone(true);
+        mirrorTree.rotation.x -= Math.PI;
+
+        //console.log("mirrorTree: x "+mirrorTree.position.x+", y "+mirrorTree.position.y+", z "+mirrorTree.position.z+", rot.x "+mirrorTree.rotation.x+", y "+mirrorTree.rotation.y+", z "+mirrorTree.rotation.z);
+        //console.log("from wrapd: x "+wrappedTree.position.x+", y "+wrappedTree.position.y+", z "+wrappedTree.position.z+", rot.x "+wrappedTree.rotation.x+", y "+wrappedTree.rotation.y+", z "+wrappedTree.rotation.z);
+        this.forest.add(mirrorTree);
+        this.trees.push(mirrorTree);
+      }
     }
 
     // Ground cover
-    for (let i = 0; i < this.NUM_TREES * 12; i++) {
-      const clump = new THREE.Object3D();
-      clump.position.x = this.r.randomSign(this.r.random(3, 40));
-      clump.position.z = i + this.r.random(-150, 150);
-      this.makeLeavesAround(
-        clump,
-        this.r.randomInt(0, 15),
-        this.VEG_COLS,
-        groundLeafSize,
-        0,
-        0,
-        this.GROUNDLEAF_WIDTH
-      );
-      this.forest.add(clump);
+    if (!this.forestOptions.MIRROR) {
+      for (let i = 0; i < this.NUM_TREES * 12; i++) {
+        const clump = new THREE.Object3D();
+        clump.position.x = this.r.randomSign(this.r.random(3, 40));
+        clump.position.z = i + this.r.random(-150, 150);
+        this.makeLeavesAround(
+          clump,
+          this.r.randomInt(0, 15),
+          this.VEG_COLS,
+          groundLeafSize,
+          0,
+          0,
+          this.GROUNDLEAF_WIDTH
+        );
+        this.forest.add(clump);
+      }
     }
   }
 
-  grassBlade() {
-    let grassHeight = this.r.randomInt(5, 8);
-    let grassWidth = 0.25;
+  grassBlade(grassWidth) {
+    let grassHeight = this.r.randomInt(4, 9);
+
     let grassCol = this.rainbow
       ? this.c.randomHex()
-      : this.c.brightenByAmt(this.r.randomFrom(this.GROUND_COLS), -10);
+      : this.c.brightenByAmt(this.r.randomFrom(this.GROUND_COLS), 11);
     let bend = this.r.random(0, 0.1);
     //(baseLength, distanceFromTip, distanceFromRoot, fullTreeDepth, minRad, maxRad)
     const root = this.grassSegment(
@@ -1030,7 +1112,7 @@ export default class ForestGenerator {
     let workingRoot = root;
     for (let i = 0; i < grassHeight; i++) {
       let segment = this.grassSegment(
-        this.treeOptions.BRANCH_L / 8,
+        this.treeOptions.BRANCH_L / 4,
         grassHeight - i,
         i,
         grassHeight,
@@ -1142,35 +1224,94 @@ export default class ForestGenerator {
     return branch;
   }
 
+  exp01(x) {
+    return Math.exp((x - 1) * 5);
+  }
+
   growGrass() {
-    const patchSize = this.forestOptions.GRASS_DENSITY;
-    let clusterSize = this.r.random(0, 2);
-    let numInCluster = this.r.random(4, 10);
     if (this.forestOptions.GRASS_DENSITY == 0) {
       return;
     }
-    for (let i = 0; i < this.trees.length; i++) {
+
+    const patchSize = 40;
+    const numInPatch = this.forestOptions.GRASS_DENSITY;
+    const grassWidth = this.r.random(0.07, 0.2);
+
+    let sourceBlades: THREE.Object3D[] = [];
+    for (let i = 0; i < 30; i++) {
+      sourceBlades.push(this.grassBlade(grassWidth));
+    }
+
+    for (let i = 0; i < this.trees.length * 2; i++) {
       console.log("grass " + i);
 
-      for (let j = 0; j < patchSize; j += numInCluster) {
-        let clumpPos = {
-          x: this.trees[i].position.x + this.r.randomSign(this.r.random(0, 40)),
-          y: this.trees[i].position.y,
-          z: this.trees[i].position.z + this.r.randomSign(this.r.random(0, 40))
-        };
-        for (let k = 0; k < numInCluster; k++) {
-          let blade = this.grassBlade();
-          blade.position.x =
-            clumpPos.x + this.r.randomSign(this.r.random(0, clusterSize));
-          blade.position.y =
-            clumpPos.y + this.r.randomSign(this.r.random(0, clusterSize));
-          blade.position.z =
-            clumpPos.z + this.r.randomSign(this.r.random(0, clusterSize));
-          blade.scale.x = blade.scale.y = blade.scale.z = 0.3;
-          this.forest.add(blade);
+      let numInCluster = this.r.randomInt(4, 100);
+
+      const clusterSize = this.r.random(2, 10);
+
+      for (let j = 0; j < numInPatch; j += numInCluster) {
+        let clusterPos;
+
+        if (this.forestOptions.MIRROR) {
+          // put the grass only around the rocks so it's not popping up everywhere through the 'water'
+          let rock = this.r.randomFrom(this.rocks);
+          clusterPos = {
+            x:
+              rock.position.x +
+              this.r.randomSign(
+                rock + this.exp01(this.r.random(0, 1)) * rock.radius * 2
+              ),
+            y: rock.position.y + rock.radius * rock.scale.y,
+            z:
+              rock.position.z +
+              this.r.randomSign(
+                rock + this.exp01(this.r.random(0, 1)) * rock.radius * 2
+              )
+          };
+        } else {
+          clusterPos =
+            i > this.trees.length - 1
+              ? {
+                  x: this.r.randomSign(this.r.random(3, 40 + i)),
+                  y: 0,
+                  z: this.r.random(-30, 200)
+                }
+              : {
+                  x:
+                    this.trees[i].position.x +
+                    this.r.randomSign(
+                      this.treeOptions.BRANCH_R_MAX +
+                        this.exp01(this.r.random(0, 1)) * patchSize
+                    ),
+                  y: this.trees[i].position.y,
+                  z:
+                    this.trees[i].position.z +
+                    this.r.randomSign(
+                      this.treeOptions.BRANCH_R_MAX +
+                        this.exp01(this.r.random(0, 1)) * patchSize
+                    )
+                };
         }
 
-        numInCluster = this.r.randomInt(4, 10);
+        for (let k = 0; k < numInCluster; k++) {
+          let blade = this.r.randomFrom(sourceBlades).clone();
+          blade.position.x =
+            clusterPos.x +
+            this.r.randomSign(this.exp01(this.r.random(0, 1)) * clusterSize);
+          blade.position.y = clusterPos.y;
+          blade.position.z =
+            clusterPos.z +
+            this.r.randomSign(this.exp01(this.r.random(0, 1)) * clusterSize);
+          blade.scale.x = blade.scale.z = 1;
+          blade.scale.y = 0.2 + this.r.random(0, 0.3);
+          this.forest.add(blade);
+
+          if (this.forestOptions.MIRROR) {
+            let mirrorBlade = blade.clone(true);
+            mirrorBlade.rotation.x += Math.PI;
+            this.forest.add(mirrorBlade);
+          }
+        }
       }
     }
   }
@@ -1228,10 +1369,13 @@ export default class ForestGenerator {
       const star = this.buildStar();
       dome.add(star);
       star.position.x = this.r.random(-700, 700);
-      star.position.y = this.r.random(-700, 700);
+      star.position.y = this.r.random(
+        -700,
+        this.forestOptions.MIRROR ? 1400 : 700
+      );
     }
     dome.position.z = 1200;
-    dome.position.y = 610;
+    dome.position.y = this.forestOptions.MIRROR ? 100 : 610;
     this.forest.add(dome);
   }
 
@@ -1257,15 +1401,20 @@ export default class ForestGenerator {
     this.forest.position.z = -this.r.random(-20, -40);
 
     this.buildForest();
-    this.buildHills();
     this.buildClouds();
+
     this.buildBushes();
     this.buildRocks();
     this.growGrass();
-    this.forest.add(this.flowers());
-    if (this.PATH_MODE) {
-      this.forest.add(this.dirtPath());
+
+    if (!this.forestOptions.MIRROR) {
+      this.buildHills();
+      if (this.PATH_MODE) {
+        this.forest.add(this.dirtPath());
+      }
     }
+
+    this.forest.add(this.flowers());
 
     if (this.NIGHT_MODE) {
       this.buildStars();
