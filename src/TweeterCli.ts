@@ -2,22 +2,21 @@ import { existsSync, readFileSync, writeFile } from "fs";
 import { join, resolve } from "path";
 import * as Twit from "twit";
 
-const configPath = "../config.js";
+const configPath = "../config";
 
 async function getConfig() {
   if (existsSync(configPath)) {
     return await import(configPath);
   } else {
     console.error(
-      `Requires a config file at ${resolve(__dirname, configPath + ".json")}`
+      `Requires a config file at ${resolve(__dirname, configPath + ".js")}`
     );
 
     process.exit();
   }
 }
 
-//const T = new Twit(getConfig());
-const T = new Twit(JSON.parse(readFileSync("config.json", "utf8")));
+const T = new Twit(getConfig());
 const threading = false;
 
 let firstRun = true;
@@ -29,7 +28,7 @@ let tweetables, tweeteds, status;
  */
 function tweetAForest() {
   tweetables = JSON.parse(readFileSync("data/tweetables.json", "utf8"));
-  tweeteds = JSON.parse(readFileSync("data/tweeteds.json", "utf8"));
+  tweeteds = JSON.parse(readFileSync("tweeteds.json", "utf8"));
 
   if (tweetables.gifNames.length == 0) {
     console.log("...no GIFs yet, try again...");
@@ -38,7 +37,7 @@ function tweetAForest() {
 
   const gifName = tweetables.gifNames.shift();
   tweeteds.tweeted.push(gifName);
-  const filePath = join(__dirname, "../images/", gifName + ".gif");
+  const filePath = join(__dirname, "/images/", gifName + ".gif");
 
   if (tweetables.quotes.length > 0) {
     status = tweetables.quotes.shift();
@@ -153,4 +152,4 @@ process.argv.forEach((val, index) => {
   }
 });
 
-tweetEveryThisManyMinutes(200);
+tweetEveryThisManyMinutes(220);

@@ -23,7 +23,7 @@ const forestOptions = {
   GRASS_DENSITY: r.randomFrom([0, 0, 0, 20, 50, 100, 200])
 };
 
-//const leafDensity = Math.random() < 0.1 ? 0 : r.randomInt(1, 30);
+const leafDensity = Math.random() < 0.1 ? 0 : r.randomInt(1, 30);
 
 const branchMaxRad = r.random(0.6, 5);
 const maxDepth = r.randomInt(4, 24);
@@ -49,7 +49,7 @@ const treeOptions = {
   //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"],
   //LEAF_COLS: ["#2A141D","#1B0005","#2A2B05","#161102","#231313","#0F0F1B","#181D11","#4E430F"],
   //LEAF_SIZE: branchMaxRad*0.6,
-  LEAF_DENSITY: r.randomInt(15, 35),
+  //LEAF_DENSITY: r.randomInt(15,35),
   // LEAF_W: r.random(0.7,1),
   MAX_DEPTH: maxDepth,
   // MAX_BRANCHES_TOTAL: 999,
@@ -61,7 +61,7 @@ function newForest(numFrames) {
   let gen = new ForestGenerator(forestOptions, treeOptions);
 
   // Make the GIF
-  const filename = "test/test" + Math.floor(Math.random() * 999999);
+  const filename = "test" + Math.floor(Math.random() * 999999);
   console.log("plz generate " + filename);
   gen = new ForestGenerator(forestOptions, treeOptions);
   return gen.generateSceneGIF(numFrames, filename);

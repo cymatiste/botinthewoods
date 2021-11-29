@@ -49,7 +49,7 @@ function makeForest(filename) {
     //numTrees > 45 ? 0 : r.randomFrom([0, 0, 0, 0, 0, 25, 50, 75, 100])
   };
 
-  const branchMaxRad = r.random(0.6, 2.4);
+  const branchMaxRad = r.random(0.6, 4);
   const maxDepth = r.randomInt(4, 20);
   const treeOptions = {
     BRANCH_R_MAX: branchMaxRad,
@@ -68,7 +68,7 @@ function makeForest(filename) {
     //COLOR_BTM: c.brightenByAmt(c.randomHex(),-100),
     //LEAF_COLS: ["#FFCC00","#EEEE44","#FF0055","#EE9922","#EE0505","#DD4400","#FF9977","#BEB344"],
     //LEAF_COLS: ["#2A141D","#1B0005","#2A2B05","#161102","#231313","#0F0F1B","#181D11","#4E430F"],
-    //LEAF_SIZE: branchMaxRad*0.75,
+    LEAF_SIZE: r.random(0.5, 6),
     //LEAF_DENSITY: r.randomInt(15,35),
     // LEAF_W: r.random(0.7,1),
     //MAX_DEPTH: maxDepth,

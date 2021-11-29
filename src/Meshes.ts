@@ -29,10 +29,17 @@ export default class Meshes {
     const sphGeom = new THREE.SphereGeometry(radius, segs, segs);
     let hex;
 
+    for (let i = 0; i < sphGeom.faces.length; i += 2) {
+      //hex = this.rainbow ? this.c.parseHex(this.c.randomHex()) : this.c.parseHex(col);
+      hex = this.c.parseHex(col);
+      sphGeom.faces[i].color.setHex(hex);
+      sphGeom.faces[i + 1].color.setHex(hex);
+    }
+
     const material = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.FaceColors
+      vertexColors: THREE.FaceColors,
+      overdraw: 0.5
     });
-    material.setHex(this.c.parseHex(col));
 
     return new THREE.Mesh(sphGeom, material);
   }
@@ -51,10 +58,18 @@ export default class Meshes {
 
     geom.faces.push(new THREE.Face3(0, 1, 2));
 
+    let hex;
+
+    for (let i = 0; i < geom.faces.length; i++) {
+      //hex = this.rainbow ? this.c.parseHex(this.c.randomHex()) : this.c.parseHex(col);
+      hex = this.c.parseHex(col);
+      geom.faces[i].color.setHex(hex);
+    }
+
     const material = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.FaceColors
+      vertexColors: THREE.FaceColors,
+      overdraw: 0.5
     });
-    material.setHex(this.c.parseHex(col));
 
     return new THREE.Mesh(geom, material);
   }

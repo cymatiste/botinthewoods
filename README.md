@@ -8,11 +8,11 @@ Generate and tweet an animated GIF of a little forest walk-through!
 
 God bless all the people who made npm and the node modules I used to throw this together.
 
-Special shout-out to Justin Kroogs https://github.com/kroogs who converted this project to TypeScript!  (we're still working on it)
+Special shout-out to Ty Dira https://github.com/tydira who converted this project to TypeScript!  (we're still working on it)
 
 I haven't put any time yet into making it friendly for others to use.  With any luck this will get refactored as I continue to play with it to make it more flexible for adaptation to other purposes.
 
-Feedback and suggestions are more than welcome; tweet or dm them to https://twitter.com/asthesparksfly.
+Feedback and suggestions are more than welcome; tweet or dm them to https://twitter.com/cymatiste.
 
 ## To replicate:
 - install node
@@ -50,12 +50,6 @@ All the actual work is done in src/ForestGenerator.js, with some help with the h
 If you get "Javascript heap out of memory" errors, these instructions might help:
 https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c
  ... Do you know a better way to manage memory in node?  I'm a total node newbie; let's talk.
-
-## Miscellany
-
-You'll find a bunch of unused stuff in here too: 
-- an older web version of the basic tree generator.  It was designed to visualize data, not nature, which is why my trees look pretty crude in structure. 
-- bot.js, a currently obsolete file that previously handled the generating and tweeting all-in-one (and failed to tweet on anything resembling a stable schedule because it got hung up for long periods when it generated a complex scene).  It also has skeletal functions to handle responding to tweets, that I'm not using yet.
 
 
 ## MIT License:

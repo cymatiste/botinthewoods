@@ -13,7 +13,7 @@
     "url": "https://github.com/simrisek/botinthewoods/issues"
   },
   "scripts": {
-    "render": "node --max-old-space-size=8179 bin/render.js ",
+    "render": "node --max-old-space-size=16000 bin/render.js ",
     "tweeter": "node bin/tweeter.js",
     "test": "node --max-old-space-size=11111 bin/test.js",
     "clean": "rimraf lib",
