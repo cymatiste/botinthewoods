@@ -205,7 +205,11 @@ export default class ForestGenerator {
   makePaletteFromScene(pal) {
     // these are the pixels we're going to work with
     const firstsnap = this.renderer.render(this.scene, this.camera);
+
+    console.log("did firstsnap render");
     const picoPalette = this.c.pico8HexColors();
+
+    console.log("made picopalette");
 
     if (this.forestOptions.PICO8) {
       //for(let i=picoPalette.length; i<256; i++) {
@@ -215,10 +219,14 @@ export default class ForestGenerator {
 
     const eightbitbuffer = this.convertRGBAto8bit(firstsnap.data, pal);
 
+    console.log("made 8bitbuffer");
+
     // If we didn't need all 256 colors, fine, just fill up the rest so the GIFmaker doesn't break.
     while (pal.length < 256) {
       pal.push(this.c.parseHex(this.c.variationsOn(this.GROUND_COL, 15)));
     }
+
+    console.log("populated palette");
 
     return pal;
   }
@@ -272,11 +280,16 @@ export default class ForestGenerator {
   makeGIF() {
     const gifData = [];
 
+    console.log("making a gif, yo");
     this.palette = this.makePaletteFromScene(this.palette);
 
+    console.log("made palette");
     const gifBuffer = new Buffer(
       this.sceneWidth * this.sceneHeight * this.NUM_FRAMES
     );
+
+    console.log("made buffer");
+
     const gif = new omggif.GifWriter(
       gifBuffer,
       this.sceneWidth,
@@ -286,6 +299,8 @@ export default class ForestGenerator {
         loop: 0
       }
     );
+
+    console.log("started gif");
 
     const y_axis = new THREE.Vector3(0, 1, 0);
 
@@ -311,6 +326,8 @@ export default class ForestGenerator {
             }
             */
     }
+
+    console.log("added gif frames");
 
     const id = this.r.randomInt(0, 9999999);
 
@@ -526,14 +543,10 @@ export default class ForestGenerator {
       ? this.c.parseHex(this.c.randomHex())
       : this.c.parseHex(col);
 
-    for (let i = 0; i < sphGeom.faces.length; i++) {
-      sphGeom.faces[i].color.setHex(hex);
-    }
-
     const material = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.FaceColors,
-      overdraw: 0.5
+      vertexColors: THREE.FaceColors
     });
+    material.color.setHex(hex);
 
     return new THREE.Mesh(sphGeom, material);
   }
@@ -1186,24 +1199,14 @@ export default class ForestGenerator {
 
     //const branchCol = this.rainbow ? this.c.randomHex() : this.c.mixHexCols(this.r.randomFrom(this.GROUND_COLS), this.r.randomFrom(this.GROUND_COLS), propBtm, propTop);
 
-    for (let i = 0; i < cylGeom.faces.length; i++) {
-      hex = this.rainbow
-        ? this.c.parseHex(this.c.randomHex())
-        : this.c.parseHex(branchCol);
-      cylGeom.faces[i].color.setHex(hex);
-    }
-
-    for (let i = 0; i < sphGeom.faces.length; i++) {
-      hex = this.rainbow
-        ? this.c.parseHex(this.c.randomHex())
-        : this.c.parseHex(branchCol);
-      sphGeom.faces[i].color.setHex(hex);
-    }
+    hex = this.rainbow
+      ? this.c.parseHex(this.c.randomHex())
+      : this.c.parseHex(branchCol);
 
     const material = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.FaceColors,
-      overdraw: 0.5
+      vertexColors: THREE.FaceColors
     });
+    material.color.setHex(hex);
 
     const cylinder = new THREE.Mesh(cylGeom, material);
     cylinder.position.y = length / 2;
@@ -1420,10 +1423,8 @@ export default class ForestGenerator {
       this.buildStars();
       //this.buildMoon();
     }
-
     this.scene.add(this.forest);
-    this.forest.position.z = this.r.random(-40, -20);
-    //this.forest.position.z = -this.r.random(40,80);
+    //this.forest.position.z = this.r.random(-40, -20);
   }
 
   /**

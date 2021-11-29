@@ -61,7 +61,7 @@ function newForest(numFrames) {
   let gen = new ForestGenerator(forestOptions, treeOptions);
 
   // Make the GIF
-  const filename = "test" + Math.floor(Math.random() * 999999);
+  const filename = "test/test" + Math.floor(Math.random() * 999999);
   console.log("plz generate " + filename);
   gen = new ForestGenerator(forestOptions, treeOptions);
   return gen.generateSceneGIF(numFrames, filename);

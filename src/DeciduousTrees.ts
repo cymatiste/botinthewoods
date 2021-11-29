@@ -230,22 +230,10 @@ export default class DeciduousTrees {
     //hex = this.rainbow ? this.c.parseHex(this.c.randomHex()) : this.c.parseHex(branchCol);
     hex = this.c.parseHex(branchCol);
 
-    for (let i = 0; i < cylGeom.faces.length; i += 2) {
-      //hex = this.rainbow ? this.c.parseHex(this.c.randomHex()) : this.c.parseHex(branchCol);
-      cylGeom.faces[i].color.setHex(hex);
-      cylGeom.faces[i + 1].color.setHex(hex);
-    }
-
-    for (let i = 0; i < sphGeom.faces.length; i += 2) {
-      hex = this.c.parseHex(branchCol);
-      sphGeom.faces[i].color.setHex(hex);
-      sphGeom.faces[i + 1].color.setHex(hex);
-    }
-
     const material = new THREE.MeshBasicMaterial({
-      vertexColors: THREE.FaceColors,
-      overdraw: 0.5
+      vertexColors: THREE.FaceColors
     });
+    material.color.setHex(hex);
 
     const cylinder = new THREE.Mesh(cylGeom, material);
     cylinder.position.y = referenceLength / 2;
@@ -496,14 +484,10 @@ export default class DeciduousTrees {
       );
 
       const cylGeom = new THREE.CylinderGeometry(rootRad, 0.01, rootLength, 8);
-      for (let f = 0; f < cylGeom.faces.length; f++) {
-        cylGeom.faces[f].color.setHex(rootColInt);
-      }
-
       const cylMat = new THREE.MeshBasicMaterial({
-        vertexColors: THREE.FaceColors,
-        overdraw: 0.5
+        vertexColors: THREE.FaceColors
       });
+      cylMat.color.setHex(rootColInt);
 
       const cone = new THREE.Mesh(cylGeom, cylMat);
       const newRoot = new THREE.Object3D();
